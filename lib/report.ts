@@ -290,7 +290,7 @@ export async function buildReport(wallet: string): Promise<WalletReport> {
   }
   if (itemised.some((p) => p.heldSince === null)) {
     notes.push(
-      "Some positions sit in accounts too busy to date cheaply, so their full payout history is shown rather than the slice since purchase."
+      "For some positions we could not work out when they were bought, so we show everything that token has ever paid. That can be more than this wallet actually received."
     );
   }
   notes.push(

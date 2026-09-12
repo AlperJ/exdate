@@ -5,6 +5,22 @@ import StepChart from "@/app/StepChart";
 
 export const revalidate = 300;
 
+// A lookup tool's shared link is the product. A tab strip of identical titles, and a
+// Telegram preview showing the tagline instead of the finding, throw that away.
+export async function generateMetadata({ params }: { params: Promise<{ symbol: string }> }) {
+  const { symbol } = await params;
+  const r = await buildAssetReport(decodeURIComponent(symbol)).catch(() => null);
+  if (!r) return { title: "Not found — ExDate" };
+  const paid =
+    r.totalGrowthPct > 0
+      ? `has paid holders ${pct(r.totalGrowthPct, 3)} with no transaction`
+      : "has never paid its holders";
+  return {
+    title: `${r.symbol} ${paid} — ExDate`,
+    description: `${r.name.replace(/ xStock$/, "")} on Solana: every dividend it has paid, when the next one lands, and how much US tax is withheld.`,
+  };
+}
+
 export default async function AssetPage({ params }: { params: Promise<{ symbol: string }> }) {
   const { symbol } = await params;
   const sym = decodeURIComponent(symbol);
@@ -27,7 +43,7 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
   if (!r) {
     return (
       <div className="notice">
-        <div className="notice__head">No xStock called {sym}</div>
+        <div className="notice__head">We have no tokenized stock with the ticker {sym}</div>
         <div className="notice__body">
           Look up a US ticker such as <a href="/asset/AAPL">AAPL</a> or{" "}
           <a href="/asset/PFE">PFE</a>, or browse the <a href="/assets">full asset index</a>.

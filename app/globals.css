@@ -1154,3 +1154,15 @@ p.prose:last-child {
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
+
+/* A short, copyable block for the one snippet an integrator needs. */
+.code {
+  margin: var(--s4) 0 0;
+  padding: var(--s4);
+  background: var(--sunken);
+  border: 1px solid var(--hairline);
+  overflow-x: auto;
+  font: 400 13px/1.7 var(--mono);
+  color: var(--text);
+  white-space: pre;
+}

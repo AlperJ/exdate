@@ -2,10 +2,25 @@ import { buildReport } from "@/lib/report";
 import { usd, time } from "@/lib/fmt";
 import Positions from "./Positions";
 
-export const revalidate = 120;
-
 /** What a Solana address can look like. Checking this costs nothing and saves a round trip. */
 const ADDRESS = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
+
+export const revalidate = 120;
+
+export async function generateMetadata({ params }: { params: Promise<{ address: string }> }) {
+  const { address } = await params;
+  const short = `${address.slice(0, 4)}…${address.slice(-4)}`;
+  if (!ADDRESS.test(address)) return { title: "Not a wallet address — ExDate" };
+  const r = await buildReport(address).catch(() => null);
+  if (!r) return { title: `Wallet ${short} — ExDate` };
+  const paid = r.totals.dividendUsd;
+  return {
+    title: paid > 0
+      ? `This wallet was paid ${usd(paid)} with no transaction — ExDate`
+      : `Wallet ${short} has been paid nothing so far — ExDate`,
+    description: `Every dividend ${short} received through a multiplier change, per position, with the balance it held on the day.`,
+  };
+}
 
 export default async function WalletPage({ params }: { params: Promise<{ address: string }> }) {
   const { address } = await params;

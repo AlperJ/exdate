@@ -69,6 +69,29 @@ export default function MethodPage() {
             at face value understates every balance by 0.06% here, and by ten times on a
             ten-for-one split.
           </p>
+
+          <p className="prose">
+            If you are here to fix this in an app, two things are worth saying outright.{" "}
+            <code className="lit">getTokenAccountBalance</code> does <b>not</b> apply the multiplier
+            for you, so a balance that looks right is a balance you still have to scale. And the
+            timestamp is Unix <b>seconds</b>, not milliseconds.
+          </p>
+          <pre className="code">
+{`// read the mint, not the token account, for the multiplier
+const s = mint.extensions.find(e => e.extension === "scaledUiAmountConfig").state;
+const m = Date.now() / 1000 >= s.newMultiplierEffectiveTimestamp
+  ? s.newMultiplier      // in force
+  : s.multiplier;        // still pending
+
+// decimals first, multiplier second
+const balance = (Number(rawAmount) / 10 ** decimals) * m;`}
+          </pre>
+          <p className="section__after muted">
+            A multiplier change is not income on its own. Check the issuer&apos;s{" "}
+            <code className="lit">reason</code> for the event before you credit anyone: only{" "}
+            <code className="lit">Dividend</code> pays. Counting the other four kinds would have put{" "}
+            $151m of fiction on this site.
+          </p>
         </div>
       </section>
 
@@ -163,7 +186,7 @@ export default function MethodPage() {
             <dd className="lit">/proof-of-reserves/&#123;symbol&#125;</dd>
             <dt>Trading status</dt>
             <dd className="lit">/system/status/&#123;symbol&#125;</dd>
-            <dt>On-chain truth</dt>
+            <dt>Where the raw fields live</dt>
             <dd className="lit">Solana RPC getAccountInfo, getTokenAccountsByOwner</dd>
             <dt>Price</dt>
             <dd className="lit">lite-api.jup.ag/price/v3</dd>

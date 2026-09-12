@@ -66,7 +66,7 @@ export default async function Home() {
           }))}
           format="usd"
           height={200}
-          caption="Cumulative dividends paid into Solana wallets, month by month. Each step is the day a multiplier changed."
+          caption="Every dividend ever paid into a Solana wallet, added up month by month."
         />
       </div>
 

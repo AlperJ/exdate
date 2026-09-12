@@ -29,7 +29,7 @@ export default function Positions({ positions }: { positions: PositionReport[] }
             <th>Value (USD)</th>
             <th>Payments</th>
             <th>Received (USD)</th>
-            <th>History</th>
+            <th>Payout history</th>
           </tr>
         </thead>
         <tbody>
@@ -55,9 +55,7 @@ export default function Positions({ positions }: { positions: PositionReport[] }
                       {isOpen ? "Hide" : "Show"}
                     </a>
                   ) : (
-                    <span className="muted link-toggle">
-                      none
-                    </span>
+                    <span className="muted link-toggle">never paid</span>
                   )}
                 </td>
               </tr>,

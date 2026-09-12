@@ -69,6 +69,10 @@ export default function Search({
           ))}
         </p>
         <p className="search__hint">
+          <b>Safe to paste.</b> This site only reads public information. It never asks you to
+          connect a wallet or sign anything, and it cannot move your tokens.
+        </p>
+        <p className="search__hint">
           Bought on an exchange? Your tokens sit in the exchange&apos;s own wallet, so a wallet
           lookup will not find them. Type the ticker instead to see what that stock paid per token.
         </p>
