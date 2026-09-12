@@ -11,3 +11,4 @@ next-env.d.ts
 .server.log
 _old_nm_*
 owners.txt
+.vercel-token
