@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import BarSearch from "./BarSearch";
+import Mark from "./Mark";
 import "./globals.css";
 
 const sans = IBM_Plex_Sans({
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <header className="bar">
           <div className="bar__in">
             <a className="wordmark" href="/">
+              <Mark />
               ExDate
             </a>
             <span className="bar__rule" aria-hidden="true" />

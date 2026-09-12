@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+  <!-- Redrawn on the 16px grid rather than scaled: at favicon size the 4-unit blocks
+       fall to 2px and go thin. Integer coordinates keep every edge on a pixel. -->
+  <rect width="16" height="16" fill="#26241f"/>
+  <g fill="#f5f4f1">
+    <rect x="1"  y="11" width="4" height="3"/>
+    <rect x="6"  y="6"  width="6" height="3"/>
+    <rect x="13" y="1"  width="2" height="3"/>
+  </g>
+</svg>

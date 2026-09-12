@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 172 26" width="172" height="26" role="img" aria-label="ExDate">
+  <g>
+    <rect x="4"  y="18" width="5.5"  height="4" />
+    <rect x="10" y="11" width="11.5" height="4" />
+    <rect x="22" y="4"  width="6"    height="4" />
+  </g>
+  <text x="40" y="19" font-family="IBM Plex Sans, Segoe UI, system-ui, sans-serif"
+        font-size="19" font-weight="600" letter-spacing="0">ExDate</text>
+</svg>

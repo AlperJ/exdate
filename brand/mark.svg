@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 26" width="32" height="26" role="img" aria-label="ExDate">
+  <!--
+    The mark is the product's own subject: a quantity that holds flat, steps up at an
+    exact moment, and holds flat again. Three blocks climbing left to right, the middle
+    one long because a payout is not evenly spaced, the risers unequal because they are
+    not scheduled to be.
+
+    Geometry traced from the generated concept and snapped to the 32x26 grid it was
+    drawn on. The 0.5 unit gaps between blocks are the same surface gap the charts use
+    to separate touching marks, so the logo and the data speak the same language.
+  -->
+  <rect x="4"  y="18" width="5.5"  height="4" />
+  <rect x="10" y="11" width="11.5" height="4" />
+  <rect x="22" y="4"  width="6"    height="4" />
+</svg>
