@@ -194,7 +194,9 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
         <section className="section">
           <div className="section__head">
             <h2 className="section__title">Multiplier history</h2>
-            <span className="section__meta">per 1,000 {r.symbol} held</span>
+            <span className="section__meta">
+              what 1,000 {r.symbol} earned on the day
+            </span>
           </div>
           <div className="section__body">
             <div className="tw">
@@ -211,14 +213,19 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
                     <th>Date</th>
                     <th>Action</th>
                     <th>Multiplier</th>
-                    <th>Per 1,000 held</th>
+                    <th>Per 1,000 held that day</th>
                     <th>USD today</th>
                   </tr>
                 </thead>
                 <tbody>
                   {[...r.history].reverse().map((e) => {
                     const income = isIncome(e.reason);
-                    const g = 1000 * (e.multiplier - e.previousMultiplier);
+                    // The multiplier scales a fixed raw balance, so 1,000 tokens held the
+                    // day before this event is 1000 / previousMultiplier raw units, not
+                    // 1,000. Dividing by the old multiplier is the difference between what
+                    // a holder on the day received and what a launch-day holder received.
+                    const g =
+                      (1000 * (e.multiplier - e.previousMultiplier)) / e.previousMultiplier;
                     return (
                       <tr key={e.id}>
                         <td>{day(e.activationDateTime)}</td>

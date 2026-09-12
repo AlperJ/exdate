@@ -226,9 +226,15 @@ export async function buildReport(wallet: string): Promise<WalletReport> {
       };
     });
 
+    // `firstSeen` gives up on an account with a thousand or more signatures, and without
+    // an acquisition date the wallet would claim the asset's entire payout history. The
+    // timeline settles it properly: a payment the wallet demonstrably held nothing for is
+    // not a payment to this wallet, whatever the acquisition date does or does not say.
+    const held = paid.filter((e) => !e.exact || e.heldThen === null || e.heldThen > 0);
+
     // The position total is the sum of what each payment actually paid, so it inherits
     // the same basis rather than re-deriving one from today's balance.
-    const totalSharesGained = paid.reduce((t, e) => t + (e.isIncome ? e.sharesGained : 0), 0);
+    const totalSharesGained = held.reduce((t, e) => t + (e.isIncome ? e.sharesGained : 0), 0);
     const divFactor = dividendFactor(mine_);
 
     positions.push({
@@ -248,7 +254,7 @@ export async function buildReport(wallet: string): Promise<WalletReport> {
       priceUsd: price,
       valueUsd: price ? trueBalance * price : null,
       heldSince: since ? since.toISOString() : null,
-      paid,
+      paid: held,
       totalSharesGained,
       totalUsdGained: price ? totalSharesGained * price : 0,
       pending: pend

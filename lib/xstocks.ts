@@ -156,8 +156,27 @@ export async function fetchMultiplierHistory(symbol: string): Promise<Multiplier
   return all.sort((a, b) => +new Date(a.activationDateTime) - +new Date(b.activationDateTime));
 }
 
-/** Scheduled corporate actions across every xStock. 539 pending as of 2026-09-12. */
-export function fetchUpcoming(maxPages = 20): Promise<CorporateAction[]> {
+/**
+ * Scheduled corporate actions across every xStock. The feed served 539 rows on
+ * 12 September 2026, but they are not 539 events: eight eventIds repeat, one of them five
+ * times, and ten rows carry no `effectiveTimeUtc` at all. An undated row is the dangerous
+ * one, because `+new Date(null)` is zero and it sorts silently into the distant past.
+ *
+ * Both are dropped here rather than in each caller, so no page can count a duplicate
+ * twice or treat an undated row as already activated. `fetchUpcomingRaw` keeps the
+ * unfiltered feed for the pages that report on the feed itself.
+ */
+export async function fetchUpcoming(maxPages = 20): Promise<CorporateAction[]> {
+  const seen = new Set<string>();
+  return (await fetchUpcomingRaw(maxPages)).filter((c) => {
+    if (!c.eventId || seen.has(c.eventId)) return false;
+    seen.add(c.eventId);
+    return Boolean(c.effectiveTimeUtc);
+  });
+}
+
+/** The feed exactly as served, duplicates and undated rows included. */
+export function fetchUpcomingRaw(maxPages = 20): Promise<CorporateAction[]> {
   return collect<CorporateAction>(
     (p) => `corporate-actions/upcoming?page=${p}&pageSize=${MAX_PAGE_SIZE}`,
     1,

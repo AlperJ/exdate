@@ -192,16 +192,20 @@ export async function fetchHoldings(owner: string): Promise<TokenHolding[]> {
  * hundreds of thousands of transactions. Walk one page: if it is not full, the oldest
  * entry is genuinely the first. If it is full, give up and let the caller show the
  * asset's full payout history instead of inventing a start date.
+ *
+ * Failed transactions are skipped. A transaction that reverted moved no tokens, so the
+ * account did not hold anything because of it: on one test wallet the oldest signature
+ * was a failed one and the real first receipt came three and a half minutes later.
  */
 export async function firstSeen(tokenAccount: string): Promise<Date | null> {
-  const TIMELINE_PAGE = 1000;
-  const sigs = await rpc<{ signature: string; blockTime: number | null }[]>(
+  const ONE_PAGE = 1000;
+  const sigs = await rpc<{ signature: string; blockTime: number | null; err: unknown }[]>(
     "getSignaturesForAddress",
-    [tokenAccount, { limit: TIMELINE_PAGE }]
+    [tokenAccount, { limit: ONE_PAGE }]
   );
-  if (!sigs?.length || sigs.length >= TIMELINE_PAGE) return null;
+  if (!sigs?.length || sigs.length >= ONE_PAGE) return null;
   const oldest = sigs.reduce<number | null>(
-    (min, s) => (s.blockTime && (min === null || s.blockTime < min) ? s.blockTime : min),
+    (min, s) => (!s.err && s.blockTime && (min === null || s.blockTime < min) ? s.blockTime : min),
     null
   );
   return oldest ? new Date(oldest * 1000) : null;

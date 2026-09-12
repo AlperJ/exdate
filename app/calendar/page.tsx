@@ -123,8 +123,12 @@ export default async function CalendarPage() {
       <ol className="notes">
         <li>
           Read live from the issuer&apos;s forward feed on every request, then filtered against the
-          clock. The feed itself does not filter, which is why a count taken from it directly is
-          roughly fourteen times too large.
+          clock. The feed serves {market.feedRows} rows under the heading
+          &ldquo;upcoming&rdquo;, and they are not {market.feedRows} upcoming events:{" "}
+          {market.feedRows - market.feedDistinct} are repeats of an event already in the list,{" "}
+          {market.feedUndated} carry no date at all, and {market.feedAlreadyActivated} have already
+          activated. What is genuinely still to come is the {market.upcomingCount} shown here.
+          Counted straight from the feed, the number is more than thirteen times too large.
         </li>
         <li>
           Withholding is published as a fraction and shown here as a percentage. A rate of 0.3 in the

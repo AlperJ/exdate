@@ -1,4 +1,4 @@
-import { day } from "@/lib/fmt";
+import { day, num } from "@/lib/fmt";
 import market from "@/data/market.json";
 
 export const metadata = {
@@ -8,6 +8,9 @@ export const metadata = {
 };
 
 export default function MethodPage() {
+  const m = market;
+  const asOf = day(m.measuredAt);
+
   return (
     <>
       <h1>Method</h1>
@@ -72,7 +75,9 @@ export default function MethodPage() {
       <section className="section">
         <div className="section__head">
           <h2 className="section__title">What counts as income</h2>
-          <span className="section__meta">654 multiplier changes across 832 assets</span>
+          <span className="section__meta">
+            654 multiplier changes across 832 assets, read {asOf}
+          </span>
         </div>
         <div className="section__body">
           <p className="prose">
@@ -121,6 +126,22 @@ export default function MethodPage() {
           <p className="section__after muted">
             Netflix split ten for one on 16 Nov 2025. Pricing the extra tokens as a gain would add
             about $106m to the total on the front page. Holders received nothing, so it is excluded.
+          </p>
+
+          <p className="prose">
+            The front page says <b>{num(m.dividendPaymentsAll, 0)} payments</b> rather than 641, and
+            the difference is worth following. Three of the 641 are scheduled but have not activated
+            yet, so they have not happened. Another {m.unheldPayments} sit on{" "}
+            {m.unheldPayers} tokens the issuer reports as having no circulating supply at all: the
+            multiplier moved, but there was nobody holding the token to be paid. That leaves{" "}
+            {num(m.dividendPaymentsAll, 0)} payments across {m.assetsEverPaid} stocks that actually
+            reached a holder.
+          </p>
+          <p className="prose">
+            The dollar figure is narrower still. {m.unpricedPayers} of those{" "}
+            {m.assetsEverPaid} had no usable price when we measured, so they are counted as payments
+            and left out of the money. Every dollar on this site comes from the remaining{" "}
+            {m.assetsPricedAndPaying} stocks and {num(m.dividendPayments, 0)} payments.
           </p>
         </div>
       </section>

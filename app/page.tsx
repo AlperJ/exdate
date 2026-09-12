@@ -79,12 +79,18 @@ export default async function Home() {
         <div>
           <div className="stat__label">Typical stock has paid</div>
           <div className="stat__value">{pct(m.medianYieldPct, 3)}</div>
-          <div className="stat__note">of its own value since launch, median across the {m.assetsPricedAndPaying} that pay</div>
+          <div className="stat__note">
+            of its own value since launch, median across the {m.assetsPricedAndPaying} payers we
+            can price
+          </div>
         </div>
         <div>
           <div className="stat__label">Payments recorded</div>
-          <div className="stat__value">{num(m.dividendPayments, 0)}</div>
-          <div className="stat__note">across {m.assetsPricedAndPaying} stocks since June 2025</div>
+          <div className="stat__value">{num(m.dividendPaymentsAll, 0)}</div>
+          <div className="stat__note">
+            across {m.assetsEverPaid} stocks since June 2025. Counting a payment does not need a
+            price, so this is every one that reached a holder.
+          </div>
         </div>
       </div>
 

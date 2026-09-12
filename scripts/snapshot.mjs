@@ -96,7 +96,7 @@ for (let p = 1; p <= 20; p++) {
 console.log(`  ${upcomingRaw.length} satir`);
 
 console.log("carpan gecmisleri...");
-const CONC = 8, rows = [];
+const CONC = 8, rows = [], unattested = [], unheld = [];
 let scanned = 0;
 async function work(sub) {
   for (const { a, m } of sub) {
@@ -131,13 +131,19 @@ async function work(sub) {
     // their attestation rather than our inference about which wallet belongs to whom,
     // and it spans every chain the token is issued on, so it is the honest measure of
     // how much of this stock exists in public hands anywhere.
+    // Two different things were both landing here as "skip", and they mean opposite
+    // things. A missing attestation is us not knowing. A circulating supply of zero is
+    // the issuer telling us nobody holds this token at all: ten assets have recorded a
+    // dividend on the multiplier before a single token was sold, so the event is real
+    // and the amount paid to holders is exactly nothing.
     let circulating = null;
     try {
       const por = await j(`${X}/proof-of-reserves/${encodeURIComponent(a.symbol)}`);
       const c = Number(por?.circulatingSupply);
-      if (Number.isFinite(c) && c > 0) circulating = c;
+      if (Number.isFinite(c)) circulating = c;
     } catch {}
-    if (circulating === null) continue;
+    if (circulating === null) { unattested.push(a.symbol); continue; }
+    if (circulating === 0) { unheld.push({ symbol: a.symbol, dividends: nDiv }); continue; }
 
     const floatUsd = p ? circulating * p : null;
     const events = applied.filter((e) => isIncome(e.reason)).map((e) => ({
@@ -151,13 +157,35 @@ async function work(sub) {
 }
 await Promise.all(Array.from({ length: CONC }, (_, i) => work(list.filter((_, k) => k % CONC === i))));
 console.log(`  ${scanned} tarandi, ${rows.length} tanesinin carpani oynamis`);
+console.log(`  ${unheld.length} varlik kimsede yok (dolasimda 0), ` +
+  `${unheld.reduce((t, u) => t + u.dividends, 0)} odemesi kimseye ulasmadi`);
+if (unattested.length) console.log(`  ${unattested.length} varligin rezerv beyani yok: ${unattested.join(" ")}`);
 
 const upcoming = upcomingRaw;
 const now = Date.now();
-const future = upcoming.filter((c) => +new Date(c.effectiveTimeUtc) > now)
+
+// The feed serves 539 rows but only 525 distinct events: eight repeat, one of them five
+// times. And ten rows carry no date at all, which `+new Date(null) === 0` would sort
+// silently into the past. Neither belongs in a count of what is still to come.
+const seen = new Set();
+const distinct = upcoming.filter((c) => {
+  if (!c.eventId || seen.has(c.eventId)) return false;
+  seen.add(c.eventId);
+  return true;
+});
+const undated = distinct.filter((c) => !c.effectiveTimeUtc);
+const dated = distinct.filter((c) => c.effectiveTimeUtc);
+const future = dated
+  .filter((c) => +new Date(c.effectiveTimeUtc) > now)
   .sort((a, b) => +new Date(a.effectiveTimeUtc) - +new Date(b.effectiveTimeUtc));
 
-const paying = rows.filter((r) => r.dividends > 0 && r.hiddenUsd !== null);
+// Every asset that has paid at all. Counting payments does not need a price, so this
+// is the honest denominator for "how many stocks have paid" and "how many payments".
+const everPaid = rows.filter((r) => r.dividends > 0);
+
+// The subset we can also put a dollar figure on. Seventeen assets have paid but had no
+// price at snapshot time, so they belong in the counts and not in the money.
+const paying = everPaid.filter((r) => r.hiddenUsd !== null);
 
 // Cumulative dollars paid, bucketed by month. Each event contributes the share of
 // today's float that its own ratio accounts for, which is the same assumption the
@@ -207,7 +235,15 @@ const snapshot = {
   assetCount: list.length,
   assetsWithMultiplierChange: rows.length,
   assetsPricedAndPaying: paying.length,
+  assetsEverPaid: everPaid.length,
   dividendPayments: paying.reduce((s, r) => s + r.dividends, 0),
+  dividendPaymentsAll: everPaid.reduce((s, r) => s + r.dividends, 0),
+  unpricedPayers: everPaid.length - paying.length,
+  // Assets whose multiplier recorded a dividend while the issuer reports nobody holding
+  // the token. The event happened; it paid no one.
+  unheldPayers: unheld.filter((u) => u.dividends > 0).length,
+  unheldPayments: unheld.reduce((t, u) => t + u.dividends, 0),
+  unattestedAssets: unattested.length,
   totalFloatUsd: paying.reduce((s, r) => s + r.floatUsd, 0),
   totalHiddenUsd: paying.reduce((s, r) => s + r.hiddenUsd, 0),
   splits: rows.filter((r) => Math.abs(r.splitFactor - 1) > 0.001)
@@ -228,11 +264,17 @@ const snapshot = {
     type: c.caType, grossUsd: c.grossCashflowUsd, netUsd: c.netCashflowUsd,
     withholding: c.withholdingTaxRate, status: c.status })),
   upcomingCount: future.length,
+  feedRows: upcoming.length,
+  feedDistinct: distinct.length,
+  feedUndated: undated.length,
+  feedAlreadyActivated: dated.length - future.length,
 };
 
 mkdirSync("data", { recursive: true });
 writeFileSync("data/market.json", JSON.stringify(snapshot, null, 2));
 console.log(`\nyazildi: data/market.json`);
-console.log(`  ${snapshot.assetsPricedAndPaying} varlik, ${snapshot.dividendPayments} odeme`);
+console.log(`  odenen: ${snapshot.assetsEverPaid} varlik / ${snapshot.dividendPaymentsAll} odeme`);
+console.log(`  fiyatlanan: ${snapshot.assetsPricedAndPaying} varlik / ${snapshot.dividendPayments} odeme` +
+  ` (${snapshot.unpricedPayers} varligin fiyati yok, paraya dahil degil)`);
 console.log(`  gorunmez temettu: $${Math.round(snapshot.totalHiddenUsd).toLocaleString("en-US")}`);
 console.log(`  gelecek olay: ${snapshot.upcomingCount}`);
