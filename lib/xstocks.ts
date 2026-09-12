@@ -52,7 +52,6 @@ type Paged<T> = { nodes?: T[]; page?: { hasNextPage?: boolean; totalNodes?: numb
 async function get<T>(path: string, revalidate = 300): Promise<T> {
   const res = await fetch(`${BASE}/${path}`, {
     headers: { accept: "application/json" },
-    // @ts-expect-error next-only option, ignored by plain node fetch
     next: { revalidate },
   });
   if (!res.ok) throw new Error(`xStocks ${path} -> ${res.status}`);

@@ -4,3 +4,10 @@ node_modules
 .vercel
 *.tsbuildinfo
 next-env.d.ts
+
+# calisma dosyalari
+*.html
+!app/**/*.html
+.server.log
+_old_nm_*
+owners.txt

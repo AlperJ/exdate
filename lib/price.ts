@@ -10,7 +10,6 @@ export async function fetchPrices(mints: string[]): Promise<Record<string, Price
     try {
       const res = await fetch(`${JUP}?ids=${chunk.join(",")}`, {
         headers: { accept: "application/json" },
-        // @ts-expect-error next-only
         next: { revalidate: 60 },
       });
       if (!res.ok) continue;

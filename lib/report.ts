@@ -3,8 +3,12 @@ import {
   type Asset, type MultiplierEvent, type CorporateAction,
 } from "./xstocks";
 import {
-  fetchHoldings, fetchMint, firstSeen, effectiveMultiplier, naiveMultiplier, pendingChange,
+  fetchHoldings, fetchMint, fetchMints, firstSeen, effectiveMultiplier, naiveMultiplier,
+  pendingChange, treasuryHeld,
 } from "./solana";
+
+/** Positions we pull full payout history for. The rest are counted, not itemised. */
+const DETAILED = 20;
 import { fetchPrices } from "./price";
 
 export type PaidEvent = {
@@ -53,7 +57,14 @@ export type WalletReport = {
   wallet: string;
   generatedAt: string;
   positions: PositionReport[];
-  totals: { valueUsd: number; hiddenUsd: number; dividendUsd: number; dividendCount: number };
+  totals: {
+    valueUsd: number;
+    hiddenUsd: number;
+    dividendUsd: number;
+    dividendCount: number;
+    positionCount: number;
+    itemised: number;
+  };
   notes: string[];
 };
 
@@ -87,26 +98,49 @@ export async function buildReport(wallet: string): Promise<WalletReport> {
     notes.push("Wallet holds Token-2022 assets, but none of them are xStocks.");
   }
 
-  const prices = await fetchPrices(mine.map((h) => h.mint));
+  // Every mint in a couple of batched calls, every price in batches of fifty. A wallet
+  // with hundreds of positions must not turn into hundreds of round trips.
+  const [prices, mints] = await Promise.all([
+    fetchPrices(mine.map((h) => h.mint)),
+    fetchMints(mine.map((h) => h.mint)),
+  ]);
+
+  // Value each position first, then spend the expensive per-asset calls on the largest ones.
+  const valued = mine
+    .map((h) => {
+      const mint = mints.get(h.mint) ?? null;
+      const decimals = mint?.decimals ?? h.decimals;
+      const units = Number(h.rawAmount) / 10 ** decimals;
+      const effective = effectiveMultiplier(mint?.scaled ?? null);
+      const price = prices[h.mint]?.usdPrice ?? null;
+      return { h, mint, decimals, units, effective, price, value: price ? units * effective * price : 0 };
+    })
+    .sort((a, b) => b.value - a.value);
+
   const positions: PositionReport[] = [];
 
-  for (const h of mine) {
+  for (const [rank, v] of valued.entries()) {
+    const h = v.h;
     const asset = byMint.get(h.mint)!;
-    const [mint, history, reserves, since] = await Promise.all([
-      fetchMint(h.mint),
-      fetchMultiplierHistory(asset.symbol).catch(() => [] as MultiplierEvent[]),
-      fetchReserves(asset.symbol),
-      firstSeen(h.tokenAccount).catch(() => null),
-    ]);
+    const deep = rank < DETAILED;
 
-    const decimals = mint?.decimals ?? h.decimals;
-    const units = Number(h.rawAmount) / 10 ** decimals;
+    const [history, reserves, since] = deep
+      ? await Promise.all([
+          fetchMultiplierHistory(asset.symbol).catch(() => [] as MultiplierEvent[]),
+          fetchReserves(asset.symbol),
+          firstSeen(h.tokenAccount).catch(() => null),
+        ])
+      : [[] as MultiplierEvent[], null, null];
 
-    const effective = effectiveMultiplier(mint?.scaled ?? null);
+    const mint = v.mint;
+    const decimals = v.decimals;
+    const units = v.units;
+
+    const effective = v.effective;
     const naive = naiveMultiplier(mint?.scaled ?? null);
     const pend = pendingChange(mint?.scaled ?? null);
 
-    const price = prices[h.mint]?.usdPrice ?? null;
+    const price = v.price;
     const trueBalance = units * effective;
     const naiveBalance = units * naive;
     const hiddenShares = trueBalance - naiveBalance;
@@ -165,23 +199,170 @@ export async function buildReport(wallet: string): Promise<WalletReport> {
     });
   }
 
-  positions.sort((a, b) => (b.valueUsd ?? 0) - (a.valueUsd ?? 0));
+  const itemised = positions.slice(0, DETAILED);
 
-  if (positions.some((p) => p.heldSince === null)) {
-    notes.push("Acquisition date unavailable for some positions; their dividend history is shown in full.");
+  if (positions.length > DETAILED) {
+    notes.push(
+      `${positions.length} positions held. The ${DETAILED} largest are itemised below; the rest are counted in the totals by value only.`
+    );
   }
-  notes.push("Dividends are credited as share growth, not cash. USD figures value that growth at today's price.");
+  if (itemised.some((p) => p.heldSince === null)) {
+    notes.push(
+      "Some positions sit in accounts too busy to date cheaply, so their full payout history is shown rather than the slice since purchase."
+    );
+  }
+  notes.push(
+    "Dividends are credited as share growth, not cash. USD figures value that growth at today's price."
+  );
 
   return {
     wallet,
     generatedAt: new Date().toISOString(),
-    positions,
+    positions: itemised,
     totals: {
       valueUsd: positions.reduce((s, p) => s + (p.valueUsd ?? 0), 0),
       hiddenUsd: positions.reduce((s, p) => s + p.hiddenUsd, 0),
-      dividendUsd: positions.reduce((s, p) => s + p.totalUsdGained, 0),
-      dividendCount: positions.reduce((s, p) => s + p.paid.length, 0),
+      dividendUsd: itemised.reduce((s, p) => s + p.totalUsdGained, 0),
+      dividendCount: itemised.reduce((s, p) => s + p.paid.length, 0),
+      positionCount: positions.length,
+      itemised: itemised.length,
     },
     notes,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Asset view: works with no wallet at all, which is how most people (and judges)
+// will meet this app.
+// ---------------------------------------------------------------------------
+
+export type AssetReport = {
+  symbol: string;
+  name: string;
+  underlying: string;
+  logo: string | null;
+  mint: string;
+  decimals: number;
+  supplyUnits: number;        // everything minted, multiplier applied
+  treasuryUnits: number | null; // minted but never issued, sitting with the issuer
+  circulatingOnChain: number | null; // supply minus treasury, derived independently
+
+  naive: number;
+  effective: number;
+  driftPct: number;          // how wrong a naive reader is, right now
+
+  priceUsd: number | null;
+  history: MultiplierEvent[];
+  totalGrowthPct: number;    // total invisible payout since launch, as % of position
+  perUnitGained: number;     // shares gained per 1 token held since launch
+
+  pending: { from: number; to: number; activatesAt: string; secondsAway: number } | null;
+  upcoming: CorporateAction[];
+  reserves: {
+    sharesHeld: number;
+    circulating: number;
+    ratio: number;
+    providers: string[];
+    /**
+     * Reserves cover every chain at once. The endpoint accepts a `network` parameter and
+     * ignores it: AAPLx also lives on TON, Ethereum, Arbitrum, Optimism, BSC, Mantle, Ink,
+     * XLayer and HyperEVM. So the issuer's circulating figure is global, while anything
+     * derived from Solana state is not. The remainder is float on the other chains, which
+     * is not a shortfall.
+     */
+    otherChains: number | null;
+    solanaShare: number | null;
+  } | null;
+  halted: boolean;
+};
+
+export async function buildAssetReport(symbol: string): Promise<AssetReport | null> {
+  const assets = await fetchAssets();
+  const asset = assets.find((a) => a.symbol.toLowerCase() === symbol.toLowerCase());
+  if (!asset) return null;
+  const mintAddr = solanaMint(asset);
+  if (!mintAddr) return null;
+
+  const [mint, history, reserves, upcoming, prices] = await Promise.all([
+    fetchMint(mintAddr),
+    fetchMultiplierHistory(asset.symbol).catch(() => [] as MultiplierEvent[]),
+    fetchReserves(asset.symbol),
+    fetchUpcoming().catch(() => [] as CorporateAction[]),
+    fetchPrices([mintAddr]),
+  ]);
+
+  const effective = effectiveMultiplier(mint?.scaled ?? null);
+  const naive = naiveMultiplier(mint?.scaled ?? null);
+  const pend = pendingChange(mint?.scaled ?? null);
+  const decimals = mint?.decimals ?? 8;
+  const startM = history.length ? history[0].previousMultiplier : 1;
+
+  const supplyUnits = mint ? (Number(mint.supplyRaw) / 10 ** decimals) * effective : 0;
+  const treasury = await treasuryHeld(mintAddr, mint?.scaled?.authority ?? null);
+  const circulatingOnChain = treasury !== null ? supplyUnits - treasury : null;
+
+  // `upcoming` keeps serving events that already activated, so drop anything in the past.
+  const now = Date.now();
+  const futureOnly = upcoming
+    .filter((c) => c.xstockSymbol === asset.symbol && +new Date(c.effectiveTimeUtc) > now)
+    .sort((a, b) => +new Date(a.effectiveTimeUtc) - +new Date(b.effectiveTimeUtc));
+
+  return {
+    symbol: asset.symbol,
+    name: asset.name,
+    underlying: asset.underlyingSymbol,
+    logo: asset.logo,
+    mint: mintAddr,
+    decimals,
+    supplyUnits,
+    treasuryUnits: treasury,
+    circulatingOnChain,
+    naive,
+    effective,
+    driftPct: naive > 0 ? (effective / naive - 1) * 100 : 0,
+    priceUsd: prices[mintAddr]?.usdPrice ?? null,
+    history,
+    totalGrowthPct: startM > 0 ? (effective / startM - 1) * 100 : 0,
+    perUnitGained: effective - startM,
+    pending: pend
+      ? { from: pend.from, to: pend.to, activatesAt: pend.activatesAt.toISOString(), secondsAway: pend.secondsAway }
+      : null,
+    upcoming: futureOnly.slice(0, 6),
+    reserves: reserves
+      ? {
+          sharesHeld: Number(reserves.sharesHeld),
+          circulating: Number(reserves.circulatingSupply),
+          ratio: Number(reserves.sharesHeld) / Number(reserves.circulatingSupply),
+          providers: reserves.holdings.map((x) => x.provider),
+          otherChains:
+            circulatingOnChain !== null
+              ? Math.max(0, Number(reserves.circulatingSupply) - circulatingOnChain)
+              : null,
+          solanaShare:
+            circulatingOnChain !== null && Number(reserves.circulatingSupply) > 0
+              ? circulatingOnChain / Number(reserves.circulatingSupply)
+              : null,
+        }
+      : null,
+    halted: asset.isTradingHalted,
+  };
+}
+
+/** Assets whose multiplier has moved at least once: the ones with a story to tell. */
+export async function listPayingAssets(limit = 24) {
+  const assets = await fetchAssets();
+  const mints = assets.map(solanaMint).filter((m): m is string => !!m);
+  const prices = await fetchPrices(mints.slice(0, 200));
+  return assets
+    .map((a) => ({ asset: a, mint: solanaMint(a) }))
+    .filter((x) => x.mint && prices[x.mint]?.usdPrice)
+    .sort((a, b) => (prices[b.mint!]!.liquidity ?? 0) - (prices[a.mint!]!.liquidity ?? 0))
+    .slice(0, limit)
+    .map((x) => ({
+      symbol: x.asset.symbol,
+      name: x.asset.name,
+      underlying: x.asset.underlyingSymbol,
+      logo: x.asset.logo,
+      priceUsd: prices[x.mint!]!.usdPrice,
+    }));
 }
