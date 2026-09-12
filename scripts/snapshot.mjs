@@ -74,7 +74,11 @@ async function work(sub) {
       else splitF *= r;
     }
     const floatUsd = p ? (inf.supply / 10 ** inf.dec) * mult * p : null;
-    rows.push({ symbol: a.symbol, name: a.name, underlying: a.underlyingSymbol, logo: a.logo,
+    const events = hist.filter((e) => isIncome(e.reason)).map((e) => ({
+      at: e.activationDateTime,
+      ratio: e.previousMultiplier > 0 ? e.multiplier / e.previousMultiplier : 1,
+    }));
+    rows.push({ symbol: a.symbol, events, name: a.name, underlying: a.underlyingSymbol, logo: a.logo,
       dividends: nDiv, yieldPct: (divF - 1) * 100, splitFactor: splitF, lastPaid: last,
       floatUsd, hiddenUsd: floatUsd ? floatUsd * (1 - 1 / divF) : null });
   }
@@ -94,6 +98,35 @@ const future = upcoming.filter((c) => +new Date(c.effectiveTimeUtc) > now)
   .sort((a, b) => +new Date(a.effectiveTimeUtc) - +new Date(b.effectiveTimeUtc));
 
 const paying = rows.filter((r) => r.dividends > 0 && r.hiddenUsd !== null);
+
+// Cumulative dollars paid, bucketed by month. Each event contributes the share of
+// today's float that its own ratio accounts for, which is the same assumption the
+// headline figure already makes: historical payouts valued at the current float.
+const byMonth = new Map();
+for (const r of paying) {
+  for (const e of r.events ?? []) {
+    const key = e.at.slice(0, 7);
+    const share = r.floatUsd * (1 - 1 / e.ratio);
+    const cur = byMonth.get(key) ?? { usd: 0, count: 0 };
+    cur.usd += share; cur.count += 1;
+    byMonth.set(key, cur);
+  }
+}
+let runUsd = 0, runCount = 0;
+const rawSeries = [...byMonth.keys()].sort().map((month) => {
+  const v = byMonth.get(month);
+  runUsd += v.usd; runCount += v.count;
+  return { month, usd: runUsd, count: runCount, monthUsd: v.usd, monthCount: v.count };
+});
+// Summing each event's share independently ignores compounding, so the series ends
+// about one per cent above the headline, which compounds the ratios. Scale the shape
+// onto the headline so the page never states two different totals.
+const headlineUsd = paying.reduce((s, r) => s + r.hiddenUsd, 0);
+const rawEnd = rawSeries.length ? rawSeries[rawSeries.length - 1].usd : 0;
+const k = rawEnd > 0 ? headlineUsd / rawEnd : 1;
+const cumulative = rawSeries.map((p) => ({
+  ...p, usd: p.usd * k, monthUsd: p.monthUsd * k,
+}));
 const snapshot = {
   measuredAt: new Date().toISOString(),
   assetCount: list.length,
@@ -104,7 +137,9 @@ const snapshot = {
   totalHiddenUsd: paying.reduce((s, r) => s + r.hiddenUsd, 0),
   splits: rows.filter((r) => Math.abs(r.splitFactor - 1) > 0.001)
     .map((r) => ({ symbol: r.symbol, factor: r.splitFactor })).sort((a, b) => b.factor - a.factor),
-  topPayers: [...paying].sort((a, b) => b.hiddenUsd - a.hiddenUsd).slice(0, 12),
+  cumulative,
+  topPayers: [...paying].sort((a, b) => b.hiddenUsd - a.hiddenUsd).slice(0, 12)
+    .map(({ events, ...rest }) => rest),
   // Full index for /assets. Every asset whose multiplier has ever moved.
   index: [...rows]
     .sort((a, b) => (b.hiddenUsd ?? -1) - (a.hiddenUsd ?? -1) || b.yieldPct - a.yieldPct)

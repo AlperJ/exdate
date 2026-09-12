@@ -1,14 +1,14 @@
 {
-  "measuredAt": "2026-09-12T21:17:36.114Z",
+  "measuredAt": "2026-09-12T21:32:52.676Z",
   "assetCount": 832,
   "assetsWithMultiplierChange": 344,
   "assetsPricedAndPaying": 65,
   "dividendPayments": 257,
-  "totalFloatUsd": 2545387044.4377685,
-  "totalHiddenUsd": 23294391.8337174,
+  "totalFloatUsd": 2545447410.1130347,
+  "totalHiddenUsd": 23298133.98126543,
   "splits": [
     {
-      "symbol": "NFLXx",
+      "symbol": "PPLTx",
       "factor": 10
     },
     {
@@ -16,7 +16,7 @@
       "factor": 10
     },
     {
-      "symbol": "PPLTx",
+      "symbol": "NFLXx",
       "factor": 10
     },
     {
@@ -52,6 +52,120 @@
       "factor": 0.9755596760294999
     }
   ],
+  "cumulative": [
+    {
+      "month": "2025-06",
+      "usd": 94783.01492316637,
+      "count": 1,
+      "monthUsd": 94783.01492316637,
+      "monthCount": 1
+    },
+    {
+      "month": "2025-07",
+      "usd": 513769.01048005524,
+      "count": 7,
+      "monthUsd": 418985.9955568889,
+      "monthCount": 6
+    },
+    {
+      "month": "2025-08",
+      "usd": 727819.0639006845,
+      "count": 16,
+      "monthUsd": 214050.05342062927,
+      "monthCount": 9
+    },
+    {
+      "month": "2025-09",
+      "usd": 1630287.6898426975,
+      "count": 37,
+      "monthUsd": 902468.6259420129,
+      "monthCount": 21
+    },
+    {
+      "month": "2025-10",
+      "usd": 2702785.1560043693,
+      "count": 54,
+      "monthUsd": 1072497.4661616713,
+      "monthCount": 17
+    },
+    {
+      "month": "2025-11",
+      "usd": 3529327.6638472844,
+      "count": 63,
+      "monthUsd": 826542.5078429152,
+      "monthCount": 9
+    },
+    {
+      "month": "2025-12",
+      "usd": 5174008.845150016,
+      "count": 88,
+      "monthUsd": 1644681.1813027319,
+      "monthCount": 25
+    },
+    {
+      "month": "2026-01",
+      "usd": 5907327.47370684,
+      "count": 100,
+      "monthUsd": 733318.6285568224,
+      "monthCount": 12
+    },
+    {
+      "month": "2026-02",
+      "usd": 7299783.86825941,
+      "count": 114,
+      "monthUsd": 1392456.3945525712,
+      "monthCount": 14
+    },
+    {
+      "month": "2026-03",
+      "usd": 9924556.447035624,
+      "count": 148,
+      "monthUsd": 2624772.5787762133,
+      "monthCount": 34
+    },
+    {
+      "month": "2026-04",
+      "usd": 11287705.847238932,
+      "count": 164,
+      "monthUsd": 1363149.4002033074,
+      "monthCount": 16
+    },
+    {
+      "month": "2026-05",
+      "usd": 12806395.888381777,
+      "count": 180,
+      "monthUsd": 1518690.0411428453,
+      "monthCount": 16
+    },
+    {
+      "month": "2026-06",
+      "usd": 18385375.117663093,
+      "count": 215,
+      "monthUsd": 5578979.229281318,
+      "monthCount": 35
+    },
+    {
+      "month": "2026-07",
+      "usd": 19910694.1936136,
+      "count": 231,
+      "monthUsd": 1525319.0759505066,
+      "monthCount": 16
+    },
+    {
+      "month": "2026-08",
+      "usd": 21123457.383322198,
+      "count": 246,
+      "monthUsd": 1212763.1897085975,
+      "monthCount": 15
+    },
+    {
+      "month": "2026-09",
+      "usd": 23298133.98126543,
+      "count": 257,
+      "monthUsd": 2174676.597943233,
+      "monthCount": 11
+    }
+  ],
   "topPayers": [
     {
       "symbol": "PYPLx",
@@ -74,8 +188,8 @@
       "yieldPct": 8.089299772563653,
       "splitFactor": 1,
       "lastPaid": "2026-08-30T23:55:00.000Z",
-      "floatUsd": 49957649.39902193,
-      "hiddenUsd": 3738782.6803546506
+      "floatUsd": 49957376.495347545,
+      "hiddenUsd": 3738762.25650478
     },
     {
       "symbol": "PFEx",
@@ -218,8 +332,8 @@
       "yieldPct": 8.089299772563653,
       "splitFactor": 1,
       "lastPaid": "2026-08-30T23:55:00.000Z",
-      "hiddenUsd": 3738782.6803546506,
-      "floatUsd": 49957649.39902193
+      "hiddenUsd": 3738762.25650478,
+      "floatUsd": 49957376.495347545
     },
     {
       "symbol": "PFEx",
@@ -339,8 +453,8 @@
       "yieldPct": 3.7054990743787597,
       "splitFactor": 1,
       "lastPaid": "2026-08-15T00:30:00.000Z",
-      "hiddenUsd": 483760.67330669885,
-      "floatUsd": 13538970.338628333
+      "hiddenUsd": 483760.6733066836,
+      "floatUsd": 13538970.338627907
     },
     {
       "symbol": "MRKx",
@@ -383,8 +497,8 @@
       "yieldPct": 0.5714560286254056,
       "splitFactor": 1,
       "lastPaid": "2026-06-18T04:00:00.000Z",
-      "hiddenUsd": 416744.4217579861,
-      "floatUsd": 73343514.09123422
+      "hiddenUsd": 416860.59353462036,
+      "floatUsd": 73363959.34710744
     },
     {
       "symbol": "OPENx",
@@ -427,8 +541,8 @@
       "yieldPct": 1.833179673869001,
       "splitFactor": 1,
       "lastPaid": "2026-06-14T23:55:00.000Z",
-      "hiddenUsd": 338301.63637974503,
-      "floatUsd": 18792664.904861033
+      "hiddenUsd": 342752.9995926544,
+      "floatUsd": 19039938.249812078
     },
     {
       "symbol": "PGx",
@@ -460,8 +574,8 @@
       "yieldPct": 0.590339047874533,
       "splitFactor": 1,
       "lastPaid": "2026-08-20T00:30:00.000Z",
-      "hiddenUsd": 306058.3095907151,
-      "floatUsd": 52150555.24616552
+      "hiddenUsd": 305473.62105412874,
+      "floatUsd": 52050927.72136535
     },
     {
       "symbol": "MCDx",
@@ -471,8 +585,8 @@
       "yieldPct": 2.1180700488286908,
       "splitFactor": 1,
       "lastPaid": "2026-09-01T00:30:00.000Z",
-      "hiddenUsd": 292650.54155769385,
-      "floatUsd": 14109499.598062327
+      "hiddenUsd": 292643.1062849592,
+      "floatUsd": 14109141.122806815
     },
     {
       "symbol": "GSx",
@@ -581,8 +695,8 @@
       "yieldPct": 0.32690125398189274,
       "splitFactor": 1,
       "lastPaid": "2026-08-08T00:30:00.000Z",
-      "hiddenUsd": 167228.96483206825,
-      "floatUsd": 51323032.98671886
+      "hiddenUsd": 167586.24300573024,
+      "floatUsd": 51432682.64884948
     },
     {
       "symbol": "QQQx",
@@ -592,8 +706,8 @@
       "yieldPct": 0.2725029655105127,
       "splitFactor": 1,
       "lastPaid": "2026-06-21T23:55:00.000Z",
-      "hiddenUsd": 164076.21911256373,
-      "floatUsd": 60374877.52367062
+      "hiddenUsd": 164288.82552630178,
+      "floatUsd": 60453109.98331412
     },
     {
       "symbol": "DFDVx",
@@ -603,8 +717,8 @@
       "yieldPct": 1.472895117999995,
       "splitFactor": 1,
       "lastPaid": "2025-11-07T23:55:00.000Z",
-      "hiddenUsd": 149831.43303659515,
-      "floatUsd": 10322411.354412604
+      "hiddenUsd": 149855.58682239804,
+      "floatUsd": 10324075.393177839
     },
     {
       "symbol": "DHRx",
@@ -625,8 +739,8 @@
       "yieldPct": 0.23772500603487234,
       "splitFactor": 1,
       "lastPaid": "2026-09-04T00:30:00.000Z",
-      "hiddenUsd": 129476.97236096155,
-      "floatUsd": 54594497.08975286
+      "hiddenUsd": 129434.62799276596,
+      "floatUsd": 54576642.41301717
     },
     {
       "symbol": "ORCLx",
@@ -658,8 +772,8 @@
       "yieldPct": 0.17011968010742784,
       "splitFactor": 1,
       "lastPaid": "2026-09-10T00:30:00.000Z",
-      "hiddenUsd": 119327.37415678694,
-      "floatUsd": 70262519.55593862
+      "hiddenUsd": 119299.05224897842,
+      "floatUsd": 70245843.00862229
     },
     {
       "symbol": "METAx",
@@ -669,8 +783,8 @@
       "yieldPct": 0.2298265651937914,
       "splitFactor": 1,
       "lastPaid": "2026-06-14T23:55:00.000Z",
-      "hiddenUsd": 108257.01840837019,
-      "floatUsd": 47212045.18018454
+      "hiddenUsd": 107769.2862283101,
+      "floatUsd": 46999339.952760264
     },
     {
       "symbol": "IEMGx",
@@ -691,8 +805,8 @@
       "yieldPct": 0.7184561024149438,
       "splitFactor": 1,
       "lastPaid": "2026-08-21T00:30:00.000Z",
-      "hiddenUsd": 100558.97943699443,
-      "floatUsd": 14097096.707905756
+      "hiddenUsd": 100559.88660090412,
+      "floatUsd": 14097223.880809028
     },
     {
       "symbol": "CRMx",
@@ -724,8 +838,8 @@
       "yieldPct": 0.5309167384000002,
       "splitFactor": 1,
       "lastPaid": "2025-10-08T23:55:00.000Z",
-      "hiddenUsd": 81034.67676984225,
-      "floatUsd": 15344195.716682265
+      "hiddenUsd": 80883.92766467352,
+      "floatUsd": 15315650.853346862
     },
     {
       "symbol": "AVGOx",
@@ -757,8 +871,8 @@
       "yieldPct": 0.4722356321892329,
       "splitFactor": 1,
       "lastPaid": "2026-07-09T00:30:00.000Z",
-      "hiddenUsd": 78185.14494128668,
-      "floatUsd": 16634569.206607575
+      "hiddenUsd": 78086.50718310197,
+      "floatUsd": 16613583.166150142
     },
     {
       "symbol": "MRVLx",
@@ -915,28 +1029,6 @@
       "floatUsd": 39658799.627266385
     },
     {
-      "symbol": "KRAQx",
-      "name": "KRAQ xStock",
-      "underlying": "KRAQ",
-      "dividends": 0,
-      "yieldPct": 0,
-      "splitFactor": 1.01375909737,
-      "lastPaid": null,
-      "hiddenUsd": 0,
-      "floatUsd": 41439172.82294857
-    },
-    {
-      "symbol": "NFLXx",
-      "name": "Netflix xStock",
-      "underlying": "NFLX",
-      "dividends": 0,
-      "yieldPct": 0,
-      "splitFactor": 10,
-      "lastPaid": null,
-      "hiddenUsd": 0,
-      "floatUsd": 117532576.89347306
-    },
-    {
       "symbol": "PPLTx",
       "name": "abrdn Physical Platinum Shares xStock",
       "underlying": "PPLT",
@@ -957,6 +1049,28 @@
       "lastPaid": null,
       "hiddenUsd": 0,
       "floatUsd": 16472207.633907545
+    },
+    {
+      "symbol": "KRAQx",
+      "name": "KRAQ xStock",
+      "underlying": "KRAQ",
+      "dividends": 0,
+      "yieldPct": 0,
+      "splitFactor": 1.01375909737,
+      "lastPaid": null,
+      "hiddenUsd": 0,
+      "floatUsd": 41439172.82294857
+    },
+    {
+      "symbol": "NFLXx",
+      "name": "Netflix xStock",
+      "underlying": "NFLX",
+      "dividends": 0,
+      "yieldPct": 0,
+      "splitFactor": 10,
+      "lastPaid": null,
+      "hiddenUsd": 0,
+      "floatUsd": 117534639.69716762
     },
     {
       "symbol": "SATAx",
@@ -3987,6 +4101,60 @@
   "topYields": [
     {
       "symbol": "STRCx",
+      "events": [
+        {
+          "at": "2026-08-30T23:55:00.000Z",
+          "ratio": 1.0051371622315832
+        },
+        {
+          "at": "2026-08-14T00:30:00.000Z",
+          "ratio": 1.0052208416
+        },
+        {
+          "at": "2026-07-31T00:30:00.000Z",
+          "ratio": 1.005586592179
+        },
+        {
+          "at": "2026-07-15T00:30:00.000Z",
+          "ratio": 1.005668291577
+        },
+        {
+          "at": "2026-06-30T00:30:00.000Z",
+          "ratio": 1.005726855504
+        },
+        {
+          "at": "2026-06-14T23:55:00.000Z",
+          "ratio": 1.01010899789
+        },
+        {
+          "at": "2026-05-15T00:30:00.000Z",
+          "ratio": 1.0095833333000002
+        },
+        {
+          "at": "2026-04-15T00:30:00.000Z",
+          "ratio": 1.0095833333
+        },
+        {
+          "at": "2026-04-01T00:30:00.000Z",
+          "ratio": 1.0019093171820002
+        },
+        {
+          "at": "2026-03-13T00:15:00.000Z",
+          "ratio": 1.0067076623339999
+        },
+        {
+          "at": "2026-02-28T23:55:00.000Z",
+          "ratio": 1.0050802700380002
+        },
+        {
+          "at": "2026-02-02T21:48:00.000Z",
+          "ratio": 1.0077578808899998
+        },
+        {
+          "at": "2025-11-30T23:55:00.000Z",
+          "ratio": 1.000000657507339
+        }
+      ],
       "name": "Strategy PP Variable xStock",
       "underlying": "STRC",
       "logo": "https://xstocks-metadata.backed.fi/logos/tokens/STRCx.png",
@@ -3994,11 +4162,25 @@
       "yieldPct": 8.089299772563653,
       "splitFactor": 1,
       "lastPaid": "2026-08-30T23:55:00.000Z",
-      "floatUsd": 49957649.39902193,
-      "hiddenUsd": 3738782.6803546506
+      "floatUsd": 49957376.495347545,
+      "hiddenUsd": 3738762.25650478
     },
     {
       "symbol": "STRKx",
+      "events": [
+        {
+          "at": "2026-06-14T23:55:00.000Z",
+          "ratio": 1.0287459576
+        },
+        {
+          "at": "2026-03-13T00:15:00.000Z",
+          "ratio": 1.0176189277599998
+        },
+        {
+          "at": "2025-12-31T23:55:00.000Z",
+          "ratio": 1.008887760284
+        }
+      ],
       "name": "Strategy PP Fixed xStock",
       "underlying": "STRK",
       "logo": "https://xstocks-metadata.backed.fi/logos/tokens/STRKx.png",
@@ -4011,6 +4193,28 @@
     },
     {
       "symbol": "PFEx",
+      "events": [
+        {
+          "at": "2026-07-24T00:30:00.000Z",
+          "ratio": 1.012035185926
+        },
+        {
+          "at": "2026-05-08T00:30:00.000Z",
+          "ratio": 1.0113670694860002
+        },
+        {
+          "at": "2026-03-06T23:55:00.000Z",
+          "ratio": 1.01170580619
+        },
+        {
+          "at": "2025-12-01T23:55:00.000Z",
+          "ratio": 1.0128580983
+        },
+        {
+          "at": "2025-09-02T23:55:00.000Z",
+          "ratio": 1.004650623337
+        }
+      ],
       "name": "Pfizer xStock",
       "underlying": "PFE",
       "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PFEx.png",
@@ -4023,6 +4227,28 @@
     },
     {
       "symbol": "CMCSAx",
+      "events": [
+        {
+          "at": "2026-07-01T00:30:00.000Z",
+          "ratio": 1.009409368635438
+        },
+        {
+          "at": "2026-04-01T00:30:00.000Z",
+          "ratio": 1.008045977011
+        },
+        {
+          "at": "2026-02-05T23:55:00.000Z",
+          "ratio": 1.006850768482
+        },
+        {
+          "at": "2025-10-22T23:55:00.000Z",
+          "ratio": 1.0073382277560001
+        },
+        {
+          "at": "2025-07-23T23:55:00.000Z",
+          "ratio": 1.006454341379
+        }
+      ],
       "name": "Comcast xStock",
       "underlying": "CMCSA",
       "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CMCSAx.png",
@@ -4035,6 +4261,24 @@
     },
     {
       "symbol": "NVOx",
+      "events": [
+        {
+          "at": "2026-08-15T00:30:00.000Z",
+          "ratio": 1.006213846154
+        },
+        {
+          "at": "2026-03-28T23:55:00.000Z",
+          "ratio": 1.02541132075
+        },
+        {
+          "at": "2025-09-05T23:55:00.000Z",
+          "ratio": 1.0012634533800002
+        },
+        {
+          "at": "2025-08-26T23:55:00.000Z",
+          "ratio": 1.003841218823
+        }
+      ],
       "name": "Novo Nordisk xStock",
       "underlying": "NVO",
       "logo": "https://xstocks-metadata.backed.fi/logos/tokens/NVOx.png",
@@ -4042,11 +4286,33 @@
       "yieldPct": 3.7054990743787597,
       "splitFactor": 1,
       "lastPaid": "2026-08-15T00:30:00.000Z",
-      "floatUsd": 13538970.338628333,
-      "hiddenUsd": 483760.67330669885
+      "floatUsd": 13538970.338627907,
+      "hiddenUsd": 483760.6733066836
     },
     {
       "symbol": "PEPx",
+      "events": [
+        {
+          "at": "2026-09-04T00:30:00.000Z",
+          "ratio": 1.007398943008
+        },
+        {
+          "at": "2026-06-05T00:30:00.000Z",
+          "ratio": 1.0072880759760001
+        },
+        {
+          "at": "2026-03-06T01:15:00.000Z",
+          "ratio": 1.006196328563
+        },
+        {
+          "at": "2026-01-06T23:55:00.000Z",
+          "ratio": 1.0071369666669998
+        },
+        {
+          "at": "2025-09-30T23:55:00.000Z",
+          "ratio": 1.005916894891
+        }
+      ],
       "name": "PepsiCo xStock",
       "underlying": "PEP",
       "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PEPx.png",
@@ -4059,6 +4325,28 @@
     },
     {
       "symbol": "PMx",
+      "events": [
+        {
+          "at": "2026-06-25T00:30:00.000Z",
+          "ratio": 1.005755677369
+        },
+        {
+          "at": "2026-03-19T00:15:00.000Z",
+          "ratio": 1.006193571687
+        },
+        {
+          "at": "2026-01-14T23:55:00.000Z",
+          "ratio": 1.005979139833
+        },
+        {
+          "at": "2025-10-20T23:55:00.000Z",
+          "ratio": 1.006510210719
+        },
+        {
+          "at": "2025-07-15T23:55:00.000Z",
+          "ratio": 1.007464337056
+        }
+      ],
       "name": "Philip Morris xStock",
       "underlying": "PM",
       "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PMx.png",
@@ -4071,6 +4359,28 @@
     },
     {
       "symbol": "CVXx",
+      "events": [
+        {
+          "at": "2026-08-19T00:30:00.000Z",
+          "ratio": 1.0060561874210001
+        },
+        {
+          "at": "2026-05-19T00:30:00.000Z",
+          "ratio": 1.00635325311
+        },
+        {
+          "at": "2026-03-10T23:55:00.000Z",
+          "ratio": 1.00618080483
+        },
+        {
+          "at": "2025-12-10T23:55:00.000Z",
+          "ratio": 1.00583762773
+        },
+        {
+          "at": "2025-09-10T23:55:00.000Z",
+          "ratio": 1.004783767039
+        }
+      ],
       "name": "Chevron xStock",
       "underlying": "CVX",
       "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CVXx.png",

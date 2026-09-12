@@ -1,6 +1,7 @@
 import { buildAssetReport } from "@/lib/report";
 import { usd, num, pct, signed, day } from "@/lib/fmt";
-import { isIncome } from "@/lib/xstocks";
+import { isIncome, eventRatio } from "@/lib/xstocks";
+import StepChart from "@/app/StepChart";
 
 export const revalidate = 300;
 
@@ -42,6 +43,16 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
   const splitLabel =
     r.splitFactor >= 1 ? `${num(r.splitFactor, 0)}:1` : `1:${num(1 / r.splitFactor, 0)}`;
   const drift = Math.abs(r.driftPct) > 1e-9;
+
+  // Cumulative dividend yield, compounded in order. Splits are skipped rather than
+  // plotted: a ten-for-one jump would flatten every real payment into the baseline.
+  let f = 1;
+  const yieldSeries = r.history
+    .filter((e) => isIncome(e.reason))
+    .map((e) => {
+      f *= eventRatio(e);
+      return { at: e.activationDateTime, value: (f - 1) * 100, label: e.reason };
+    });
 
   return (
     <>
@@ -89,6 +100,14 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
               </>
             ) : null}
           </p>
+          {yieldSeries.length > 1 ? (
+            <StepChart
+              points={yieldSeries}
+              format="pct"
+              height={190}
+              caption={`Cumulative dividend growth on a ${r.symbol} position, compounded. Each step is a payout activating.`}
+            />
+          ) : null}
         </div>
       ) : hasSplit ? (
         <div className="figure">

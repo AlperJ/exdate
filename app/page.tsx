@@ -1,7 +1,9 @@
 import Search from "./Search";
+import StepChart from "./StepChart";
 import { marketSummary } from "@/lib/report";
 import { day, num, pct, usd } from "@/lib/fmt";
 import market from "@/data/market.json";
+
 
 export const revalidate = 900;
 
@@ -32,6 +34,16 @@ export default async function Home() {
           measured against {usd(m.totalFloatUsd, 0)} of positions as of {asOf}. Splits are excluded:
           they raise the multiplier without paying anyone.
         </p>
+        <StepChart
+          points={m.cumulative.map((p) => ({
+            at: p.month,
+            value: p.usd,
+            label: `${p.monthCount} ${p.monthCount === 1 ? "payment" : "payments"} that month`,
+          }))}
+          format="usd"
+          height={200}
+          caption="Cumulative dividends paid into Solana wallets, month by month. Each step is the day a multiplier changed."
+        />
       </div>
 
       <div className="band">

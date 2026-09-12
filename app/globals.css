@@ -969,3 +969,71 @@ p.prose:last-child {
   height: 30px;
   margin-top: 10px;
 }
+
+/* ---------------------------------------------------------------- chart -- */
+/* One series, so the mark carries the only colour and every piece of text stays
+   on a text token. Green here means income, which is the same thing it means in
+   a table cell. */
+
+.chart {
+  margin: 16px 0 0;
+}
+
+.chart__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.chart__grid {
+  stroke: var(--rule-row);
+  stroke-width: 1;
+}
+
+.chart__area {
+  fill: var(--pos);
+  opacity: 0.1;
+}
+
+.chart__line {
+  fill: none;
+  stroke: var(--pos);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.chart__dot {
+  fill: var(--pos);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.chart__crosshair {
+  stroke: var(--n-400);
+  stroke-width: 1;
+}
+
+.chart__tick {
+  font: 400 11px/16px var(--sans);
+  fill: var(--text-muted);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.chart__endlabel {
+  font: 500 12px/18px var(--sans);
+  fill: var(--text);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.chart__cap {
+  font: 400 12px/18px var(--sans);
+  color: var(--text-muted);
+  margin: 8px 0 0;
+  min-height: 18px;
+}
+
+.chart__cap b {
+  font-weight: 500;
+  color: var(--text);
+}
