@@ -1,4 +1,5 @@
 import Search from "./Search";
+import Sym from "./Sym";
 import StepChart from "./StepChart";
 import { marketSummary } from "@/lib/report";
 import { day, num, pct, usd } from "@/lib/fmt";
@@ -75,10 +76,10 @@ export default async function Home() {
           <div className="tw">
             <table className="dt">
               <colgroup>
-                <col style={{ width: "96px" }} />
+                <col style={{ width: "124px" }} />
                 <col />
                 <col style={{ width: "88px" }} />
-                <col style={{ width: "96px" }} />
+                <col style={{ width: "124px" }} />
                 <col style={{ width: "140px" }} />
               </colgroup>
               <thead>
@@ -94,9 +95,7 @@ export default async function Home() {
                 {m.topPayers.slice(0, 8).map((p) => (
                   <tr key={p.symbol}>
                     <td>
-                      <a className="cell__main" href={`/asset/${p.symbol}`}>
-                        {p.symbol}
-                      </a>
+                      <Sym symbol={p.symbol} href={`/asset/${p.symbol}`} />
                     </td>
                     <td className="muted">{p.name.replace(/ xStock$/, "")}</td>
                     <td>{p.dividends}</td>
@@ -125,7 +124,7 @@ export default async function Home() {
             <table className="dt">
               <colgroup>
                 <col style={{ width: "112px" }} />
-                <col style={{ width: "96px" }} />
+                <col style={{ width: "124px" }} />
                 <col />
                 <col style={{ width: "110px" }} />
                 <col style={{ width: "130px" }} />
@@ -144,9 +143,7 @@ export default async function Home() {
                   <tr key={`${c.symbol}-${i}`}>
                     <td>{day(c.at)}</td>
                     <td>
-                      <a className="cell__main" href={`/asset/${c.symbol}`}>
-                        {c.symbol}
-                      </a>
+                      <Sym symbol={c.symbol} href={`/asset/${c.symbol}`} />
                     </td>
                     <td className="muted">{c.type.replace(/([a-z])([A-Z])/g, "$1 $2")}</td>
                     <td>

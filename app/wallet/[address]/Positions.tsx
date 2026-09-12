@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { usd, num, pct, signed, day } from "@/lib/fmt";
 import type { PositionReport } from "@/lib/report";
+import Sym from "@/app/Sym";
 
 export default function Positions({ positions }: { positions: PositionReport[] }) {
   // A single-position wallet has nothing to choose between, so open it.
@@ -37,17 +38,7 @@ export default function Positions({ positions }: { positions: PositionReport[] }
             return [
               <tr key={p.mint}>
                 <td>
-                  <span className="cell__id">
-                    {p.logo ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img className="mark mark--sm" src={p.logo} alt="" width={20} height={20} />
-                    ) : (
-                      <span className="mark mark--sm" />
-                    )}
-                    <a className="cell__main" href={`/asset/${p.symbol}`}>
-                      {p.symbol}
-                    </a>
-                  </span>
+                  <Sym symbol={p.symbol} href={`/asset/${p.symbol}`} />
                 </td>
                 <td>{num(p.trueBalance, 4)}</td>
                 <td>{p.valueUsd !== null ? usd(p.valueUsd, 0) : "—"}</td>

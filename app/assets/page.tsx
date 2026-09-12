@@ -1,4 +1,5 @@
 import { day, num, pct, usd } from "@/lib/fmt";
+import Sym from "@/app/Sym";
 import market from "@/data/market.json";
 
 export const revalidate = 900;
@@ -36,7 +37,7 @@ export default function AssetsPage() {
           <div className="tw">
             <table className="dt">
               <colgroup>
-                <col style={{ width: "96px" }} />
+                <col style={{ width: "124px" }} />
                 <col />
                 <col style={{ width: "88px" }} />
                 <col style={{ width: "96px" }} />
@@ -57,9 +58,7 @@ export default function AssetsPage() {
                 {paying.map((r) => (
                   <tr key={r.symbol}>
                     <td>
-                      <a className="cell__main" href={`/asset/${r.symbol}`}>
-                        {r.symbol}
-                      </a>
+                      <Sym symbol={r.symbol} href={`/asset/${r.symbol}`} />
                     </td>
                     <td className="muted">{r.name.replace(/ xStock$/, "")}</td>
                     <td>{r.dividends}</td>
@@ -88,7 +87,7 @@ export default function AssetsPage() {
             <div className="tw">
               <table className="dt">
                 <colgroup>
-                  <col style={{ width: "96px" }} />
+                  <col style={{ width: "124px" }} />
                   <col />
                   <col style={{ width: "112px" }} />
                   <col style={{ width: "130px" }} />
@@ -105,9 +104,7 @@ export default function AssetsPage() {
                   {splitOnly.map((r) => (
                     <tr key={r.symbol}>
                       <td>
-                        <a className="cell__main" href={`/asset/${r.symbol}`}>
-                          {r.symbol}
-                        </a>
+                        <Sym symbol={r.symbol} href={`/asset/${r.symbol}`} />
                       </td>
                       <td className="muted">{r.name.replace(/ xStock$/, "")}</td>
                       <td className="muted">

@@ -1,4 +1,5 @@
 import { marketSummary } from "@/lib/report";
+import Sym from "@/app/Sym";
 import { fetchUpcoming } from "@/lib/xstocks";
 import { day, num, pct, usd } from "@/lib/fmt";
 import market from "@/data/market.json";
@@ -72,7 +73,7 @@ export default async function CalendarPage() {
               <table className="dt">
                 <colgroup>
                   <col style={{ width: "112px" }} />
-                  <col style={{ width: "96px" }} />
+                  <col style={{ width: "124px" }} />
                   <col />
                   <col style={{ width: "104px" }} />
                   <col style={{ width: "104px" }} />
@@ -93,9 +94,7 @@ export default async function CalendarPage() {
                     <tr key={`${c.symbol}-${i}`}>
                       <td>{day(c.at)}</td>
                       <td>
-                        <a className="cell__main" href={`/asset/${c.symbol}`}>
-                          {c.symbol}
-                        </a>
+                        <Sym symbol={c.symbol} href={`/asset/${c.symbol}`} />
                       </td>
                       <td className="muted">{c.type.replace(/([a-z])([A-Z])/g, "$1 $2")}</td>
                       <td>{c.grossUsd ? usd(Number(c.grossUsd), 5) : "—"}</td>
