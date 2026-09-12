@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "probe": "node --experimental-strip-types scripts/probe.ts"
+    "probe": "node --experimental-strip-types scripts/probe.ts",
+    "snapshot": "node scripts/snapshot.mjs"
   },
   "dependencies": {
     "next": "^15.5.25",

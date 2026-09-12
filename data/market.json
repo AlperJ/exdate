@@ -1,0 +1,386 @@
+{
+  "measuredAt": "2026-09-12T20:35:32.364Z",
+  "assetCount": 832,
+  "assetsWithMultiplierChange": 344,
+  "assetsPricedAndPaying": 65,
+  "dividendPayments": 257,
+  "totalFloatUsd": 2546001260.7160583,
+  "totalHiddenUsd": 23307711.128905617,
+  "splits": [
+    {
+      "symbol": "KLACx",
+      "factor": 10
+    },
+    {
+      "symbol": "NFLXx",
+      "factor": 10
+    },
+    {
+      "symbol": "PPLTx",
+      "factor": 10
+    },
+    {
+      "symbol": "VUGx",
+      "factor": 6
+    },
+    {
+      "symbol": "PALLx",
+      "factor": 5
+    },
+    {
+      "symbol": "CRWDx",
+      "factor": 4
+    },
+    {
+      "symbol": "APHx",
+      "factor": 2
+    },
+    {
+      "symbol": "TQQQx",
+      "factor": 2
+    },
+    {
+      "symbol": "CMCSAx",
+      "factor": 1.04717404326
+    },
+    {
+      "symbol": "KRAQx",
+      "factor": 1.01375909737
+    },
+    {
+      "symbol": "HONx",
+      "factor": 0.9755596760294999
+    }
+  ],
+  "topPayers": [
+    {
+      "symbol": "PYPLx",
+      "name": "PayPal xStock",
+      "underlying": "PYPL",
+      "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PYPLx.png",
+      "dividends": 2,
+      "yieldPct": 0.40286411936261146,
+      "splitFactor": 1,
+      "lastPaid": "2026-09-04T00:30:00.000Z",
+      "floatUsd": 951536380.5434788,
+      "hiddenUsd": 3818017.238366897
+    },
+    {
+      "symbol": "STRCx",
+      "name": "Strategy PP Variable xStock",
+      "underlying": "STRC",
+      "logo": "https://xstocks-metadata.backed.fi/logos/tokens/STRCx.png",
+      "dividends": 13,
+      "yieldPct": 8.089299772563653,
+      "splitFactor": 1,
+      "lastPaid": "2026-08-30T23:55:00.000Z",
+      "floatUsd": 49986982.52176831,
+      "hiddenUsd": 3740977.943194359
+    },
+    {
+      "symbol": "PFEx",
+      "name": "Pfizer xStock",
+      "underlying": "PFE",
+      "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PFEx.png",
+      "dividends": 5,
+      "yieldPct": 5.3712970910394064,
+      "splitFactor": 1,
+      "lastPaid": "2026-07-24T00:30:00.000Z",
+      "floatUsd": 18761894.31187724,
+      "hiddenUsd": 956386.7117693942
+    },
+    {
+      "symbol": "STRKx",
+      "name": "Strategy PP Fixed xStock",
+      "underlying": "STRK",
+      "logo": "https://xstocks-metadata.backed.fi/logos/tokens/STRKx.png",
+      "dividends": 3,
+      "yieldPct": 5.617569999119398,
+      "splitFactor": 1,
+      "lastPaid": "2026-06-14T23:55:00.000Z",
+      "floatUsd": 15363155.734328667,
+      "hiddenUsd": 817133.0087000061
+    },
+    {
+      "symbol": "TBLLx",
+      "name": "TBLL xStock",
+      "underlying": "TBLL",
+      "logo": "https://xstocks-metadata.backed.fi/logos/tokens/TBLLx.png",
+      "dividends": 9,
+      "yieldPct": 1.8760851383002208,
+      "splitFactor": 1,
+      "lastPaid": "2026-08-24T00:00:00.000Z",
+      "floatUsd": 39907732.1989671,
+      "hiddenUsd": 734915.3943254526
+    },
+    {
+      "symbol": "CVXx",
+      "name": "Chevron xStock",
+      "underlying": "CVX",
+      "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CVXx.png",
+      "dividends": 5,
+      "yieldPct": 2.9554183189076655,
+      "splitFactor": 1,
+      "lastPaid": "2026-08-19T00:30:00.000Z",
+      "floatUsd": 20219021.696268786,
+      "hiddenUsd": 580403.324927002
+    },
+    {
+      "symbol": "CMCSAx",
+      "name": "Comcast xStock",
+      "underlying": "CMCSA",
+      "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CMCSAx.png",
+      "dividends": 5,
+      "yieldPct": 3.868096040129476,
+      "splitFactor": 1.04717404326,
+      "lastPaid": "2026-07-01T00:30:00.000Z",
+      "floatUsd": 15016548.087455565,
+      "hiddenUsd": 559223.211052789
+    },
+    {
+      "symbol": "PMx",
+      "name": "Philip Morris xStock",
+      "underlying": "PM",
+      "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PMx.png",
+      "dividends": 5,
+      "yieldPct": 3.2311755783980267,
+      "splitFactor": 1,
+      "lastPaid": "2026-06-25T00:30:00.000Z",
+      "floatUsd": 17419601.640041586,
+      "hiddenUsd": 545240.2444257637
+    },
+    {
+      "symbol": "SCHFx",
+      "name": "Schwab International Equity xStock",
+      "underlying": "SCHF",
+      "logo": "https://xstocks-metadata.backed.fi/logos/tokens/SCHFx.png",
+      "dividends": 1,
+      "yieldPct": 0.42153284669999014,
+      "splitFactor": 1,
+      "lastPaid": "2026-06-24T00:30:00.000Z",
+      "floatUsd": 127325761.75566697,
+      "hiddenUsd": 534466.9543437937
+    },
+    {
+      "symbol": "UNHx",
+      "name": "UnitedHealth xStock",
+      "underlying": "UNH",
+      "logo": "https://xstocks-metadata.backed.fi/logos/tokens/UNHx.png",
+      "dividends": 6,
+      "yieldPct": 2.7347868536810926,
+      "splitFactor": 1,
+      "lastPaid": "2026-09-12T00:30:00.000Z",
+      "floatUsd": 18883245.138115674,
+      "hiddenUsd": 502669.5644203387
+    },
+    {
+      "symbol": "CSCOx",
+      "name": "Cisco xStock",
+      "underlying": "CSCO",
+      "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CSCOx.png",
+      "dividends": 5,
+      "yieldPct": 1.8086451810118254,
+      "splitFactor": 1,
+      "lastPaid": "2026-07-05T23:55:00.000Z",
+      "floatUsd": 27606968.16770555,
+      "hiddenUsd": 490441.7483416235
+    },
+    {
+      "symbol": "PEPx",
+      "name": "PepsiCo xStock",
+      "underlying": "PEP",
+      "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PEPx.png",
+      "dividends": 5,
+      "yieldPct": 3.4400094163435257,
+      "splitFactor": 1,
+      "lastPaid": "2026-09-04T00:30:00.000Z",
+      "floatUsd": 14734314.015656177,
+      "hiddenUsd": 490005.55242806487
+    }
+  ],
+  "topYields": [
+    {
+      "symbol": "STRCx",
+      "name": "Strategy PP Variable xStock",
+      "underlying": "STRC",
+      "logo": "https://xstocks-metadata.backed.fi/logos/tokens/STRCx.png",
+      "dividends": 13,
+      "yieldPct": 8.089299772563653,
+      "splitFactor": 1,
+      "lastPaid": "2026-08-30T23:55:00.000Z",
+      "floatUsd": 49986982.52176831,
+      "hiddenUsd": 3740977.943194359
+    },
+    {
+      "symbol": "STRKx",
+      "name": "Strategy PP Fixed xStock",
+      "underlying": "STRK",
+      "logo": "https://xstocks-metadata.backed.fi/logos/tokens/STRKx.png",
+      "dividends": 3,
+      "yieldPct": 5.617569999119398,
+      "splitFactor": 1,
+      "lastPaid": "2026-06-14T23:55:00.000Z",
+      "floatUsd": 15363155.734328667,
+      "hiddenUsd": 817133.0087000061
+    },
+    {
+      "symbol": "PFEx",
+      "name": "Pfizer xStock",
+      "underlying": "PFE",
+      "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PFEx.png",
+      "dividends": 5,
+      "yieldPct": 5.3712970910394064,
+      "splitFactor": 1,
+      "lastPaid": "2026-07-24T00:30:00.000Z",
+      "floatUsd": 18761894.31187724,
+      "hiddenUsd": 956386.7117693942
+    },
+    {
+      "symbol": "CMCSAx",
+      "name": "Comcast xStock",
+      "underlying": "CMCSA",
+      "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CMCSAx.png",
+      "dividends": 5,
+      "yieldPct": 3.868096040129476,
+      "splitFactor": 1.04717404326,
+      "lastPaid": "2026-07-01T00:30:00.000Z",
+      "floatUsd": 15016548.087455565,
+      "hiddenUsd": 559223.211052789
+    },
+    {
+      "symbol": "NVOx",
+      "name": "Novo Nordisk xStock",
+      "underlying": "NVO",
+      "logo": "https://xstocks-metadata.backed.fi/logos/tokens/NVOx.png",
+      "dividends": 4,
+      "yieldPct": 3.7054990743787597,
+      "splitFactor": 1,
+      "lastPaid": "2026-08-15T00:30:00.000Z",
+      "floatUsd": 13538970.338628333,
+      "hiddenUsd": 483760.67330669885
+    },
+    {
+      "symbol": "PEPx",
+      "name": "PepsiCo xStock",
+      "underlying": "PEP",
+      "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PEPx.png",
+      "dividends": 5,
+      "yieldPct": 3.4400094163435257,
+      "splitFactor": 1,
+      "lastPaid": "2026-09-04T00:30:00.000Z",
+      "floatUsd": 14734314.015656177,
+      "hiddenUsd": 490005.55242806487
+    },
+    {
+      "symbol": "PMx",
+      "name": "Philip Morris xStock",
+      "underlying": "PM",
+      "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PMx.png",
+      "dividends": 5,
+      "yieldPct": 3.2311755783980267,
+      "splitFactor": 1,
+      "lastPaid": "2026-06-25T00:30:00.000Z",
+      "floatUsd": 17419601.640041586,
+      "hiddenUsd": 545240.2444257637
+    },
+    {
+      "symbol": "CVXx",
+      "name": "Chevron xStock",
+      "underlying": "CVX",
+      "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CVXx.png",
+      "dividends": 5,
+      "yieldPct": 2.9554183189076655,
+      "splitFactor": 1,
+      "lastPaid": "2026-08-19T00:30:00.000Z",
+      "floatUsd": 20219021.696268786,
+      "hiddenUsd": 580403.324927002
+    }
+  ],
+  "upcoming": [
+    {
+      "symbol": "CKHUTx",
+      "at": "2026-09-13T23:55:00.000Z",
+      "type": "CashDividend",
+      "netUsd": "0.09506",
+      "withholding": "0"
+    },
+    {
+      "symbol": "CKAHx",
+      "at": "2026-09-13T23:55:00.000Z",
+      "type": "CashDividend",
+      "netUsd": "0.05228",
+      "withholding": "0"
+    },
+    {
+      "symbol": "CITICx",
+      "at": "2026-09-13T23:55:00.000Z",
+      "type": "CashDividend",
+      "netUsd": "0.03095",
+      "withholding": "0"
+    },
+    {
+      "symbol": "PKGx",
+      "at": "2026-09-15T00:30:00.000Z",
+      "type": "CashDividend",
+      "netUsd": "1.05",
+      "withholding": "0.3"
+    },
+    {
+      "symbol": "UDRx",
+      "at": "2026-09-15T00:30:00.000Z",
+      "type": "CashDividend",
+      "netUsd": "0.1015",
+      "withholding": "0.3"
+    },
+    {
+      "symbol": "DLRx",
+      "at": "2026-09-15T00:30:00.000Z",
+      "type": "CashDividend",
+      "netUsd": "0.854",
+      "withholding": "0.3"
+    },
+    {
+      "symbol": "TMOx",
+      "at": "2026-09-15T00:30:00.000Z",
+      "type": "CashDividend",
+      "netUsd": "0.329",
+      "withholding": "0.3"
+    },
+    {
+      "symbol": "EXRx",
+      "at": "2026-09-15T00:30:00.000Z",
+      "type": "CashDividend",
+      "netUsd": "1.134",
+      "withholding": "0.3"
+    },
+    {
+      "symbol": "PSAx",
+      "at": "2026-09-15T00:30:00.000Z",
+      "type": "CashDividend",
+      "netUsd": "2.1",
+      "withholding": "0.3"
+    },
+    {
+      "symbol": "ECLx",
+      "at": "2026-09-15T00:30:00.000Z",
+      "type": "CashDividend",
+      "netUsd": "0.511",
+      "withholding": "0.3"
+    },
+    {
+      "symbol": "MRKx",
+      "at": "2026-09-15T00:30:00.000Z",
+      "type": "CashDividend",
+      "netUsd": "0.595",
+      "withholding": "0.3"
+    },
+    {
+      "symbol": "OVVx",
+      "at": "2026-09-15T00:30:00.000Z",
+      "type": "CashDividend",
+      "netUsd": "0.21",
+      "withholding": "0.3"
+    }
+  ],
+  "upcomingCount": 38
+}
