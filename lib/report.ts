@@ -7,9 +7,10 @@ import {
   pendingChange, treasuryHeld,
 } from "./solana";
 
+import { fetchPrices } from "./price";
+
 /** Positions we pull full payout history for. The rest are counted, not itemised. */
 const DETAILED = 20;
-import { fetchPrices } from "./price";
 
 export type PaidEvent = {
   date: string;
@@ -97,6 +98,10 @@ export async function buildReport(wallet: string): Promise<WalletReport> {
   if (holdings.length && !mine.length) {
     notes.push("Wallet holds Token-2022 assets, but none of them are xStocks.");
   }
+
+  // The upcoming feed keeps serving events that already activated.
+  const nowMs = Date.now();
+  const futureActions = upcomingAll.filter((c) => +new Date(c.effectiveTimeUtc) > nowMs);
 
   // Every mint in a couple of batched calls, every price in batches of fifty. A wallet
   // with hundreds of positions must not turn into hundreds of round trips.
@@ -186,7 +191,10 @@ export async function buildReport(wallet: string): Promise<WalletReport> {
       pending: pend
         ? { from: pend.from, to: pend.to, activatesAt: pend.activatesAt.toISOString(), secondsAway: pend.secondsAway }
         : null,
-      upcoming: upcomingAll.filter((c) => c.xstockSymbol === asset.symbol).slice(0, 5),
+      upcoming: futureActions
+        .filter((c) => c.xstockSymbol === asset.symbol)
+        .sort((a, b) => +new Date(a.effectiveTimeUtc) - +new Date(b.effectiveTimeUtc))
+        .slice(0, 5),
       reserves: reserves
         ? {
             sharesHeld: Number(reserves.sharesHeld),
@@ -365,4 +373,24 @@ export async function listPayingAssets(limit = 24) {
       logo: x.asset.logo,
       priceUsd: prices[x.mint!]!.usdPrice,
     }));
+}
+
+/** Headline figures for the landing page, read live rather than hardcoded. */
+export async function marketSummary() {
+  const [assets, upcoming] = await Promise.all([
+    fetchAssets().catch(() => [] as Asset[]),
+    fetchUpcoming().catch(() => [] as CorporateAction[]),
+  ]);
+  const now = Date.now();
+  const future = upcoming.filter((c) => +new Date(c.effectiveTimeUtc) > now);
+  const nextUp = future.sort(
+    (a, b) => +new Date(a.effectiveTimeUtc) - +new Date(b.effectiveTimeUtc)
+  )[0];
+  return {
+    assetCount: assets.length,
+    scheduledCount: future.length,
+    nextEvent: nextUp
+      ? { symbol: nextUp.xstockSymbol, at: nextUp.effectiveTimeUtc, type: nextUp.caType }
+      : null,
+  };
 }

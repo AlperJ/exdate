@@ -1,6 +1,12 @@
 import Search from "./Search";
+import { marketSummary } from "@/lib/report";
+import { day, num } from "@/lib/fmt";
 
-export default function Home() {
+export const revalidate = 900;
+
+export default async function Home() {
+  const s = await marketSummary().catch(() => null);
+
   return (
     <>
       <section className="hero">
@@ -24,18 +30,20 @@ export default function Home() {
       <div className="stats">
         <div className="stat">
           <div className="k">Tokenized assets</div>
-          <div className="v">832</div>
+          <div className="v">{s ? num(s.assetCount, 0) : "—"}</div>
           <div className="note">live on Solana</div>
         </div>
         <div className="stat">
-          <div className="k">Scheduled payouts</div>
-          <div className="v">539</div>
+          <div className="k">Payouts scheduled</div>
+          <div className="v">{s ? num(s.scheduledCount, 0) : "—"}</div>
           <div className="note">none of them in your wallet</div>
         </div>
         <div className="stat">
-          <div className="k">Apple, since launch</div>
-          <div className="v pos">+0.33%</div>
-          <div className="note">paid invisibly over 5 events</div>
+          <div className="k">Next one lands</div>
+          <div className="v pos" style={{ fontSize: 16 }}>
+            {s?.nextEvent ? day(s.nextEvent.at) : "—"}
+          </div>
+          <div className="note">{s?.nextEvent ? s.nextEvent.symbol : "checking"}</div>
         </div>
         <div className="stat">
           <div className="k">Trackers showing it</div>
