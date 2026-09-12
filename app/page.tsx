@@ -20,8 +20,8 @@ export default async function Home() {
         <div>
           <h1>Tokenized stocks pay dividends invisibly</h1>
           <p className="standfirst">
-            Nothing arrives in your wallet. The token count never changes, and no wallet, explorer
-            or tracker shows that you were paid.
+            Nothing arrives in your wallet. The token count never changes, and nothing tells you
+            which payment moved your balance, what it was worth, or when the next one lands.
           </p>
           <Search />
         </div>
@@ -192,9 +192,10 @@ export default async function Home() {
         </div>
         <div className="section__body">
           <p className="prose">
-            Every figure here is read from Solana and from the issuer&apos;s own records, and{" "}
+            Every figure here is read from Solana and from the issuer&apos;s own records. The issuer
+            publishes the events; what nobody does is join them to a wallet.{" "}
             <a href="/method">How this works</a> states each source, what the numbers deliberately
-            exclude, and why a split is not a payment even though it moves the same number.
+            exclude, and what we checked before claiming any of it.
           </p>
         </div>
       </section>

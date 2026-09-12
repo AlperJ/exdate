@@ -85,6 +85,16 @@ export default async function WalletPage({ params }: { params: Promise<{ address
           Across <b>{t.dividendCount}</b> {t.dividendCount === 1 ? "payment" : "payments"} on
           holdings worth <b>{usd(t.itemisedValueUsd, 0)}</b>. Nothing was sent, nothing was
           announced, and no explorer records any of it.
+          {t.estimatedRows > 0 ? (
+            <>
+              {" "}
+              <b>
+                {t.estimatedRows} of those {t.dividendCount} rows are estimated
+              </b>
+              : those positions trade too often to establish what they held on the payment date,
+              so the figure above will move between loads. The rows are marked below.
+            </>
+          ) : null}
           {t.positionCount > t.itemised ? (
             <>
               {" "}

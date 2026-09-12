@@ -21,7 +21,7 @@ const mono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "ExDate — dividends on tokenized US stocks",
   description:
-    "xStocks on Solana pay dividends by raising a Token-2022 multiplier. Token counts never change and no wallet reports it. ExDate reads the record and states what was paid.",
+    "xStocks on Solana pay dividends by raising a Token-2022 multiplier. The issuer publishes the events; nobody joins them to a wallet. ExDate does, and states what a holder was paid.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

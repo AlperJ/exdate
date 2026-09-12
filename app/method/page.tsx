@@ -184,6 +184,42 @@ export default function MethodPage() {
         </div>
       </section>
 
+      <section className="section">
+        <div className="section__head">
+          <h2 className="section__title">What we checked before claiming any of this</h2>
+          <span className="section__meta">as of 13 Sept 2026</span>
+        </div>
+        <div className="section__body">
+          <p className="prose">
+            The issuer publishes these events openly: its corporate-action feed is free and needs
+            no key, and it labels a dividend differently from a split. None of that is ours. What
+            nobody does is join an event to a wallet and say what a holder was paid.
+          </p>
+          <p className="prose">
+            Before making that claim we read what the Solana surfaces actually ship. Solana
+            Explorer resolves the multiplier and explains only the scaling: a search of its source
+            for dividend, corporate action or stock split returns nothing. Jupiter&apos;s shipped
+            bundle, 3.6 MB of it, contains no mention of a dividend or an ex-date. Backpack&apos;s
+            own feature table lists dividend payouts and corporate actions as still being worked
+            on, and tax documents as not provided.
+          </p>
+          <p className="prose">
+            Kraken states the gap most plainly, to its own customers:{" "}
+            <b>
+              &ldquo;There is no separate cash credit or line item, the increase appears as a higher
+              effective token balance in your portfolio.&rdquo;
+            </b>
+          </p>
+          <p className="prose">
+            Some surfaces could not be inspected: Solscan and Zapper block automated access, and
+            the Phantom, Solflare and Backpack clients are closed. Because Solana&apos;s own RPC
+            already applies the multiplier, any of them may well show a correctly scaled balance.
+            The claim here is narrower and survives that: none of them attributes the change to the
+            event that caused it.
+          </p>
+        </div>
+      </section>
+
       <p className="disclaimer">
         Read-only. No wallet connection, no transactions, no custody. Not investment advice, and not
         affiliated with Backed Finance, Ondo or the Solana Foundation.

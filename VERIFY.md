@@ -259,3 +259,41 @@ The **aggregate dollar figure** is arithmetically exact and conceptually inflate
 The **per-asset and per-wallet pages** are right where the data is clean and confidently wrong on three specific, reproducible, one-line-fixable cases.
 
 Lead with the mechanism. Do not lead with the $23 million.
+
+## W8 — wallet dollar figures used today's balance for historical payments
+
+**Closed 13 September 2026.**
+
+Every payment row was priced against the balance the wallet holds *now*, which is only
+right when the position never changed. On wallet `7BCp5XUX…` 18 of 28 rows used a balance
+that was never held on the day; the worst overstated a single row 151-fold.
+
+The fix rebuilds what the account actually held. For each payment it finds the last
+transaction before that payment's activation and reads the balance it left behind. Only
+those transactions are fetched, not the account's whole history, so a busy account with
+four dividends costs four reads instead of six hundred.
+
+Three checks, each run against the chain by a route the app does not use:
+
+| Row | By hand | On the site |
+|---|---|---|
+| NVDAx 2026-09-10 | held 81.16390121, gained 0.06356115 | identical |
+| NVDAx 2026-06-04 | held 74.96889139, gained 0.06109853 | identical |
+| SPYx 2026-06-18 | held 7.458041, gained 0.01346415 | identical |
+
+| Wallet | Before | After | Runs |
+|---|---|---|---|
+| 9SjWLbuf… | $81.32 | **$87.48** | stable across 5 |
+| 7BCp5XUX… | $118.62 | **$93.38** | stable across 7 |
+
+Load time fell from 41s to 2-7s in the same change, because the old code read every
+transaction on every position to get the same answer.
+
+### What happens when it cannot be established
+
+A position that trades constantly can outrun the walk. That case is no longer silent: the
+row is labelled **estimated**, the wallet headline says how many rows are estimated and
+that the figure will move between loads, and a note explains why. On an omnibus account
+holding 755 positions, 37 of 47 rows come back estimated and the page says so. On both
+ordinary test wallets, none do.
+

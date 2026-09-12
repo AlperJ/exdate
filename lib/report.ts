@@ -5,13 +5,26 @@ import {
 } from "./xstocks";
 import {
   fetchHoldings, fetchMint, fetchMints, firstSeen, effectiveMultiplier, naiveMultiplier,
-  pendingChange, treasuryHeld,
+  pendingChange, treasuryHeld, balanceTimeline, balanceAt,
+  type Timeline,
 } from "./solana";
 
 import { fetchPrices } from "./price";
 
 /** Positions we pull full payout history for. The rest are counted, not itemised. */
 const DETAILED = 20;
+
+/** Run `fn` over every item with at most `n` in flight, keeping input order. */
+async function mapLimit<T, R>(items: T[], n: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const out = new Array<R>(items.length);
+  let next = 0;
+  await Promise.all(
+    Array.from({ length: Math.min(n, items.length) }, async () => {
+      for (let i = next++; i < items.length; i = next++) out[i] = await fn(items[i]);
+    })
+  );
+  return out;
+}
 
 export type PaidEvent = {
   date: string;
@@ -23,6 +36,10 @@ export type PaidEvent = {
   usdGained: number;
   isIncome: boolean;
   ratio: number;
+  /** The balance actually held when this payment activated, in whole tokens. */
+  heldThen: number | null;
+  /** False when the balance at that moment could not be established. */
+  exact: boolean;
 };
 
 export type PositionReport = {
@@ -78,6 +95,8 @@ export type WalletReport = {
     dividendCount: number;
     positionCount: number;
     itemised: number;
+    /** Payment rows whose basis could not be established, so they use today's balance. */
+    estimatedRows: number;
   };
   notes: string[];
 };
@@ -127,18 +146,42 @@ export async function buildReport(wallet: string): Promise<WalletReport> {
 
   const positions: PositionReport[] = [];
 
+  // The itemised positions each need four round trips and none of them depend on one
+  // another, so they go out together. Fetching them one position at a time is what made
+  // a thirty-two position wallet take the better part of a minute.
+  type Deep = {
+    history: MultiplierEvent[];
+    reserves: Awaited<ReturnType<typeof fetchReserves>>;
+    since: Date | null;
+    timeline: Timeline | null;
+  };
+  const deepData = await mapLimit(valued.slice(0, DETAILED), 6, async (v): Promise<Deep> => {
+    const asset = byMint.get(v.h.mint)!;
+    const [history, reserves, since] = await Promise.all([
+      fetchMultiplierHistory(asset.symbol).catch(() => [] as MultiplierEvent[]),
+      fetchReserves(asset.symbol),
+      firstSeen(v.h.tokenAccount).catch(() => null),
+    ]);
+    // Rebuilding the balance costs requests, so only do it when there is a payment to
+    // price, and only walk back as far as the oldest one.
+    const mine = history.filter((e) => (since ? new Date(e.activationDateTime) > since : true));
+    const timeline = mine.length
+      ? await balanceTimeline(
+          v.h.tokenAccount,
+          mine.map((e) => +new Date(e.activationDateTime))
+        ).catch(() => null)
+      : null;
+    return { history, reserves, since, timeline };
+  });
+
+  const BLANK: Deep = { history: [], reserves: null, since: null, timeline: null };
+
   for (const [rank, v] of valued.entries()) {
     const h = v.h;
     const asset = byMint.get(h.mint)!;
     const deep = rank < DETAILED;
 
-    const [history, reserves, since] = deep
-      ? await Promise.all([
-          fetchMultiplierHistory(asset.symbol).catch(() => [] as MultiplierEvent[]),
-          fetchReserves(asset.symbol),
-          firstSeen(h.tokenAccount).catch(() => null),
-        ])
-      : [[] as MultiplierEvent[], null, null];
+    const { history, reserves, since, timeline } = deep ? deepData[rank] : BLANK;
 
     const mint = v.mint;
     const decimals = v.decimals;
@@ -155,10 +198,20 @@ export async function buildReport(wallet: string): Promise<WalletReport> {
 
     // Events that landed while this wallet was holding. Splits move the multiplier but
     // not the position's worth, so only dividends carry a dollar figure.
+    // Use the balance held when each payment activated, not the balance held today.
+    // Today's balance applied to an eight-month-old payment is wrong the moment the
+    // holder bought or sold in between, and it is wrong in both directions.
     const mine_ = history.filter((e) => (since ? new Date(e.activationDateTime) > since : true));
+
     const paid: PaidEvent[] = mine_.map((e) => {
       const income = isIncome(e.reason);
-      const gained = units * (e.multiplier - e.previousMultiplier);
+      const when = +new Date(e.activationDateTime);
+      // A row is exact only where the walk actually reached back past its date.
+      const known = timeline !== null && when >= timeline.coveredFrom;
+      const rawThen = known ? balanceAt(timeline.points, when) : null;
+      const heldThen = rawThen === null ? null : rawThen / 10 ** decimals;
+      const basis = heldThen ?? units;
+      const gained = basis * (e.multiplier - e.previousMultiplier);
       return {
         date: e.activationDateTime,
         reason: e.reason,
@@ -168,12 +221,15 @@ export async function buildReport(wallet: string): Promise<WalletReport> {
         usdGained: income && price ? gained * price : 0,
         isIncome: income,
         ratio: eventRatio(e),
+        heldThen,
+        exact: heldThen !== null,
       };
     });
 
-    // Compound the dividend ratios only: a 10:1 split must not read as a 900% gain.
+    // The position total is the sum of what each payment actually paid, so it inherits
+    // the same basis rather than re-deriving one from today's balance.
+    const totalSharesGained = paid.reduce((t, e) => t + (e.isIncome ? e.sharesGained : 0), 0);
     const divFactor = dividendFactor(mine_);
-    const totalSharesGained = units * effective * (1 - 1 / divFactor);
 
     positions.push({
       symbol: asset.symbol,
@@ -214,6 +270,18 @@ export async function buildReport(wallet: string): Promise<WalletReport> {
       `${positions.length} positions held. The ${DETAILED} largest are itemised below; the rest are counted in the totals by value only.`
     );
   }
+  const estimated = itemised.reduce(
+    (n, p) => n + p.paid.filter((e) => e.isIncome && !e.exact).length,
+    0
+  );
+  if (estimated > 0) {
+    const total = itemised.reduce((n, p) => n + p.paid.filter((e) => e.isIncome).length, 0);
+    notes.push(
+      `${estimated} of ${total} payment rows are marked estimated: those accounts trade too ` +
+        `often to establish what they held on the payment date, so the row values the payment ` +
+        `against today's balance instead.`
+    );
+  }
   if (itemised.some((p) => p.heldSince === null)) {
     notes.push(
       "Some positions sit in accounts too busy to date cheaply, so their full payout history is shown rather than the slice since purchase."
@@ -233,6 +301,7 @@ export async function buildReport(wallet: string): Promise<WalletReport> {
       hiddenUsd: positions.reduce((s, p) => s + p.hiddenUsd, 0),
       dividendUsd: itemised.reduce((s, p) => s + p.totalUsdGained, 0),
       dividendCount: itemised.reduce((s, p) => s + p.paid.length, 0),
+      estimatedRows: estimated,
       positionCount: positions.length,
       itemised: itemised.length,
     },

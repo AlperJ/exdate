@@ -98,6 +98,11 @@ export default function Positions({ positions }: { positions: PositionReport[] }
                             </td>
                             <td className={e.isIncome ? "" : "muted"}>
                               {e.isIncome && e.usdGained ? usd(e.usdGained) : "—"}
+                              {e.isIncome && !e.exact ? (
+                                <small className="muted est" title="The chain would not return this account's history, so this row values the payment against today's balance.">
+                                  estimated
+                                </small>
+                              ) : null}
                             </td>
                           </tr>
                         ))}

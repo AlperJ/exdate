@@ -1146,3 +1146,11 @@ p.prose:last-child {
   color: var(--text-muted);
   margin: 10px 0 0;
 }
+
+/* A payment row whose basis could not be established from the chain this time. */
+.est {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
