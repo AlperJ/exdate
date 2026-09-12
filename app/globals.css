@@ -1050,3 +1050,51 @@ p.prose:last-child {
   display: block;
   flex: none;
 }
+
+/* -------------------------------------------------------------- masthead -- */
+/*
+   A security pattern, the way an engraved certificate or a share coupon carries one.
+   It is the mark's own step repeated, so the band is made of the product's subject
+   rather than an ornament borrowed from somewhere else.
+
+   Faint enough that text sits straight on it with no backing plate: the first attempt
+   gave every line its own opaque box and the result was a patchwork. Neutral only, no
+   gradient, no shadow. It fades out on the left so nothing ever competes with the title.
+*/
+
+.masthead {
+  position: relative;
+  margin: 0 -24px 0;
+  padding: 24px 24px 40px;
+  border-bottom: 1px solid var(--hairline);
+  isolation: isolate;
+}
+
+@media (max-width: 639px) {
+  .masthead {
+    margin: 0 -16px 0;
+    padding: 24px 16px 32px;
+  }
+}
+
+.masthead::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='128' height='104' viewBox='0 0 128 104'><g fill='%23000000'><rect x='6' y='72' width='22' height='16'/><rect x='40' y='44' width='46' height='16'/><rect x='88' y='16' width='24' height='16'/></g></svg>");
+  background-repeat: repeat;
+  background-position: left top;
+  opacity: 0.028;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, transparent 34%, #000 78%);
+  mask-image: linear-gradient(to right, transparent 0, transparent 34%, #000 78%);
+  pointer-events: none;
+}
+
+.masthead h1 {
+  margin-top: 0;
+}
+
+.standfirst + .standfirst {
+  margin-top: 14px;
+}

@@ -16,13 +16,19 @@ export default async function Home() {
 
   return (
     <>
-      <h1>Dividends paid by tokenized US stocks on Solana</h1>
-
-      <p className="standfirst">
-        xStocks do not pay dividends in cash. They pay by raising a Token-2022 multiplier, so the
-        number of tokens in a wallet never changes and the balance quietly becomes worth more. No
-        wallet, explorer or portfolio tracker on Solana reports that this happened.
-      </p>
+      <div className="masthead">
+        <h1>Dividends paid by tokenized US stocks on Solana</h1>
+        <p className="standfirst">
+          When a tokenized stock pays a dividend, nothing arrives in your wallet. The number of
+          tokens stays exactly the same and a hidden figure on the token moves instead, so no
+          wallet, explorer or portfolio tracker shows that you were paid.
+        </p>
+        <p className="standfirst">
+          <b>Paste a Solana address</b> to see what a wallet has been paid and when, or{" "}
+          <b>type a ticker</b> to see what that stock has paid its holders, what it owes next, and
+          whether it is really backed.
+        </p>
+      </div>
 
       <Search />
 
