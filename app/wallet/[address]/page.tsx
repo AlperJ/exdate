@@ -104,10 +104,20 @@ export default async function WalletPage({ params }: { params: Promise<{ address
             </div>
             <div className="stat">
               <div className="k">Backing</div>
-              <div className={`v ${p.reserves && p.reserves.ratio >= 1 ? "pos" : "warn"}`}>
-                {p.reserves ? pct(p.reserves.ratio * 100) : "—"}
+              <div
+                className={`v ${
+                  p.reserves?.ratio == null ? "dim" : p.reserves.ratio >= 1 ? "pos" : "warn"
+                }`}
+              >
+                {p.reserves?.ratio != null ? pct(p.reserves.ratio * 100) : "—"}
               </div>
-              <div className="note">{p.reserves ? p.reserves.providers.join(", ") : "unavailable"}</div>
+              <div className="note">
+                {p.reserves?.ratio != null
+                  ? p.reserves.providers.join(", ")
+                  : p.reserves
+                    ? "too little circulating to compare"
+                    : "unavailable"}
+              </div>
             </div>
           </div>
 

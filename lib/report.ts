@@ -1,7 +1,7 @@
 import {
   fetchAssets, fetchMultiplierHistory, fetchReserves, fetchUpcoming, solanaMint,
   isIncome, eventRatio, dividendFactor,
-  type Asset, type MultiplierEvent, type CorporateAction,
+  type Asset, type MultiplierEvent, type CorporateAction, type Reserves,
 } from "./xstocks";
 import {
   fetchHoldings, fetchMint, fetchMints, firstSeen, effectiveMultiplier, naiveMultiplier,
@@ -54,7 +54,13 @@ export type PositionReport = {
 
   pending: { from: number; to: number; activatesAt: string; secondsAway: number } | null;
   upcoming: CorporateAction[];
-  reserves: { sharesHeld: number; circulating: number; ratio: number; providers: string[] } | null;
+  reserves: {
+    sharesHeld: number;
+    circulating: number;
+    ratio: number | null;
+    dormant: boolean;
+    providers: string[];
+  } | null;
   halted: boolean;
 };
 
@@ -193,14 +199,7 @@ export async function buildReport(wallet: string): Promise<WalletReport> {
         .filter((c) => c.xstockSymbol === asset.symbol)
         .sort((a, b) => +new Date(a.effectiveTimeUtc) - +new Date(b.effectiveTimeUtc))
         .slice(0, 5),
-      reserves: reserves
-        ? {
-            sharesHeld: Number(reserves.sharesHeld),
-            circulating: Number(reserves.circulatingSupply),
-            ratio: Number(reserves.sharesHeld) / Number(reserves.circulatingSupply),
-            providers: reserves.holdings.map((x) => x.provider),
-          }
-        : null,
+      reserves: reserves ? buildReserves(reserves, null) : null,
       halted: asset.isTradingHalted,
     });
   }
@@ -272,7 +271,9 @@ export type AssetReport = {
   reserves: {
     sharesHeld: number;
     circulating: number;
-    ratio: number;
+    /** Null when the circulating figure is too small to carry a percentage. */
+    ratio: number | null;
+    dormant: boolean;
     providers: string[];
     /**
      * Reserves cover every chain at once. The endpoint accepts a `network` parameter and
@@ -287,9 +288,67 @@ export type AssetReport = {
   halted: boolean;
 };
 
+/**
+ * Resolve whatever the visitor typed to an asset.
+ *
+ * People type the stock they know, not the token. "AAPL" has to reach AAPLx, and so does
+ * "apple". Tickers that already end in X are the trap: CVX, NFLX, CSX and FDX become
+ * CVXx, NFLXx, CSXx and FDXx, so appending an x is right and stripping one is wrong.
+ */
+export function matchAsset(assets: Asset[], input: string): Asset | null {
+  const q = input.trim().replace(/^\$/, "").toLowerCase();
+  if (!q) return null;
+  const by = (f: (a: Asset) => string | undefined) =>
+    assets.find((a) => (f(a) ?? "").toLowerCase() === q);
+
+  return (
+    by((a) => a.symbol) ??                       // AAPLx
+    by((a) => a.underlyingSymbol) ??             // AAPL
+    assets.find((a) => a.symbol.toLowerCase() === `${q}x`) ?? // aapl -> aaplx, cvx -> cvxx
+    by((a) => a.name) ??                         // Apple xStock
+    assets.find((a) => a.name.toLowerCase().replace(/ xstock$/, "") === q) ?? // Apple
+    null
+  );
+}
+
+/**
+ * Reserve figures, with the dormant assets handled honestly.
+ *
+ * Most of the 832 assets barely trade. APHx reports a circulating supply of 0.55 tokens
+ * against 6 shares in custody, so the naive ratios come out as 1,087% backed and
+ * 4,402,599% of float on Solana. Those are not findings, they are division by something
+ * close to zero. Where the denominator cannot carry a percentage, say so instead of
+ * printing a number that destroys the reader's trust in every other number on the page.
+ */
+function buildReserves(r: Reserves, onChain: number | null) {
+  const circulating = Number(r.circulatingSupply);
+  const shares = Number(r.sharesHeld);
+
+  const meaningful = Number.isFinite(circulating) && circulating >= 1;
+  const ratio = meaningful ? shares / circulating : null;
+
+  // A live asset sits near 1.0. Far outside that band the issuer's snapshot and the chain
+  // are describing different moments, not a real surplus or shortfall.
+  const plausible = ratio !== null && ratio > 0.5 && ratio < 2;
+
+  const share =
+    meaningful && onChain !== null && onChain >= 1 ? onChain / circulating : null;
+  const sharePlausible = share !== null && share > 0 && share <= 1.05;
+
+  return {
+    sharesHeld: shares,
+    circulating,
+    ratio: plausible ? ratio : null,
+    providers: r.holdings.map((x) => x.provider),
+    otherChains: sharePlausible ? Math.max(0, circulating - (onChain ?? 0)) : null,
+    solanaShare: sharePlausible ? share : null,
+    dormant: !meaningful,
+  };
+}
+
 export async function buildAssetReport(symbol: string): Promise<AssetReport | null> {
   const assets = await fetchAssets();
-  const asset = assets.find((a) => a.symbol.toLowerCase() === symbol.toLowerCase());
+  const asset = matchAsset(assets, symbol);
   if (!asset) return null;
   const mintAddr = solanaMint(asset);
   if (!mintAddr) return null;
@@ -346,22 +405,7 @@ export async function buildAssetReport(symbol: string): Promise<AssetReport | nu
       ? { from: pend.from, to: pend.to, activatesAt: pend.activatesAt.toISOString(), secondsAway: pend.secondsAway }
       : null,
     upcoming: futureOnly.slice(0, 6),
-    reserves: reserves
-      ? {
-          sharesHeld: Number(reserves.sharesHeld),
-          circulating: Number(reserves.circulatingSupply),
-          ratio: Number(reserves.sharesHeld) / Number(reserves.circulatingSupply),
-          providers: reserves.holdings.map((x) => x.provider),
-          otherChains:
-            circulatingOnChain !== null
-              ? Math.max(0, Number(reserves.circulatingSupply) - circulatingOnChain)
-              : null,
-          solanaShare:
-            circulatingOnChain !== null && Number(reserves.circulatingSupply) > 0
-              ? circulatingOnChain / Number(reserves.circulatingSupply)
-              : null,
-        }
-      : null,
+    reserves: reserves ? buildReserves(reserves, circulatingOnChain) : null,
     halted: asset.isTradingHalted,
   };
 }

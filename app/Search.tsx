@@ -13,10 +13,10 @@ export default function Search({ initial = "" }: { initial?: string }) {
   function go(value: string) {
     const v = value.trim();
     if (!v) return;
-    // A Solana address gets a wallet statement; anything else is treated as a ticker.
-    const path = BASE58.test(v)
-      ? `/wallet/${v}`
-      : `/asset/${encodeURIComponent(v.replace(/^\$/, "").toUpperCase().replace(/X$/, "x"))}`;
+    // A Solana address gets a wallet statement; anything else goes to the server, which
+    // resolves it against all 832 assets. Guessing the token symbol here is what made
+    // "AAPL" and "CVX" dead ends.
+    const path = BASE58.test(v) ? `/wallet/${v}` : `/asset/${encodeURIComponent(v)}`;
     start(() => router.push(path));
   }
 
@@ -32,7 +32,7 @@ export default function Search({ initial = "" }: { initial?: string }) {
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Solana wallet address, or a ticker like AAPLx"
+          placeholder="A stock like AAPL, or a Solana wallet address"
           spellCheck={false}
           autoComplete="off"
         />
@@ -42,10 +42,10 @@ export default function Search({ initial = "" }: { initial?: string }) {
       </form>
       <p className="hint">
         No wallet needed. Try{" "}
-        <a onClick={() => { setQ("AAPLx"); go("AAPLx"); }}>AAPLx</a>,{" "}
-        <a onClick={() => { setQ("NVDAx"); go("NVDAx"); }}>NVDAx</a>,{" "}
-        <a onClick={() => { setQ("SPYx"); go("SPYx"); }}>SPYx</a> or{" "}
-        <a onClick={() => { setQ("MSTRx"); go("MSTRx"); }}>MSTRx</a>.
+        <a onClick={() => { setQ("AAPL"); go("AAPL"); }}>AAPL</a>,{" "}
+        <a onClick={() => { setQ("PYPL"); go("PYPL"); }}>PYPL</a>,{" "}
+        <a onClick={() => { setQ("NFLX"); go("NFLX"); }}>NFLX</a> or{" "}
+        <a onClick={() => { setQ("PFE"); go("PFE"); }}>PFE</a>.
       </p>
     </>
   );

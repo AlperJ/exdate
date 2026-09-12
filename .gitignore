@@ -12,3 +12,6 @@ next-env.d.ts
 _old_nm_*
 owners.txt
 .vercel-token
+
+.vercel
+.env*

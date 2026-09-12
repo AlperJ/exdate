@@ -1,5 +1,7 @@
 # ExDate
 
+### Live: **https://exdate-ten.vercel.app**
+
 **The brokerage statement that tokenized stocks never send you.**
 
 xStocks on Solana do not pay dividends in cash. They pay by quietly raising a

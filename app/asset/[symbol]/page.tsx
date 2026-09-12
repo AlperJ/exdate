@@ -187,8 +187,10 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
                   <div className="what">
                     <b>{c.caType.replace(/([a-z])([A-Z])/g, "$1 $2")}</b>
                     <span className="mult">
+                      {/* The feed sends this as a fraction: 0.3 means 30%, confirmed
+                          against OMCx paying $0.80 gross and $0.56 net. */}
                       {c.withholdingTaxRate && Number(c.withholdingTaxRate) > 0
-                        ? `withholding ${c.withholdingTaxRate}%`
+                        ? `${pct(Number(c.withholdingTaxRate) * 100, 0)} withheld`
                         : "no withholding"}{" "}
                       · {c.status.toLowerCase()}
                     </span>
@@ -210,26 +212,45 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
           <div className="card">
             <div className="card-head">
               <div className="ticker" style={{ fontSize: 22 }}>
-                {pct(r.reserves.ratio * 100)}
+                {r.reserves.ratio !== null ? pct(r.reserves.ratio * 100) : "not comparable"}
               </div>
               <div className="spacer" />
-              <span className={`pill ${r.reserves.ratio >= 1 ? "good" : "bad"}`}>
-                {r.reserves.ratio >= 1 ? "fully backed" : "under-collateralised"}
-              </span>
+              {r.reserves.ratio !== null ? (
+                <span className={`pill ${r.reserves.ratio >= 1 ? "good" : "bad"}`}>
+                  {r.reserves.ratio >= 1 ? "fully backed" : "under-collateralised"}
+                </span>
+              ) : (
+                <span className="pill">{r.reserves.dormant ? "dormant" : "figures disagree"}</span>
+              )}
             </div>
-            <div className="bar">
-              <i
-                className={r.reserves.ratio >= 1 ? "" : "under"}
-                style={{ width: `${Math.min(100, r.reserves.ratio * 100)}%` }}
-              />
-            </div>
+            {r.reserves.ratio !== null ? (
+              <div className="bar">
+                <i
+                  className={r.reserves.ratio >= 1 ? "" : "under"}
+                  style={{ width: `${Math.min(100, r.reserves.ratio * 100)}%` }}
+                />
+              </div>
+            ) : (
+              <p style={{ margin: "10px 0 6px", fontSize: 13, color: "var(--faint)", lineHeight: 1.6 }}>
+                {r.reserves.dormant
+                  ? `Only ${num(r.reserves.circulating, 4)} ${r.symbol} are reported as circulating, so a backing ratio here would be division by almost nothing rather than a real measurement.`
+                  : "The issuer's snapshot and the chain are far enough apart that a ratio would mislead. Both raw figures are below."}
+              </p>
+            )}
             <div className="sub">
               {num(r.reserves.sharesHeld, 2)} real {r.underlying} shares held at{" "}
               {r.reserves.providers.join(", ")} against {num(r.reserves.circulating, 2)} tokens
               circulating across every chain this token is issued on.
+              {r.reserves.dormant && r.treasuryUnits !== null ? (
+                <>
+                  {" "}
+                  Solana still carries {num(r.supplyUnits, 2)} minted tokens, nearly all of them
+                  unissued and sitting with the issuer, which is why the two figures do not line up.
+                </>
+              ) : null}
             </div>
 
-            {r.circulatingOnChain !== null ? (
+            {r.circulatingOnChain !== null && r.reserves.solanaShare !== null ? (
               <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--line-soft)" }}>
                 <div
                   className="k"

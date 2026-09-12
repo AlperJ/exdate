@@ -84,21 +84,62 @@ async function get<T>(path: string, revalidate = 300): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-/** Walk a paged endpoint. `firstPage` is 0 or 1 depending on the endpoint. */
+/**
+ * Walk a paged endpoint. `firstPage` is 0 or 1 depending on the endpoint.
+ *
+ * Nine pages fetched one after another was the bulk of a 15 second cold load. Read the
+ * first page to learn whether there are more, then fire the rest together and stop at the
+ * first empty one. Order is preserved because the batch resolves positionally.
+ */
 async function collect<T>(make: (page: number) => string, firstPage: number, maxPages = 40): Promise<T[]> {
-  const all: T[] = [];
-  for (let i = 0; i < maxPages; i++) {
-    const r = await get<Paged<T>>(make(firstPage + i));
-    const nodes = r.nodes ?? [];
-    all.push(...nodes);
-    if (!r.page?.hasNextPage || nodes.length === 0) break;
+  const head = await get<Paged<T>>(make(firstPage));
+  const all: T[] = [...(head.nodes ?? [])];
+  if (!head.page?.hasNextPage || all.length === 0) return all;
+
+  const BATCH = 12;
+  for (let start = 1; start < maxPages; start += BATCH) {
+    const pages = Array.from(
+      { length: Math.min(BATCH, maxPages - start) },
+      (_, k) => firstPage + start + k
+    );
+    const batch = await Promise.all(
+      pages.map((p) => get<Paged<T>>(make(p)).catch(() => ({ nodes: [] }) as Paged<T>))
+    );
+    let exhausted = false;
+    for (const r of batch) {
+      const nodes = r.nodes ?? [];
+      if (nodes.length === 0) { exhausted = true; break; }
+      all.push(...nodes);
+      if (!r.page?.hasNextPage) { exhausted = true; break; }
+    }
+    if (exhausted) break;
   }
   return all;
 }
 
-/** Every xStock with a Solana deployment. 732 assets as of 2026-09-12. */
+/**
+ * The asset list is identical for every visitor and costs nine requests to build, so hold
+ * it for the life of the server instance rather than rebuilding it per request. Next's
+ * fetch cache covers this across instances; this covers concurrent requests inside one.
+ */
+let assetsPromise: Promise<Asset[]> | null = null;
+let assetsAt = 0;
+const ASSETS_TTL_MS = 10 * 60 * 1000;
+
+/** Every xStock with a Solana deployment. 832 assets as of 2026-09-12. */
 export function fetchAssets(): Promise<Asset[]> {
-  return collect<Asset>((p) => `assets?network=Solana&page=${p}&pageSize=${MAX_PAGE_SIZE}`, 0);
+  const now = Date.now();
+  if (!assetsPromise || now - assetsAt > ASSETS_TTL_MS) {
+    assetsAt = now;
+    assetsPromise = collect<Asset>(
+      (p) => `assets?network=Solana&page=${p}&pageSize=${MAX_PAGE_SIZE}`,
+      0
+    ).catch((e) => {
+      assetsPromise = null; // a failed fetch must not be cached for ten minutes
+      throw e;
+    });
+  }
+  return assetsPromise;
 }
 
 export function solanaMint(a: Asset): string | null {
