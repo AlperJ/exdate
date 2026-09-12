@@ -158,8 +158,9 @@ export default function MethodPage() {
         <div className="section__body">
           <ol className="notes notes--bare">
             <li>
-              Dollar totals use the issuer&apos;s Solana supply, which includes tokens minted but
-              never issued. They are an upper bound on what reached public wallets.
+              Dollar figures value the tokens the issuer reports as circulating, its own published number,
+              which covers every chain each token is issued on. An earlier version valued the whole
+              mint including tokens created and never sold, which overstated the total sevenfold.
             </li>
             <li>
               Reserve attestations cover every chain a token is issued on, not Solana alone. xStocks

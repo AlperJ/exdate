@@ -380,11 +380,19 @@ export async function buildAssetReport(symbol: string): Promise<AssetReport | nu
   const pend = pendingChange(mint?.scaled ?? null);
   const decimals = mint?.decimals ?? 8;
 
+  // Only what has actually activated. The issuer publishes an event as soon as it is
+  // scheduled, so an unfiltered history states a future payout in the past tense: three
+  // pages read "grew by 1.77%" while the stat band four lines below correctly showed a
+  // multiplier of 1.0 and a payout still a day away. It also desynchronised the headline
+  // from the history table, which computes per-event and so never saw the pending row.
+  const nowIso = new Date().toISOString();
+  const applied = history.filter((e) => e.activationDateTime <= nowIso);
+
   // Separate income from re-denomination. 641 of the 654 multiplier changes across all
   // 832 assets are dividends; the other 13 are splits, reverse splits and administrative
   // corrections, and none of those put money in a holder's pocket.
-  const divFactor = dividendFactor(history);
-  const splitFactor = history.reduce((f, e) => (isIncome(e.reason) ? f : f * eventRatio(e)), 1);
+  const divFactor = dividendFactor(applied);
+  const splitFactor = applied.reduce((f, e) => (isIncome(e.reason) ? f : f * eventRatio(e)), 1);
 
   const supplyUnits = mint ? (Number(mint.supplyRaw) / 10 ** decimals) * effective : 0;
   const treasury = await treasuryHeld(mintAddr, mint?.scaled?.authority ?? null);
@@ -411,8 +419,8 @@ export async function buildAssetReport(symbol: string): Promise<AssetReport | nu
     driftPct: naive > 0 ? (effective / naive - 1) * 100 : 0,
     hiddenPct: effective > 0 ? (1 - naive / effective) * 100 : 0,
     priceUsd: prices[mintAddr]?.usdPrice ?? null,
-    history,
-    dividendCount: history.filter((e) => isIncome(e.reason)).length,
+    history: applied,
+    dividendCount: applied.filter((e) => isIncome(e.reason)).length,
     totalGrowthPct: (divFactor - 1) * 100,
     perUnitGained: effective * (1 - 1 / divFactor),
     splitFactor,

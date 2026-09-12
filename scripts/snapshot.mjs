@@ -5,7 +5,18 @@ import { writeFileSync, mkdirSync } from "node:fs";
 const RPC = process.env.SOLANA_RPC_URL;
 if (!RPC) { console.error("SOLANA_RPC_URL gerekli"); process.exit(1); }
 const X = "https://api.xstocks.fi/api/v2/public";
-const j = async (u) => (await fetch(u)).json();
+// The reserves pass added several hundred requests and the issuer started refusing
+// them, which silently emptied the calendar. Retry rather than accept a blank answer.
+const j = async (u, tries = 4) => {
+  for (let i = 0; i < tries; i++) {
+    try {
+      const r = await fetch(u, { headers: { accept: "application/json" } });
+      if (r.ok) return await r.json();
+    } catch {}
+    await new Promise((s) => setTimeout(s, 300 * 2 ** i));
+  }
+  throw new Error(`gave up on ${u.slice(0, 80)}`);
+};
 
 async function rpc(method, params) {
   for (let a = 0; a < 5; a++) {
@@ -49,11 +60,40 @@ for (let i = 0; i < list.length; i += 100) {
   });
 }
 
+// Value a tokenized stock at the underlying equity's price, which Jupiter returns in
+// stockData in the same payload. The DEX quote is unusable on most of these: PYPLx
+// quoted 3337.04 against PayPal's 53.94 on a pool holding five cents, and that single
+// row was 16.4% of the headline. Six other assets were more than 30% out.
 console.log("fiyatlar...");
 const prices = {};
+let rejected = 0;
 for (let i = 0; i < list.length; i += 50) {
-  try { Object.assign(prices, await j(`https://lite-api.jup.ag/price/v3?ids=${list.slice(i, i + 50).map((x) => x.m).join(",")}`)); } catch {}
+  try {
+    const r = await j(`https://lite-api.jup.ag/price/v3?ids=${list.slice(i, i + 50).map((x) => x.m).join(",")}`);
+    for (const [mint, row] of Object.entries(r)) {
+      const dex = Number.isFinite(row?.usdPrice) ? row.usdPrice : null;
+      const stock = Number.isFinite(row?.stockData?.price) ? row.stockData.price : null;
+      if (dex === null && stock === null) continue;
+      if (dex !== null && stock !== null && stock > 0 && Math.abs(dex / stock - 1) > 0.3) rejected++;
+      prices[mint] = {
+        usdPrice: stock ?? dex,
+        stockPrice: stock,
+        dexPrice: dex,
+        liquidity: row?.liquidity ?? null,
+      };
+    }
+  } catch {}
 }
+console.log(`  ${Object.keys(prices).length} fiyat, ${rejected} bozuk DEX kotasyonu reddedildi`);
+
+console.log("takvim...");
+let upcomingRaw = [];
+for (let p = 1; p <= 20; p++) {
+  const r = await j(`${X}/corporate-actions/upcoming?page=${p}&pageSize=100`);
+  upcomingRaw = upcomingRaw.concat(r.nodes ?? []);
+  if (!r.page?.hasNextPage || !(r.nodes ?? []).length) break;
+}
+console.log(`  ${upcomingRaw.length} satir`);
 
 console.log("carpan gecmisleri...");
 const CONC = 8, rows = [];
@@ -64,21 +104,47 @@ async function work(sub) {
     const inf = info.get(m), p = prices[m]?.usdPrice;
     if (!inf) continue;
     const mult = eff(inf.scaled);
-    if (mult <= 1) continue;
+    // Was `mult <= 1`, which tested whether the multiplier is currently above one rather
+    // than whether it has ever moved. That silently dropped AZNx, whose reverse split left
+    // it at 0.511 despite three real dividends worth $294,189, and took four assets and six
+    // payments out of every count on the site with no trace in the output.
+    if (mult === 1) continue;
     let hist = [];
     try { hist = (await j(`${X}/assets/${encodeURIComponent(a.symbol)}/multiplier/history?network=Solana&page=0&pageSize=100`)).nodes ?? []; } catch { continue; }
+    // Only events that have actually activated; the issuer publishes them when scheduled.
+    const nowIso = new Date().toISOString();
+    const applied = hist.filter((e) => e.activationDateTime <= nowIso);
     let divF = 1, splitF = 1, nDiv = 0, last = null;
-    for (const e of hist) {
+    for (const e of applied) {
       const r = e.previousMultiplier > 0 ? e.multiplier / e.previousMultiplier : 1;
       if (isIncome(e.reason)) { divF *= r; nDiv++; if (!last || e.activationDateTime > last) last = e.activationDateTime; }
       else splitF *= r;
     }
-    const floatUsd = p ? (inf.supply / 10 ** inf.dec) * mult * p : null;
-    const events = hist.filter((e) => isIncome(e.reason)).map((e) => ({
+    // What is actually out there, not what has been minted.
+    //
+    // Valuing the whole mint counts tokens the issuer created and never sold, and it
+    // holds the majority of the supply on almost every asset: measured across the
+    // payers, a float-weighted 80% of the tokens sit with the issuer. Using total
+    // supply overstated the headline roughly sevenfold.
+    //
+    // The denominator here is the issuer's own published circulating figure. It is
+    // their attestation rather than our inference about which wallet belongs to whom,
+    // and it spans every chain the token is issued on, so it is the honest measure of
+    // how much of this stock exists in public hands anywhere.
+    let circulating = null;
+    try {
+      const por = await j(`${X}/proof-of-reserves/${encodeURIComponent(a.symbol)}`);
+      const c = Number(por?.circulatingSupply);
+      if (Number.isFinite(c) && c > 0) circulating = c;
+    } catch {}
+    if (circulating === null) continue;
+
+    const floatUsd = p ? circulating * p : null;
+    const events = applied.filter((e) => isIncome(e.reason)).map((e) => ({
       at: e.activationDateTime,
       ratio: e.previousMultiplier > 0 ? e.multiplier / e.previousMultiplier : 1,
     }));
-    rows.push({ symbol: a.symbol, events, name: a.name, underlying: a.underlyingSymbol, logo: a.logo,
+    rows.push({ symbol: a.symbol, events, circulating, name: a.name, underlying: a.underlyingSymbol, logo: a.logo,
       dividends: nDiv, yieldPct: (divF - 1) * 100, splitFactor: splitF, lastPaid: last,
       floatUsd, hiddenUsd: floatUsd ? floatUsd * (1 - 1 / divF) : null });
   }
@@ -86,13 +152,7 @@ async function work(sub) {
 await Promise.all(Array.from({ length: CONC }, (_, i) => work(list.filter((_, k) => k % CONC === i))));
 console.log(`  ${scanned} tarandi, ${rows.length} tanesinin carpani oynamis`);
 
-console.log("takvim...");
-let upcoming = [];
-for (let p = 1; p <= 20; p++) {
-  const r = await j(`${X}/corporate-actions/upcoming?page=${p}&pageSize=100`);
-  upcoming = upcoming.concat(r.nodes ?? []);
-  if (!r.page?.hasNextPage || !(r.nodes ?? []).length) break;
-}
+const upcoming = upcomingRaw;
 const now = Date.now();
 const future = upcoming.filter((c) => +new Date(c.effectiveTimeUtc) > now)
   .sort((a, b) => +new Date(a.effectiveTimeUtc) - +new Date(b.effectiveTimeUtc));
@@ -127,8 +187,23 @@ const k = rawEnd > 0 ? headlineUsd / rawEnd : 1;
 const cumulative = rawSeries.map((p) => ({
   ...p, usd: p.usd * k, monthUsd: p.monthUsd * k,
 }));
+// Nine tenths of the dollar total comes from one instrument, a variable-rate preferred
+// that pays like a bond rather than like a stock. Stating the total without saying so
+// would describe a market that does not exist, so the concentration and the typical
+// case ship alongside it.
+const byYield = [...paying].sort((a, b) => a.yieldPct - b.yieldPct);
+const medianYieldPct = byYield.length ? byYield[Math.floor(byYield.length / 2)].yieldPct : 0;
+const ranked = [...paying].sort((a, b) => b.hiddenUsd - a.hiddenUsd);
+const leader = ranked[0] ?? null;
+
 const snapshot = {
   measuredAt: new Date().toISOString(),
+  medianYieldPct,
+  leader: leader
+    ? { symbol: leader.symbol, name: leader.name, hiddenUsd: leader.hiddenUsd,
+        share: leader.hiddenUsd / paying.reduce((s, r) => s + r.hiddenUsd, 0) }
+    : null,
+  restUsd: paying.reduce((s, r) => s + r.hiddenUsd, 0) - (leader?.hiddenUsd ?? 0),
   assetCount: list.length,
   assetsWithMultiplierChange: rows.length,
   assetsPricedAndPaying: paying.length,
@@ -146,7 +221,7 @@ const snapshot = {
     .map((r) => ({
       symbol: r.symbol, name: r.name, underlying: r.underlying,
       dividends: r.dividends, yieldPct: r.yieldPct, splitFactor: r.splitFactor,
-      lastPaid: r.lastPaid, hiddenUsd: r.hiddenUsd, floatUsd: r.floatUsd,
+      lastPaid: r.lastPaid, hiddenUsd: r.hiddenUsd, floatUsd: r.floatUsd, circulating: r.circulating,
     })),
   topYields: [...paying].filter((r) => r.floatUsd > 1e6).sort((a, b) => b.yieldPct - a.yieldPct).slice(0, 8),
   upcoming: future.map((c) => ({ symbol: c.xstockSymbol, at: c.effectiveTimeUtc,

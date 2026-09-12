@@ -43,11 +43,20 @@ export default async function Home() {
         <div className="figure__label">How that total accumulated</div>
         <hr className="figure__rule" />
         <p className="figure__context">
-          Every step is a day a stock paid its holders. The total covers the{" "}
-          {m.assetsPricedAndPaying} stocks that have a live dollar price, measured against{" "}
-          {usd(m.totalFloatUsd, 0)} of positions. In all, {m.index.filter((r) => r.dividends > 0).length}{" "}
-          stocks have paid; the rest have no price, so they cannot be added up in dollars. Splits
-          are excluded: they multiply the token count without paying anyone.
+          Every step is a day a stock paid its holders, valued against{" "}
+          {usd(m.totalFloatUsd, 0)} of tokens in public hands. Splits are excluded: they multiply
+          the token count without paying anyone.
+          {m.leader ? (
+            <>
+              {" "}
+              <b>
+                {pct(m.leader.share * 100, 0)} of the total is one instrument, {m.leader.symbol}
+              </b>
+              , a variable-rate preferred that pays like a bond rather than a stock. The other{" "}
+              {m.assetsPricedAndPaying - 1} stocks come to {usd(m.restUsd, 0)} between them, and the
+              typical one has paid {pct(m.medianYieldPct, 3)} of its value since launch.
+            </>
+          ) : null}
         </p>
         <StepChart
           points={m.cumulative.map((p) => ({
@@ -68,14 +77,14 @@ export default async function Home() {
           <div className="stat__note">issued on Solana by Backed</div>
         </div>
         <div>
-          <div className="stat__label">Paid out in total</div>
-          <div className="stat__value">{pct((m.totalHiddenUsd / m.totalFloatUsd) * 100, 3)}</div>
-          <div className="stat__note">of what these positions are worth, adding up every dividend since June 2025</div>
+          <div className="stat__label">Typical stock has paid</div>
+          <div className="stat__value">{pct(m.medianYieldPct, 3)}</div>
+          <div className="stat__note">of its own value since launch, median across the {m.assetsPricedAndPaying} that pay</div>
         </div>
         <div>
           <div className="stat__label">Payments recorded</div>
           <div className="stat__value">{num(m.dividendPayments, 0)}</div>
-          <div className="stat__note">on the 65 stocks with a live dollar price</div>
+          <div className="stat__note">across {m.assetsPricedAndPaying} stocks since June 2025</div>
         </div>
       </div>
 
@@ -179,94 +188,13 @@ export default async function Home() {
 
       <section className="section">
         <div className="section__head">
-          <h2 className="section__title">A split is not a dividend</h2>
-          <span className="section__meta">{m.splits.length} of {m.assetsWithMultiplierChange}</span>
+          <h2 className="section__title">Where these numbers come from</h2>
         </div>
         <div className="section__body">
           <p className="prose">
-            Of the {m.assetsWithMultiplierChange} stocks whose number has moved, {m.splits.length}{" "}
-            moved because the stock itself split rather than because anyone was paid. A split
-            multiplies the token count and cuts the share price by the same factor, so the position
-            is worth exactly what it was a second earlier.
-          </p>
-          <div className="tw">
-            <table className="dt dt--compact">
-              <colgroup>
-                <col />
-                <col style={{ width: "180px" }} />
-              </colgroup>
-              <thead>
-                <tr>
-                  <th>Reading</th>
-                  <th>Figure</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="is-void">
-                  <td>
-                    <span className="status">Incorrect</span> NFLXx&apos;s 10:1 split counted as income
-                  </td>
-                  <td>
-                    <span className="strike">$105,863,078</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td>What holders actually received</td>
-                  <td>$0</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <p className="section__after muted">
-            Netflix split ten for one on 16 Nov 2025. Every figure on this site counts dividends
-            only; splits appear in the history marked as no gain.
-          </p>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="section__head">
-          <h2 className="section__title">How the payment hides</h2>
-          <span className="section__meta">for developers: if your app shows these balances, read this</span>
-        </div>
-        <div className="section__body">
-          <p className="prose">
-            Token-2022 stores the scaling factor in two fields. The one named{" "}
-            <code className="lit">multiplier</code> is the old value.{" "}
-            <code className="lit">newMultiplier</code> takes over once <code className="lit">newMultiplierEffectiveTimestamp</code> passes, and the
-            chain never rewrites the old one. Read the obvious field and every balance shown is wrong.
-          </p>
-          <div className="tw">
-            <table className="dt dt--compact">
-              <colgroup>
-                <col />
-                <col style={{ width: "180px" }} />
-              </colgroup>
-              <thead>
-                <tr>
-                  <th>Reading</th>
-                  <th>Figure</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="is-void">
-                  <td>
-                    <span className="status">Stale</span> the field named{" "}
-                    <code className="lit">multiplier</code>
-                  </td>
-                  <td>
-                    <span className="strike lit">1.0026642076</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Actually in force</td>
-                  <td className="lit">1.0032690125</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <p className="section__after muted">
-            For a cash dividend the error is 0.06%. For a ten-for-one split it is ten times.
+            Every figure here is read from Solana and from the issuer&apos;s own records, and{" "}
+            <a href="/method">How this works</a> states each source, what the numbers deliberately
+            exclude, and why a split is not a payment even though it moves the same number.
           </p>
         </div>
       </section>
@@ -278,8 +206,10 @@ export default async function Home() {
           and wallet pages read live on every request.
         </li>
         <li>
-          Position values use the issuer&apos;s Solana supply, which includes tokens minted but never
-          issued, so the dollar totals are an upper bound on what reached public wallets.
+          Dollar figures value the tokens the issuer reports as circulating, its own published
+          number, which covers every chain each token is issued on. An earlier version valued the
+          whole mint including the tokens the issuer created and never sold, and that overstated
+          the total roughly sevenfold.
         </li>
         <li>
           Dividends are credited as growth in the number of tokens, not as cash. USD figures value
