@@ -99,7 +99,8 @@ const balance = (Number(rawAmount) / 10 ** decimals) * m;`}
         <div className="section__head">
           <h2 className="section__title">What counts as income</h2>
           <span className="section__meta">
-            654 multiplier changes across 832 assets, read {asOf}
+            {num(m.eventsApplied, 0)} multiplier changes that have taken effect, across{" "}
+            {num(m.assetCount, 0)} assets, read {asOf}
           </span>
         </div>
         <div className="section__body">
@@ -123,26 +124,15 @@ const balance = (Number(rawAmount) / 10 ** decimals) * m;`}
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>Dividend</td>
-                  <td>641</td>
-                  <td className="pos">Yes</td>
-                </tr>
-                <tr>
-                  <td>Split</td>
-                  <td>8</td>
-                  <td className="muted">No</td>
-                </tr>
-                <tr>
-                  <td>Administrative</td>
-                  <td>3</td>
-                  <td className="muted">No</td>
-                </tr>
-                <tr>
-                  <td>Reverse split</td>
-                  <td>2</td>
-                  <td className="muted">No</td>
-                </tr>
+                {Object.entries(m.reasonCounts).map(([reason, count]) => (
+                  <tr key={reason}>
+                    <td>{reason.replace(/([a-z])([A-Z])/g, "$1 $2")}</td>
+                    <td>{num(count, 0)}</td>
+                    <td className={reason === "Dividend" ? "pos" : "muted"}>
+                      {reason === "Dividend" ? "Yes" : "No"}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
@@ -152,13 +142,13 @@ const balance = (Number(rawAmount) / 10 ** decimals) * m;`}
           </p>
 
           <p className="prose">
-            The front page says <b>{num(m.dividendPaymentsAll, 0)} payments</b> rather than 641, and
-            the difference is worth following. Three of the 641 are scheduled but have not activated
-            yet, so they have not happened. Another {m.unheldPayments} sit on{" "}
-            {m.unheldPayers} tokens the issuer reports as having no circulating supply at all: the
-            multiplier moved, but there was nobody holding the token to be paid. That leaves{" "}
-            {num(m.dividendPaymentsAll, 0)} payments across {m.assetsEverPaid} stocks that actually
-            reached a holder.
+            The front page says <b>{num(m.dividendPaymentsAll, 0)} payments</b> rather than{" "}
+            {num(m.reasonCounts.Dividend, 0)}, and the difference is worth following.{" "}
+            {m.unheldPayments} of them sit on {m.unheldPayers} tokens the issuer reports as having
+            no circulating supply at all: the multiplier moved, but there was nobody holding the
+            token to be paid. That leaves {num(m.dividendPaymentsAll, 0)} payments across{" "}
+            {m.assetsEverPaid} stocks that actually reached a holder. A further three dividends are
+            recorded but have not activated yet, so they are not in either number.
           </p>
           <p className="prose">
             The dollar figure is narrower still. {m.unpricedPayers} of those{" "}

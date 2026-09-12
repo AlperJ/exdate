@@ -97,6 +97,7 @@ console.log(`  ${upcomingRaw.length} satir`);
 
 console.log("carpan gecmisleri...");
 const CONC = 8, rows = [], unattested = [], unheld = [];
+const reasons = new Map();
 let scanned = 0;
 async function work(sub) {
   for (const { a, m } of sub) {
@@ -115,6 +116,7 @@ async function work(sub) {
     const nowIso = new Date().toISOString();
     const applied = hist.filter((e) => e.activationDateTime <= nowIso);
     let divF = 1, splitF = 1, nDiv = 0, last = null;
+    for (const e of applied) reasons.set(e.reason, (reasons.get(e.reason) ?? 0) + 1);
     for (const e of applied) {
       const r = e.previousMultiplier > 0 ? e.multiplier / e.previousMultiplier : 1;
       if (isIncome(e.reason)) { divF *= r; nDiv++; if (!last || e.activationDateTime > last) last = e.activationDateTime; }
@@ -244,6 +246,10 @@ const snapshot = {
   unheldPayers: unheld.filter((u) => u.dividends > 0).length,
   unheldPayments: unheld.reduce((t, u) => t + u.dividends, 0),
   unattestedAssets: unattested.length,
+  // Every activated multiplier change, by the reason the issuer recorded. Hardcoding
+  // these was fine on the day they were written and would rot silently after it.
+  reasonCounts: Object.fromEntries([...reasons].sort((a, b) => b[1] - a[1])),
+  eventsApplied: [...reasons.values()].reduce((t, n) => t + n, 0),
   totalFloatUsd: paying.reduce((s, r) => s + r.floatUsd, 0),
   totalHiddenUsd: paying.reduce((s, r) => s + r.hiddenUsd, 0),
   splits: rows.filter((r) => Math.abs(r.splitFactor - 1) > 0.001)
