@@ -4,8 +4,26 @@ import Positions from "./Positions";
 
 export const revalidate = 120;
 
+/** What a Solana address can look like. Checking this costs nothing and saves a round trip. */
+const ADDRESS = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
+
 export default async function WalletPage({ params }: { params: Promise<{ address: string }> }) {
   const { address } = await params;
+
+  // Reading the chain for a string that cannot be an address spends ten seconds behind a
+  // screen that says we are reading balances. The shape is knowable instantly, so say so.
+  if (!ADDRESS.test(address)) {
+    return (
+      <div className="notice">
+        <div className="notice__head">That is not a Solana wallet address</div>
+        <div className="notice__body">
+          An address is a long jumble of 32 to 44 letters and numbers, copied from a wallet app. If
+          your tokens sit on an exchange you will not have one, so look up the stock instead: try{" "}
+          <a href="/asset/AAPL">AAPL</a> or any other ticker.
+        </div>
+      </div>
+    );
+  }
 
   let r;
   try {
@@ -22,8 +40,9 @@ export default async function WalletPage({ params }: { params: Promise<{ address
         <div className="notice__body">
           {badAddress ? (
             <>
-              A wallet address is 32 to 44 base58 characters. To look up a stock instead, type its
-              ticker, such as <a href="/asset/AAPL">AAPL</a>.
+              An address is a long jumble of 32 to 44 letters and numbers, copied from a wallet
+              app. To look up a stock instead, type its ticker, such as{" "}
+              <a href="/asset/AAPL">AAPL</a>.
             </>
           ) : throttled ? (
             <>The RPC endpoint is rate limiting this lookup. Try again in a few seconds.</>

@@ -143,12 +143,20 @@ export default async function Home() {
 
       <section className="section">
         <div className="section__head">
-          <h2 className="section__title">Next scheduled</h2>
+          <h2 className="section__title">Payments actually still to come</h2>
           <span className="section__meta">
-            {live?.scheduledCount ?? m.upcomingCount} events ahead
+            {live?.scheduledCount ?? m.upcomingCount}, checked against the clock just now
           </span>
         </div>
         <div className="section__body">
+          <p className="prose">
+            The issuer&apos;s own feed lists {m.feedRows} payments as upcoming. Only{" "}
+            {live?.scheduledCount ?? m.upcomingCount} of them are: {m.feedAlreadyActivated} already
+            happened and are still being served as future, {m.feedRows - m.feedDistinct} are the
+            same payment listed twice, and {m.feedUndated} have no date on them at all. Every row
+            here is checked against the clock on every request, which is why this number is a
+            fourteenth of the one the feed reports.
+          </p>
           <div className="tw">
             <table className="dt">
               <colgroup>

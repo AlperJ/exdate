@@ -34,6 +34,11 @@ export default function AssetsPage() {
           </span>
         </div>
         <div className="section__body">
+          <p className="prose">
+            Every one of these has paid its holders at least once. Where a row reads{" "}
+            <b>no price</b> we could not get a dollar price for that token, so we will not print a
+            dollar figure; it has still paid, and the percentage beside it is exact.
+          </p>
           <div className="tw">
             <table className="dt">
               <colgroup>
@@ -64,7 +69,9 @@ export default function AssetsPage() {
                     <td>{r.dividends}</td>
                     <td>{pct(r.yieldPct, 3)}</td>
                     <td>{r.lastPaid ? day(r.lastPaid) : "—"}</td>
-                    <td>{r.hiddenUsd !== null ? usd(r.hiddenUsd, 0) : "—"}</td>
+                    <td className={r.hiddenUsd !== null ? "" : "muted"}>
+                      {r.hiddenUsd !== null ? usd(r.hiddenUsd, 0) : "no price"}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -112,7 +119,9 @@ export default function AssetsPage() {
                           ? `${num(r.splitFactor, 2)}:1`
                           : `1:${num(1 / r.splitFactor, 2)}`}
                       </td>
-                      <td>{r.floatUsd !== null ? usd(r.floatUsd, 0) : "—"}</td>
+                      <td className={r.floatUsd !== null ? "" : "muted"}>
+                        {r.floatUsd !== null ? usd(r.floatUsd, 0) : "no price"}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -130,8 +139,10 @@ export default function AssetsPage() {
           dividend. Splits are excluded.
         </li>
         <li>
-          Assets with no live price on Jupiter show no USD figure. Their payout percentage is still
-          exact, because it comes from the multiplier rather than from a price.
+          A row reading <b>no price</b> has still paid its holders. It means no dollar price was
+          available for that token when we measured, so we will not put a dollar figure on it. The
+          percentage beside it is exact either way, because it comes from the multiplier on the
+          token rather than from any price.
         </li>
       </ol>
 

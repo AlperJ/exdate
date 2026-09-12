@@ -195,7 +195,7 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
           <div className="section__head">
             <h2 className="section__title">Multiplier history</h2>
             <span className="section__meta">
-              what 1,000 {r.symbol} earned on the day
+              what 1,000 {r.symbol} earned, if you held them the day before
             </span>
           </div>
           <div className="section__body">
@@ -213,8 +213,8 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
                     <th>Date</th>
                     <th>Action</th>
                     <th>Multiplier</th>
-                    <th>Per 1,000 held that day</th>
-                    <th>USD today</th>
+                    <th>Extra tokens per 1,000 you held</th>
+                    <th>Worth today, per 1,000 held</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -251,12 +251,12 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
         </section>
       ) : null}
 
-      {r.upcoming.length ? (
-        <section className="section">
-          <div className="section__head">
-            <h2 className="section__title">Scheduled</h2>
-            <span className="section__meta">from the issuer&apos;s forward feed</span>
-          </div>
+      <section className="section">
+        <div className="section__head">
+          <h2 className="section__title">Next payment</h2>
+          <span className="section__meta">from the issuer&apos;s forward feed</span>
+        </div>
+        {r.upcoming.length ? (
           <div className="section__body">
             <div className="tw">
               <table className="dt">
@@ -294,8 +294,20 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
               </table>
             </div>
           </div>
-        </section>
-      ) : null}
+        ) : (
+          <div className="section__body">
+            <div className="empty">
+              <p className="empty__main">
+                The issuer has not scheduled the next {r.symbol} payment yet.
+              </p>
+              <p className="empty__sub">
+                It appears here the moment they publish it, usually a day or two ahead. Nothing is
+                missing from the record below; there is simply no date to show yet.
+              </p>
+            </div>
+          </div>
+        )}
+      </section>
 
       {r.reserves ? (
         <section className="section">
@@ -319,13 +331,35 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
               >
                 {r.reserves.ratio === null
                   ? r.reserves.dormant
-                    ? "Dormant"
-                    : "Figures disagree"
+                    ? "Nobody holds it yet"
+                    : "Cannot be compared"
                   : r.reserves.ratio >= 1
-                    ? "Fully backed"
-                    : "Under-collateralised"}
+                    ? "Backed, across every chain"
+                    : "Short of full backing"}
               </span>
             </div>
+
+            {r.reserves.ratio !== null ? (
+              <p className="empty__sub mt-3">
+                {r.reserves.solanaShare !== null ? (
+                  <>
+                    The {num(r.reserves.sharesHeld, 2)} shares in custody back this stock&apos;s
+                    tokens on every chain it is issued on, not only the ones on Solana. Do not
+                    divide it by the Solana figure below: they count different things.
+                  </>
+                ) : (
+                  <>
+                    Read this one with care. The issuer reports{" "}
+                    {num(r.reserves.circulating, 2)} {r.symbol} outstanding across every chain,
+                    while we count{" "}
+                    {r.circulatingOnChain !== null ? num(r.circulatingOnChain, 2) : "more"} on
+                    Solana alone. An all-chain total cannot be smaller than one chain&apos;s, so the
+                    two were read at different moments and the ratio above is only as current as
+                    the issuer&apos;s snapshot.
+                  </>
+                )}
+              </p>
+            ) : null}
 
             {r.reserves.ratio !== null ? (
               <div className="bar-meter">
@@ -338,8 +372,8 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
             ) : (
               <p className="empty__sub mt-3">
                 {r.reserves.dormant
-                  ? `Only ${num(r.reserves.circulating, 4)} ${r.symbol} are reported as circulating, so a backing ratio would be division by almost nothing rather than a measurement.`
-                  : "The issuer's attestation and the chain describe different moments closely enough that a ratio would mislead."}
+                  ? `The issuer reports only ${num(r.reserves.circulating, 4)} ${r.symbol} in anyone's hands. A backing ratio against a number that small measures nothing, so we do not show one.`
+                  : "The issuer's attestation and the chain were read at different moments, and far enough apart that dividing one by the other would say more about the timing than about the backing."}
               </p>
             )}
 
@@ -355,11 +389,11 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
                 {r.circulatingOnChain !== null ? num(r.circulatingOnChain, 2) : "—"} in public
                 hands
               </dd>
-              <dt>Share of global float</dt>
+              <dt>How much of this token lives on Solana</dt>
               <dd>
                 {r.reserves.solanaShare !== null
                   ? pct(r.reserves.solanaShare * 100, 1)
-                  : "not comparable"}
+                  : "Cannot be worked out: the issuer's all-chain count was taken at a different moment from our Solana reading, and is the smaller of the two."}
               </dd>
             </dl>
           </div>
