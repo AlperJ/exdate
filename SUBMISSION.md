@@ -40,13 +40,20 @@ issued on Solana:
 | | |
 |---|---|
 | Paid to holders with no transaction | **$11,984,613** |
-| Payments | **624** |
-| Stocks that have paid | **325** |
+| Payments that reached a holder | **628** |
+| Stocks that have paid | **329** |
 | Tokenized stocks issued on Solana | **832** |
 | Payments genuinely still to come | **38** |
 
 Every one of those figures is read from Solana mainnet and from the issuer's public
 records. Nothing is estimated.
+
+The two scopes are deliberately different and the site says so. 641 dividend events exist
+in the issuer's records; three have not activated yet, and ten sit on tokens with zero
+circulating supply, where the multiplier moved but there was nobody holding the token to
+be paid. That leaves 628 across 329 stocks. Of those, four had no usable price when we
+measured, so the dollar figure comes from 624 payments across 325 stocks. Counting a
+payment does not need a price, so we do not let a missing price shrink a count.
 
 ### What ExDate does
 
@@ -87,15 +94,44 @@ $12m. Netflix split ten for one and its multiplier went from 1.0 to 10.0; holder
 nothing. Any tracker that treats a multiplier change as income will tell a Netflix holder
 they made 900%.
 
-**The issuer's forward feed is 93% stale.** It serves 539 rows as "upcoming". Only 38 have
-a date in the future. The other 501 already activated and are still being served as
-scheduled. Anyone building a calendar off that endpoint without checking the clock gets a
-number fourteen times too large.
+**The issuer's forward feed is 93% stale, and not only stale.** It serves 539 rows as
+"upcoming". 482 already activated, 14 are the same event listed twice, and 5 carry no date
+at all — and an undated row is the dangerous one, because `+new Date(null)` is zero, so it
+sorts silently into the distant past. 38 rows are genuinely ahead. Anyone building a
+calendar off that endpoint without checking the clock gets a number fourteen times too
+large.
 
 **The dividend market is one instrument.** 90% of the $11.98m is STRCx, a variable-rate
 preferred that pays like a bond. The other 324 stocks come to $1.2m between them, and the
 typical one has paid 0.370% of its value since launch. Tokenized equity dividends are, so
 far, very small — which is precisely why nobody noticed they were invisible.
+
+### We are not the first to notice this
+
+Before claiming anything, we went looking for whoever had got here first, and several
+people had.
+
+**Scallar** built a live indexer and public API for scaled-UI stock tokens on Robinhood
+Chain, with full multiplier history and a corrected balance on every holder row. They
+reached the same conclusion we did, on a different chain, and stopped one query short: they
+correct your balance, they do not tell you which event moved it or what it paid you.
+
+**Dinari** ships a per-account dividend record through
+`/accounts/{id}/dividend_payments`. It is the literal sentence — for their own dShares on
+EVM chains, behind a KYC'd enterprise API, for a mechanism that pays a real transfer, so
+the invisibility problem does not arise there.
+
+**Backed's own corporate-actions API** publishes every event, free and without a key. The
+calendar is theirs; we cite it and do not claim it. **Bybit** shows a multiplier history
+with event types to logged-in users holding on Bybit. **CF Benchmarks** publishes a
+corporate-action feed for institutions.
+
+What none of them does is the join: take an arbitrary Solana wallet nobody has onboarded,
+and say what that wallet was paid, by which event, against the balance it actually held on
+the day. That is the claim, and it is a narrower one than "nobody saw this".
+
+The full search, including what each party ships and what to say if a judge raises it, is
+in `PRIORART.md`.
 
 ### Why Solana
 
@@ -110,7 +146,9 @@ problem is Solana-native, the fix has to be, and the data to fix it is all publi
   number, covering every chain each token is issued on.
 - Dividends arrive as extra tokens, not cash, so USD figures value that growth at today's
   price and move with the stock.
-- Wallet figures assume a position was held unchanged since it was acquired.
+- Wallet figures use the balance the wallet actually held on each payment date, read from
+  the transaction immediately before it. Where an account trades too often for that walk to
+  reach back, the row is marked estimated on the page and the headline says how many.
 
 All four are stated on the site itself, on the *How this works* page.
 
@@ -154,6 +192,14 @@ between the site and the chain's own view.
 
 Before submitting, four adversarial reviewers were tasked with proving the published
 figures wrong by routes the app does not use. They confirmed most of them — AAPLx's five
-dividends hand-compounded to the chain's multiplier to the last digit — and broke three.
-Those three are fixed and documented in `VERIFY.md`, including the one where our own
-headline was seven times too high.
+dividends hand-compounded to the chain's multiplier to the last digit — and broke several.
+Every one is fixed and documented in `VERIFY.md`, including the one where our own headline
+was seven times too high, and the one where every wallet figure was priced against today's
+balance instead of the balance held on the day.
+
+A separate pass read every sentence on the site as three different people: a holder who
+owns 0.6 of a token, a judge with ten minutes, and a developer sent the link to fix wrong
+balances. Thirty findings, in `COPY.md`. The ones that mattered were not stylistic: a
+green "Fully backed" badge sitting above two figures that divide to 13%, a dash in the
+paid column that both readers took to mean "paid nothing", and a count that silently shrank
+whenever a price was missing.
