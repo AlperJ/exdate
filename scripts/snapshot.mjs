@@ -105,9 +105,18 @@ const snapshot = {
   splits: rows.filter((r) => Math.abs(r.splitFactor - 1) > 0.001)
     .map((r) => ({ symbol: r.symbol, factor: r.splitFactor })).sort((a, b) => b.factor - a.factor),
   topPayers: [...paying].sort((a, b) => b.hiddenUsd - a.hiddenUsd).slice(0, 12),
+  // Full index for /assets. Every asset whose multiplier has ever moved.
+  index: [...rows]
+    .sort((a, b) => (b.hiddenUsd ?? -1) - (a.hiddenUsd ?? -1) || b.yieldPct - a.yieldPct)
+    .map((r) => ({
+      symbol: r.symbol, name: r.name, underlying: r.underlying,
+      dividends: r.dividends, yieldPct: r.yieldPct, splitFactor: r.splitFactor,
+      lastPaid: r.lastPaid, hiddenUsd: r.hiddenUsd, floatUsd: r.floatUsd,
+    })),
   topYields: [...paying].filter((r) => r.floatUsd > 1e6).sort((a, b) => b.yieldPct - a.yieldPct).slice(0, 8),
-  upcoming: future.slice(0, 12).map((c) => ({ symbol: c.xstockSymbol, at: c.effectiveTimeUtc,
-    type: c.caType, netUsd: c.netCashflowUsd, withholding: c.withholdingTaxRate })),
+  upcoming: future.map((c) => ({ symbol: c.xstockSymbol, at: c.effectiveTimeUtc,
+    type: c.caType, grossUsd: c.grossCashflowUsd, netUsd: c.netCashflowUsd,
+    withholding: c.withholdingTaxRate, status: c.status })),
   upcomingCount: future.length,
 };
 

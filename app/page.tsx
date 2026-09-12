@@ -8,151 +8,267 @@ export const revalidate = 900;
 export default async function Home() {
   const live = await marketSummary().catch(() => null);
   const m = market;
+  const asOf = day(m.measuredAt);
+  const assetCount = live?.assetCount ?? m.assetCount;
 
   return (
     <>
-      <section className="hero">
-        <h1>
-          Your tokenized stocks paid you.
-          <br />
-          <em>Nobody told you.</em>
-        </h1>
-        <p>
-          xStocks on Solana do not pay dividends in cash. They pay by quietly raising a
-          multiplier on the token. Your token count never changes. Your balance just
-          silently becomes worth more, and nothing in your wallet says it happened.
+      <h1>Dividends paid by tokenized US stocks on Solana</h1>
+
+      <p className="standfirst">
+        xStocks do not pay dividends in cash. They pay by raising a Token-2022 multiplier, so the
+        number of tokens in a wallet never changes and the balance quietly becomes worth more. No
+        wallet, explorer or portfolio tracker on Solana reports that this happened.
+      </p>
+
+      <Search />
+
+      <div className="figure">
+        <div className="figure__label">Paid into Solana wallets without a transaction</div>
+        <div className="figure__value">{usd(m.totalHiddenUsd, 0)}</div>
+        <hr className="figure__rule" />
+        <p className="figure__context">
+          Across <b>{m.dividendPayments} dividends</b> on {m.assetsPricedAndPaying} tokenized stocks,
+          measured against {usd(m.totalFloatUsd, 0)} of positions as of {asOf}. Splits are excluded:
+          they raise the multiplier without paying anyone.
         </p>
-        <Search />
+      </div>
+
+      <div className="band">
+        <div>
+          <div className="stat__label">Tokenized assets</div>
+          <div className="stat__value">{num(assetCount, 0)}</div>
+          <div className="stat__note">issued on Solana by Backed</div>
+        </div>
+        <div>
+          <div className="stat__label">Average payout</div>
+          <div className="stat__value">{pct((m.totalHiddenUsd / m.totalFloatUsd) * 100, 3)}</div>
+          <div className="stat__note">of position value, across paying assets</div>
+        </div>
+        <div>
+          <div className="stat__label">Payments recorded</div>
+          <div className="stat__value">{num(m.dividendPayments, 0)}</div>
+          <div className="stat__note">dividend events since June 2025</div>
+        </div>
+      </div>
+
+      <section className="section">
+        <div className="section__head">
+          <h2 className="section__title">Largest payers</h2>
+          <span className="section__meta">
+            8 of {num(assetCount, 0)} · as of {asOf}
+          </span>
+        </div>
+        <div className="section__body">
+          <div className="tw">
+            <table className="dt">
+              <colgroup>
+                <col style={{ width: "96px" }} />
+                <col />
+                <col style={{ width: "88px" }} />
+                <col style={{ width: "96px" }} />
+                <col style={{ width: "140px" }} />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>Symbol</th>
+                  <th>Company</th>
+                  <th>Payments</th>
+                  <th>Yield</th>
+                  <th>Paid (USD)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {m.topPayers.slice(0, 8).map((p) => (
+                  <tr key={p.symbol}>
+                    <td>
+                      <a className="cell__main" href={`/asset/${p.symbol}`}>
+                        {p.symbol}
+                      </a>
+                    </td>
+                    <td className="muted">{p.name.replace(/ xStock$/, "")}</td>
+                    <td>{p.dividends}</td>
+                    <td>{pct(p.yieldPct, 3)}</td>
+                    <td>{usd(p.hiddenUsd ?? 0, 0)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="section__after">
+            <a href="/assets">View all assets</a>
+          </p>
+        </div>
       </section>
 
-      <div className="headline">
-        <div className="label">Paid into Solana wallets, unannounced</div>
-        <div className="big">{usd(m.totalHiddenUsd, 0)}</div>
-        <div className="under">
-          Across {m.dividendPayments} dividends on {m.assetsPricedAndPaying} tokenized stocks,
-          against {usd(m.totalFloatUsd, 0)} of positions. Every one of them landed as a silent
-          multiplier change. Not one produced a transaction, a notification, or a line in any
-          explorer.
+      <section className="section">
+        <div className="section__head">
+          <h2 className="section__title">Next scheduled</h2>
+          <span className="section__meta">
+            {live?.scheduledCount ?? m.upcomingCount} events ahead
+          </span>
         </div>
-      </div>
+        <div className="section__body">
+          <div className="tw">
+            <table className="dt">
+              <colgroup>
+                <col style={{ width: "112px" }} />
+                <col style={{ width: "96px" }} />
+                <col />
+                <col style={{ width: "110px" }} />
+                <col style={{ width: "130px" }} />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Symbol</th>
+                  <th>Action</th>
+                  <th>Withholding</th>
+                  <th>Net per share</th>
+                </tr>
+              </thead>
+              <tbody>
+                {m.upcoming.slice(0, 8).map((c, i) => (
+                  <tr key={`${c.symbol}-${i}`}>
+                    <td>{day(c.at)}</td>
+                    <td>
+                      <a className="cell__main" href={`/asset/${c.symbol}`}>
+                        {c.symbol}
+                      </a>
+                    </td>
+                    <td className="muted">{c.type.replace(/([a-z])([A-Z])/g, "$1 $2")}</td>
+                    <td>
+                      {c.withholding && Number(c.withholding) > 0
+                        ? pct(Number(c.withholding) * 100, 0)
+                        : "None"}
+                    </td>
+                    <td>{c.netUsd ? usd(Number(c.netUsd), 5) : "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="section__after">
+            <a href="/calendar">View the full calendar</a>
+          </p>
+        </div>
+      </section>
 
-      <div className="stats">
-        <div className="stat">
-          <div className="k">Tokenized assets</div>
-          <div className="v">{num(live?.assetCount ?? m.assetCount, 0)}</div>
-          <div className="note">live on Solana</div>
+      <section className="section">
+        <div className="section__head">
+          <h2 className="section__title">A split is not a dividend</h2>
+          <span className="section__meta">{m.splits.length} of {m.assetsWithMultiplierChange}</span>
         </div>
-        <div className="stat">
-          <div className="k">Average payout</div>
-          <div className="v pos">{pct((m.totalHiddenUsd / m.totalFloatUsd) * 100, 3)}</div>
-          <div className="note">of position value, invisible</div>
-        </div>
-        <div className="stat">
-          <div className="k">Next one lands</div>
-          <div className="v pos" style={{ fontSize: 16 }}>
-            {live?.nextEvent ? day(live.nextEvent.at) : m.upcoming[0] ? day(m.upcoming[0].at) : "—"}
+        <div className="section__body">
+          <p className="prose">
+            Of the {m.assetsWithMultiplierChange} assets whose multiplier has moved, {m.splits.length}{" "}
+            moved because the underlying stock split rather than because anyone was paid. A split
+            raises the multiplier and cuts the share price by the same factor, so the position is
+            worth what it was a second earlier.
+          </p>
+          <div className="tw">
+            <table className="dt dt--compact">
+              <colgroup>
+                <col />
+                <col style={{ width: "180px" }} />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>Reading</th>
+                  <th>Figure</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="is-void">
+                  <td>
+                    <span className="status">Incorrect</span> NFLXx&apos;s 10:1 split counted as income
+                  </td>
+                  <td>
+                    <span className="strike">$105,863,078</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>What holders actually received</td>
+                  <td>$0</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          <div className="note">
-            {live?.nextEvent?.symbol ?? m.upcoming[0]?.symbol ?? "checking"}, one of{" "}
-            {live?.scheduledCount ?? m.upcomingCount} scheduled
-          </div>
+          <p className="section__after muted">
+            Netflix split ten for one on 16 Nov 2025. Every figure on this site counts dividends
+            only; splits appear in the history marked as no gain.
+          </p>
         </div>
-        <div className="stat">
-          <div className="k">Trackers showing it</div>
-          <div className="v dim">0</div>
-          <div className="note">wallets, explorers, portfolios</div>
-        </div>
-      </div>
+      </section>
 
-      <div className="section-title">Who has paid the most, silently</div>
-      <div className="card">
-        <div className="timeline">
-          {m.topPayers.slice(0, 8).map((p) => (
-            <a
-              className="row"
-              key={p.symbol}
-              href={`/asset/${p.symbol}`}
-              style={{ textDecoration: "none", color: "inherit" }}
-            >
-              <div className="date" style={{ fontWeight: 600, color: "var(--text)" }}>
-                {p.symbol}
-              </div>
-              <div className="what">
-                <b>{p.name.replace(/ xStock$/, "")}</b>
-                <span className="mult">
-                  {p.dividends} {p.dividends === 1 ? "payment" : "payments"} · {pct(p.yieldPct, 3)}{" "}
-                  of position value
-                  {p.lastPaid ? ` · last ${day(p.lastPaid)}` : ""}
-                </span>
-              </div>
-              <div className="amt">{usd(p.hiddenUsd ?? 0, 0)}</div>
-            </a>
-          ))}
+      <section className="section">
+        <div className="section__head">
+          <h2 className="section__title">How the payment hides</h2>
+          <span className="section__meta">AAPLx, read from mainnet</span>
         </div>
-      </div>
-
-      <div className="section-title">A split is not a dividend</div>
-      <div className="card">
-        <p style={{ margin: "0 0 14px", fontSize: 14.5, lineHeight: 1.6, color: "var(--muted)" }}>
-          Of the {m.assetsWithMultiplierChange} assets whose multiplier has moved, {m.splits.length}{" "}
-          moved because the underlying stock split, not because anyone was paid. A split raises the
-          multiplier and cuts the share price by the same factor, so the position is worth exactly
-          what it was a second earlier.
-        </p>
-        <div className="compare">
-          <div className="side wrong">
-            <div className="k">Counting NFLXx&apos;s 10:1 split as income</div>
-            <div className="v">$105,863,078</div>
+        <div className="section__body">
+          <p className="prose">
+            Token-2022 stores the scaling factor in two fields. The one named{" "}
+            <code className="lit">multiplier</code> is the old value.{" "}
+            <code className="lit">newMultiplier</code> takes over once its timestamp passes, and the
+            chain never rewrites the old one. Read the obvious field and every balance shown is wrong.
+          </p>
+          <div className="tw">
+            <table className="dt dt--compact">
+              <colgroup>
+                <col />
+                <col style={{ width: "180px" }} />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>Reading</th>
+                  <th>Figure</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="is-void">
+                  <td>
+                    <span className="status">Stale</span> the field named{" "}
+                    <code className="lit">multiplier</code>
+                  </td>
+                  <td>
+                    <span className="strike lit">1.0026642076</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Actually in force</td>
+                  <td className="lit">1.0032690125</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          <div className="arrow">→</div>
-          <div className="side right">
-            <div className="k">What holders actually received</div>
-            <div className="v">$0</div>
-          </div>
+          <p className="section__after muted">
+            For a cash dividend the error is 0.06%. For a ten-for-one split it is ten times.
+          </p>
         </div>
-        <p style={{ margin: 0, fontSize: 13, color: "var(--faint)", lineHeight: 1.6 }}>
-          Netflix split ten for one on 16 November 2025. Every figure on this site counts dividends
-          only; splits appear in the timeline marked <b>no gain</b>.
-        </p>
-      </div>
+      </section>
 
-      <div className="section-title">How the payment hides</div>
-      <div className="card">
-        <p style={{ margin: "0 0 14px", fontSize: 14.5, lineHeight: 1.6, color: "var(--muted)" }}>
-          Token-2022 stores the scaling factor in two fields. The one literally named{" "}
-          <code style={{ fontFamily: "var(--mono)", color: "var(--text)" }}>multiplier</code> is the
-          old value.{" "}
-          <code style={{ fontFamily: "var(--mono)", color: "var(--text)" }}>newMultiplier</code>{" "}
-          takes over once its timestamp passes, and the chain never rewrites the old one. Read the
-          obvious field and every balance you show is wrong.
-        </p>
-        <div className="compare">
-          <div className="side wrong">
-            <div className="k">Reading `multiplier`</div>
-            <div className="v">1.0026642076</div>
-          </div>
-          <div className="arrow">→</div>
-          <div className="side right">
-            <div className="k">Actually in force</div>
-            <div className="v">1.0032690125</div>
-          </div>
-        </div>
-        <p style={{ margin: 0, fontSize: 13, color: "var(--faint)", lineHeight: 1.6 }}>
-          AAPLx, read from mainnet. For a cash dividend the error is 0.06%. For a 10:1 split it is
-          ten times.
-        </p>
-      </div>
-
-      <ul className="notes">
+      <ol className="notes">
         <li>
-          Aggregate figures measured on {day(m.measuredAt)} across all {m.assetCount} assets. Asset
-          and wallet pages read live.
+          Aggregate figures were measured on {asOf} across all {num(m.assetCount, 0)} assets by
+          reading each mint account on Solana mainnet and each payout record from the issuer. Asset
+          and wallet pages read live on every request.
         </li>
         <li>
-          Position values use the issuer&apos;s Solana supply, which includes tokens minted but not
-          yet sold, so the dollar totals are an upper bound on what reached public wallets.
+          Position values use the issuer&apos;s Solana supply, which includes tokens minted but never
+          issued, so the dollar totals are an upper bound on what reached public wallets.
         </li>
-      </ul>
+        <li>
+          Dividends are credited as growth in the number of tokens, not as cash. USD figures value
+          that growth at today&apos;s price and therefore move with the underlying stock.
+        </li>
+      </ol>
+
+      <p className="disclaimer">
+        Read-only. No wallet connection, no transactions, no custody. Data from the xStocks public
+        API, Solana mainnet RPC and Jupiter. Not investment advice, and not affiliated with Backed
+        Finance, Ondo or the Solana Foundation.
+      </p>
     </>
   );
 }

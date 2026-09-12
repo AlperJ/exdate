@@ -1,6 +1,6 @@
 import { buildReport } from "@/lib/report";
-import { usd, num, pct, day, short } from "@/lib/fmt";
-import Search from "../../Search";
+import { usd, time } from "@/lib/fmt";
+import Positions from "./Positions";
 
 export const revalidate = 120;
 
@@ -12,164 +12,133 @@ export default async function WalletPage({ params }: { params: Promise<{ address
     r = await buildReport(address);
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
+    const badAddress = /-32602|Invalid param|base58|WrongSize/i.test(msg);
+    const throttled = /429|Too many|rate limit/i.test(msg);
     return (
-      <Shell q={address}>
-        <div className="err">
-          {/-32602|Invalid param|base58/i.test(msg)
-            ? "That does not look like a Solana address."
-            : `Could not read this wallet: ${msg}`}
-          {/429|Too many/i.test(msg) ? (
-            <div style={{ marginTop: 8, color: "var(--faint)", fontSize: 12.5 }}>
-              The public RPC is rate limiting. Set SOLANA_RPC_URL to a dedicated endpoint.
-            </div>
-          ) : null}
+      <div className="notice">
+        <div className="notice__head">
+          {badAddress ? "That is not a Solana address" : "This wallet could not be read"}
         </div>
-      </Shell>
-    );
-  }
-
-  if (!r.positions.length) {
-    return (
-      <Shell q={address}>
-        <div className="card" style={{ marginTop: 22 }}>
-          <div className="ticker">Nothing to report</div>
-          <p style={{ color: "var(--muted)", fontSize: 14.5, lineHeight: 1.6, margin: "10px 0 0" }}>
-            <code style={{ fontFamily: "var(--mono)" }}>{short(address)}</code> holds no xStocks.
-            You can still look up any ticker to see what it has paid its holders.
-          </p>
+        <div className="notice__body">
+          {badAddress ? (
+            <>
+              A wallet address is 32 to 44 base58 characters. To look up a stock instead, type its
+              ticker, such as <a href="/asset/AAPL">AAPL</a>.
+            </>
+          ) : throttled ? (
+            <>The RPC endpoint is rate limiting this lookup. Try again in a few seconds.</>
+          ) : (
+            <span className="lit">{msg}</span>
+          )}
         </div>
-      </Shell>
+      </div>
     );
   }
 
   const t = r.totals;
 
+  if (!r.positions.length) {
+    return (
+      <>
+        <div className="ident">
+          <div>
+            <h1>Wallet statement</h1>
+            <div className="ident__sub lit">{address}</div>
+          </div>
+        </div>
+        <div className="empty">
+          <p className="empty__main">This wallet holds no tokenized stocks.</p>
+          <p className="empty__sub">
+            Nothing has been paid to it and nothing is hidden in its balances. You can still read
+            what any stock has paid its holders, such as <a href="/asset/AAPL">AAPL</a>, or browse
+            the <a href="/assets">full asset index</a>.
+          </p>
+        </div>
+      </>
+    );
+  }
+
   return (
-    <Shell q={address}>
-      <div className="headline">
-        <div className="label">Paid to this wallet, never announced</div>
-        <div className="big">{usd(t.dividendUsd)}</div>
-        <div className="under">
-          Across {t.dividendCount} {t.dividendCount === 1 ? "payment" : "payments"} on the{" "}
-          {t.itemised} largest of {t.positionCount}{" "}
-          {t.positionCount === 1 ? "position" : "positions"}, together worth {usd(t.valueUsd)}. No
-          transaction, no notification, no line in any explorer.
+    <>
+      <div className="ident">
+        <div>
+          <h1>Wallet statement</h1>
+          <div className="ident__sub lit">{address}</div>
+        </div>
+        <div className="ident__end">
+          <div className="ident__sub">
+            {t.positionCount} {t.positionCount === 1 ? "position" : "positions"} ·{" "}
+            {usd(t.valueUsd, 0)} · read at {time(r.generatedAt)} UTC
+          </div>
         </div>
       </div>
 
-      {Math.abs(t.hiddenUsd) > 0.005 ? (
-        <div className="card">
-          <div className="card-head">
-            <span className="pill warn">balance mismatch</span>
-          </div>
-          <p style={{ margin: "10px 0 0", fontSize: 14, color: "var(--muted)", lineHeight: 1.6 }}>
-            An integration reading the stale <code style={{ fontFamily: "var(--mono)" }}>multiplier</code>{" "}
-            field would understate this wallet by <b>{usd(Math.abs(t.hiddenUsd))}</b> right now.
-          </p>
+      <div className="figure">
+        <div className="figure__label">Received without a transaction</div>
+        <div className="figure__value">{usd(t.dividendUsd)}</div>
+        <hr className="figure__rule" />
+        <p className="figure__context">
+          Across <b>{t.dividendCount}</b> {t.dividendCount === 1 ? "payment" : "payments"} on the{" "}
+          {t.itemised} largest of {t.positionCount}{" "}
+          {t.positionCount === 1 ? "position" : "positions"}, together worth {usd(t.valueUsd, 0)}.
+          None of it produced a transaction, a notification, or a line in any explorer.
+        </p>
+      </div>
+
+      <div className="band">
+        <div>
+          <div className="stat__label">Payments</div>
+          <div className="stat__value">{t.dividendCount}</div>
+          <div className="stat__note">dividends credited while held</div>
         </div>
-      ) : null}
-
-      {r.positions.map((p) => (
-        <div className="card" key={p.mint}>
-          <div className="card-head">
-            {p.logo ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={p.logo} alt="" width={30} height={30} style={{ borderRadius: 7 }} />
-            ) : null}
-            <div>
-              <div className="ticker">{p.symbol}</div>
-              <div className="sub">
-                {num(p.trueBalance, 6)} tokens
-                {p.valueUsd !== null ? ` · ${usd(p.valueUsd)}` : ""}
-              </div>
-            </div>
-            <div className="spacer" />
-            <a className="pill" href={`/asset/${p.symbol}`}>
-              asset view →
-            </a>
+        <div>
+          <div className="stat__label">Positions paying</div>
+          <div className="stat__value">
+            {r.positions.filter((p) => p.paid.length > 0).length}
           </div>
-
-          <div className="stats" style={{ margin: "16px 0 0" }}>
-            <div className="stat">
-              <div className="k">Dividends received</div>
-              <div className="v pos">{p.totalUsdGained ? usd(p.totalUsdGained) : "—"}</div>
-              <div className="note">+{num(p.totalSharesGained, 6)} {p.symbol}</div>
-            </div>
-            <div className="stat">
-              <div className="k">Payments</div>
-              <div className="v">{p.paid.length}</div>
-              <div className="note">
-                {p.heldSince ? `held since ${day(p.heldSince)}` : "full history shown"}
-              </div>
-            </div>
-            <div className="stat">
-              <div className="k">Backing</div>
-              <div
-                className={`v ${
-                  p.reserves?.ratio == null ? "dim" : p.reserves.ratio >= 1 ? "pos" : "warn"
-                }`}
-              >
-                {p.reserves?.ratio != null ? pct(p.reserves.ratio * 100) : "—"}
-              </div>
-              <div className="note">
-                {p.reserves?.ratio != null
-                  ? p.reserves.providers.join(", ")
-                  : p.reserves
-                    ? "too little circulating to compare"
-                    : "unavailable"}
-              </div>
-            </div>
-          </div>
-
-          {p.paid.length ? (
-            <div className="timeline" style={{ marginTop: 16 }}>
-              {[...p.paid].reverse().map((e, i) => (
-                <div className="row" key={`${p.mint}-${i}`}>
-                  <div className="date">{day(e.date)}</div>
-                  <div className="what">
-                    <b>{e.reason.replace(/([a-z])([A-Z])/g, "$1 $2")}</b>
-                    <span className="mult">
-                      {e.from.toFixed(9)} → {e.to.toFixed(9)}
-                      {e.isIncome ? "" : `  ·  ×${num(e.ratio, 2)}, price moved the opposite way`}
-                    </span>
-                  </div>
-                  <div className="amt" style={e.isIncome ? undefined : { color: "var(--faint)" }}>
-                    +{num(e.sharesGained, 6)}
-                    {e.isIncome ? (
-                      e.usdGained ? <small>{usd(e.usdGained)}</small> : null
-                    ) : (
-                      <small>no gain</small>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="empty">No payout has landed since this wallet started holding.</div>
-          )}
+          <div className="stat__note">of {t.itemised} itemised</div>
         </div>
-      ))}
+        <div>
+          <div className="stat__label">Understatement if read naively</div>
+          <div className={`stat__value ${Math.abs(t.hiddenUsd) > 0.005 ? "is-warn" : ""}`}>
+            {Math.abs(t.hiddenUsd) > 0.005 ? usd(Math.abs(t.hiddenUsd)) : "—"}
+          </div>
+          <div className="stat__note">see note 1</div>
+        </div>
+      </div>
 
-      <ul className="notes">
+      <section className="section">
+        <div className="section__head">
+          <h2 className="section__title">Positions</h2>
+          <span className="section__meta">
+            {t.itemised} of {t.positionCount}, by amount received
+          </span>
+        </div>
+        <div className="section__body">
+          <Positions positions={r.positions} />
+        </div>
+      </section>
+
+      <ol className="notes">
+        <li>
+          An integration reading the field named <span className="lit">multiplier</span> instead of
+          the one in force would understate this wallet by the amount shown. The chain leaves the old
+          value in place after a corporate action activates.
+        </li>
         {r.notes.map((n, i) => (
           <li key={i}>{n}</li>
         ))}
         <li>
-          Per-payment figures assume the balance was unchanged since acquisition. Buying or
-          selling between events shifts the real number.
+          Per-payment figures assume the balance was unchanged since the position was acquired.
+          Buying or selling between events shifts the real number.
         </li>
-      </ul>
-    </Shell>
-  );
-}
+      </ol>
 
-function Shell({ q, children }: { q: string; children: React.ReactNode }) {
-  return (
-    <>
-      <div style={{ paddingTop: 26 }}>
-        <Search initial={q} />
-      </div>
-      {children}
+      <p className="disclaimer">
+        Read-only. No wallet connection, no transactions, no custody. Addresses are read from public
+        Solana state and nothing is stored. Not investment advice, and not affiliated with Backed
+        Finance or the Solana Foundation.
+      </p>
     </>
   );
 }

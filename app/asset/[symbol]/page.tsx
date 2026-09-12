@@ -1,6 +1,6 @@
 import { buildAssetReport } from "@/lib/report";
-import { usd, num, pct, day, short, until } from "@/lib/fmt";
-import Search from "../../Search";
+import { usd, num, pct, signed, day } from "@/lib/fmt";
+import { isIncome } from "@/lib/xstocks";
 
 export const revalidate = 300;
 
@@ -13,21 +13,25 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
     r = await buildAssetReport(sym);
   } catch (e) {
     return (
-      <Shell q={sym}>
-        <div className="err">
-          Could not reach the data sources: {e instanceof Error ? e.message : String(e)}
+      <div className="notice">
+        <div className="notice__head">This asset could not be read</div>
+        <div className="notice__body">
+          {e instanceof Error ? e.message : String(e)}. The issuer API or a Solana RPC endpoint did
+          not answer. Try again in a moment.
         </div>
-      </Shell>
+      </div>
     );
   }
 
   if (!r) {
     return (
-      <Shell q={sym}>
-        <div className="err">
-          No xStock called <b>{sym}</b>. Tickers end in a lowercase x, like AAPLx or NVDAx.
+      <div className="notice">
+        <div className="notice__head">No xStock called {sym}</div>
+        <div className="notice__body">
+          Look up a US ticker such as <a href="/asset/AAPL">AAPL</a> or{" "}
+          <a href="/asset/PFE">PFE</a>, or browse the <a href="/assets">full asset index</a>.
         </div>
-      </Shell>
+      </div>
     );
   }
 
@@ -35,277 +39,325 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
   const per1k = r.perUnitGained * 1000;
   const per1kUsd = r.priceUsd ? per1k * r.priceUsd : null;
   const hasSplit = Math.abs(r.splitFactor - 1) > 0.001;
+  const splitLabel =
+    r.splitFactor >= 1 ? `${num(r.splitFactor, 0)}:1` : `1:${num(1 / r.splitFactor, 0)}`;
+  const drift = Math.abs(r.driftPct) > 1e-9;
 
   return (
-    <Shell q={r.symbol}>
-      <div className="card-head" style={{ marginTop: 26 }}>
+    <>
+      <div className="ident">
         {r.logo ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={r.logo} alt="" width={34} height={34} style={{ borderRadius: 8 }} />
-        ) : null}
+          <img className="mark mark--lg" src={r.logo} alt="" width={28} height={28} />
+        ) : (
+          <span className="mark mark--lg" />
+        )}
         <div>
-          <div className="ticker">{r.symbol}</div>
-          <div className="sub">
-            {r.name} · tracks {r.underlying}
+          <h1>{r.symbol}</h1>
+          <div className="ident__sub">
+            {r.name.replace(/ xStock$/, "")} · tracks {r.underlying}
             {r.priceUsd ? ` · ${usd(r.priceUsd)}` : ""}
           </div>
         </div>
-        <div className="spacer" />
-        {r.halted ? <span className="pill bad">trading halted</span> : <span className="pill good">live</span>}
+        <div className="ident__end">
+          <span className={`status ${r.halted ? "status--bad" : "status--ok"}`}>
+            {r.halted ? "Trading halted" : "Live"}
+          </span>
+        </div>
       </div>
 
       {paid > 0 ? (
-        <div className="headline">
-          <div className="label">Paid invisibly since launch</div>
-          <div className="big">{pct(r.totalGrowthPct)}</div>
-          <div className="under">
-            Across {paid} {paid === 1 ? "dividend" : "dividends"}, every holder&apos;s position grew
-            by {pct(r.totalGrowthPct)} without a single notification. Anyone holding 1,000{" "}
-            {r.symbol} since launch gained <b>{num(per1k, 4)} {r.symbol}</b>
-            {per1kUsd !== null ? <> , worth <b>{usd(per1kUsd)}</b> today</> : null}.
+        <div className="figure">
+          <div className="figure__label">Paid invisibly since launch</div>
+          <div className="figure__value">{pct(r.totalGrowthPct)}</div>
+          <hr className="figure__rule" />
+          <p className="figure__context">
+            Across <b>{paid}</b> {paid === 1 ? "dividend" : "dividends"}, every holder&apos;s position
+            grew by {pct(r.totalGrowthPct)} with no transaction and no notification. A holder of
+            1,000 {r.symbol} since launch gained <b>{num(per1k, 4)} {r.symbol}</b>
+            {per1kUsd !== null ? (
+              <>
+                , worth <b>{usd(per1kUsd)}</b> at today&apos;s price
+              </>
+            ) : null}
+            .
             {hasSplit ? (
               <>
                 {" "}
-                This stock also split {r.splitFactor >= 1 ? `${num(r.splitFactor, 2)}:1` : `1:${num(1 / r.splitFactor, 2)}`},
-                which multiplied the token count without changing what the position is worth.
-                That is excluded from the figure above.
+                This stock also split {splitLabel}, which multiplied the token count without changing
+                what the position is worth. That is excluded from the figure above.
               </>
             ) : null}
-          </div>
+          </p>
         </div>
       ) : hasSplit ? (
-        <div className="headline" style={{ borderColor: "var(--line)", background: "var(--surface)" }}>
-          <div className="label">Split, not a payout</div>
-          <div className="big" style={{ color: "var(--text)" }}>
-            {r.splitFactor >= 1 ? `${num(r.splitFactor, 0)}:1` : `1:${num(1 / r.splitFactor, 0)}`}
-          </div>
-          <div className="under">
-            {r.symbol} has never paid a dividend on chain. Its multiplier sits at{" "}
-            {r.effective.toFixed(4)} because the underlying stock split, which multiplied everyone&apos;s
-            token count by {num(r.splitFactor, 2)} and cut the price by the same factor. A wallet
-            showing {num(r.splitFactor, 0)}× more tokens after that date did not gain anything, and
-            any tracker calling this income is wrong.
-          </div>
+        <div className="figure">
+          <div className="figure__label">Split, not a payout</div>
+          <div className="figure__value">{splitLabel}</div>
+          <hr className="figure__rule" />
+          <p className="figure__context">
+            {r.symbol} has never paid a dividend on chain. Its multiplier stands at{" "}
+            {r.effective.toFixed(4)} because the underlying stock split, which multiplied every
+            holder&apos;s token count by {num(r.splitFactor, 2)} and cut the price by the same factor.
+            A wallet showing {num(r.splitFactor, 0)} times more tokens after that date gained nothing.
+          </p>
         </div>
       ) : (
-        <div className="card">
-          <div className="empty">
-            No corporate action has been applied to {r.symbol} yet. Its multiplier is still 1.0,
-            so nothing is hidden. Check back after the first dividend.
-          </div>
+        <div className="empty">
+          <p className="empty__main">
+            No corporate action has been applied to {r.symbol}. Its multiplier is still 1.0, so
+            nothing is hidden in any holder&apos;s balance.
+          </p>
+          <p className="empty__sub">
+            Check back after the first dividend, or browse the{" "}
+            <a href="/assets">assets that have already paid</a>.
+          </p>
         </div>
       )}
 
-      <div className="stats">
-        <div className="stat">
-          <div className="k">Multiplier in force</div>
-          <div className="v pos">{r.effective.toFixed(10)}</div>
-          <div className="note">the number that is actually true</div>
+      <div className="band band--4">
+        <div>
+          <div className="stat__label">Multiplier in force</div>
+          <div className="stat__value">{r.effective.toFixed(10)}</div>
+          <div className="stat__note">read from the mint account</div>
         </div>
-        <div className="stat">
-          <div className="k">Stale `multiplier` field</div>
-          <div className="v warn">{r.naive.toFixed(10)}</div>
-          <div className="note">
-            {Math.abs(r.driftPct) > 1e-9 ? `naive readers are off by ${pct(r.driftPct, 4)}` : "currently in sync"}
+        <div>
+          <div className="stat__label">Stale multiplier field</div>
+          <div className={`stat__value ${drift ? "is-warn" : ""}`}>{r.naive.toFixed(10)}</div>
+          <div className="stat__note">
+            {drift ? `naive readers understate by ${pct(r.driftPct, 4)}` : "currently in sync"}
           </div>
         </div>
-        <div className="stat">
-          <div className="k">Circulating</div>
-          <div className="v dim">{num(r.circulatingOnChain ?? r.supplyUnits, 0)}</div>
-          <div className="note">
+        <div>
+          <div className="stat__label">Circulating on Solana</div>
+          <div className="stat__value">{num(r.circulatingOnChain ?? r.supplyUnits, 0)}</div>
+          <div className="stat__note">
             {r.treasuryUnits
-              ? `${num(r.treasuryUnits, 0)} more minted, held by the issuer`
+              ? `${num(r.treasuryUnits, 0)} more minted, held unissued by the issuer`
               : "tokens, multiplier applied"}
           </div>
         </div>
-        <div className="stat">
-          <div className="k">Mint</div>
-          <div className="v dim" style={{ fontSize: 13 }}>{short(r.mint)}</div>
-          <div className="note">Token-2022</div>
+        <div>
+          <div className="stat__label">Price</div>
+          <div className="stat__value">{r.priceUsd ? usd(r.priceUsd) : "—"}</div>
+          <div className="stat__note">Jupiter, all Solana venues</div>
         </div>
       </div>
 
+      <dl className="facts">
+        <dt>Mint</dt>
+        <dd className="lit">{r.mint}</dd>
+        <dt>Program</dt>
+        <dd>Token-2022, scaled UI amount extension</dd>
+        <dt>Issuer</dt>
+        <dd>Backed Assets (JE) Limited</dd>
+        <dt>Decimals</dt>
+        <dd>{r.decimals}</dd>
+      </dl>
+
       {r.pending ? (
-        <div className="card" style={{ borderColor: "#3d2f0d", background: "#140f05" }}>
-          <div className="card-head">
-            <span className="pill warn">payout incoming</span>
-            <div className="spacer" />
-            <span className="sub">{until(r.pending.secondsAway)} away</span>
+        <div className="notice notice--warn">
+          <div className="notice__head">
+            <span className="status status--warn">Payout incoming</span>
           </div>
-          <p style={{ margin: "8px 0 0", fontSize: 14, color: "var(--muted)", lineHeight: 1.6 }}>
-            The multiplier moves from <b>{r.pending.from.toFixed(9)}</b> to{" "}
-            <b>{r.pending.to.toFixed(9)}</b> on {day(r.pending.activatesAt)}. Every balance rises by{" "}
-            {pct((r.pending.to / r.pending.from - 1) * 100, 4)} at that moment. The issuer asks
-            venues to pause trading for about 15 minutes around it.
-          </p>
+          <div className="notice__body">
+            The multiplier moves from <span className="lit">{r.pending.from.toFixed(9)}</span> to{" "}
+            <span className="lit">{r.pending.to.toFixed(9)}</span> on {day(r.pending.activatesAt)},
+            raising every balance by {pct((r.pending.to / r.pending.from - 1) * 100, 4)} at that
+            moment. The issuer asks venues to pause trading for about fifteen minutes around it.
+          </div>
         </div>
       ) : null}
 
-      {r.history.length > 0 ? (
-        <>
-          <div className="section-title">Every multiplier change, per 1,000 {r.symbol} held</div>
-          <div className="card">
-            <div className="timeline">
-              {[...r.history].reverse().map((e) => {
-                const income = e.reason.trim().toLowerCase() === "dividend";
-                const g = 1000 * (e.multiplier - e.previousMultiplier);
-                const ratio = e.previousMultiplier > 0 ? e.multiplier / e.previousMultiplier : 1;
-                return (
-                  <div className="row" key={e.id}>
-                    <div className="date">{day(e.activationDateTime)}</div>
-                    <div className="what">
-                      <b>{e.reason.replace(/([a-z])([A-Z])/g, "$1 $2")}</b>
-                      <span className="mult">
-                        {e.previousMultiplier.toFixed(9)} → {e.multiplier.toFixed(9)}
-                        {income ? "" : `  ·  ×${num(ratio, 2)}, price moved the opposite way`}
-                      </span>
-                    </div>
-                    <div className="amt" style={income ? undefined : { color: "var(--faint)" }}>
-                      {income ? `+${num(g, 4)}` : `+${num(g, 2)}`}
-                      {income && r.priceUsd ? (
-                        <small>{usd(g * r.priceUsd)}</small>
-                      ) : (
-                        <small>no gain</small>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+      {r.history.length ? (
+        <section className="section">
+          <div className="section__head">
+            <h2 className="section__title">Multiplier history</h2>
+            <span className="section__meta">per 1,000 {r.symbol} held</span>
+          </div>
+          <div className="section__body">
+            <div className="tw">
+              <table className="dt">
+                <colgroup>
+                  <col style={{ width: "112px" }} />
+                  <col style={{ width: "150px" }} />
+                  <col />
+                  <col style={{ width: "130px" }} />
+                  <col style={{ width: "120px" }} />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Action</th>
+                    <th>Multiplier</th>
+                    <th>Per 1,000 held</th>
+                    <th>USD today</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...r.history].reverse().map((e) => {
+                    const income = isIncome(e.reason);
+                    const g = 1000 * (e.multiplier - e.previousMultiplier);
+                    return (
+                      <tr key={e.id}>
+                        <td>{day(e.activationDateTime)}</td>
+                        <td className={income ? "" : "muted"}>
+                          {income
+                            ? e.reason
+                            : `${e.reason.replace(/([a-z])([A-Z])/g, "$1 $2")} · no gain`}
+                        </td>
+                        <td className="lit">
+                          {e.previousMultiplier.toFixed(9)} → {e.multiplier.toFixed(9)}
+                        </td>
+                        <td className={income ? "pos" : "muted"}>{signed(g, 4)}</td>
+                        <td className={income ? "" : "muted"}>
+                          {income && r.priceUsd ? usd(g * r.priceUsd) : "—"}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           </div>
-        </>
+        </section>
       ) : null}
 
       {r.upcoming.length ? (
-        <>
-          <div className="section-title">Scheduled</div>
-          <div className="card">
-            <div className="timeline">
-              {r.upcoming.map((c) => (
-                <div className="row" key={c.eventId}>
-                  <div className="date">{day(c.effectiveTimeUtc)}</div>
-                  <div className="what">
-                    <b>{c.caType.replace(/([a-z])([A-Z])/g, "$1 $2")}</b>
-                    <span className="mult">
-                      {/* The feed sends this as a fraction: 0.3 means 30%, confirmed
-                          against OMCx paying $0.80 gross and $0.56 net. */}
-                      {c.withholdingTaxRate && Number(c.withholdingTaxRate) > 0
-                        ? `${pct(Number(c.withholdingTaxRate) * 100, 0)} withheld`
-                        : "no withholding"}{" "}
-                      · {c.status.toLowerCase()}
-                    </span>
-                  </div>
-                  <div className="amt">
-                    {c.netCashflowUsd ? usd(Number(c.netCashflowUsd), 5) : "—"}
-                    <small>net per share</small>
-                  </div>
-                </div>
-              ))}
+        <section className="section">
+          <div className="section__head">
+            <h2 className="section__title">Scheduled</h2>
+            <span className="section__meta">from the issuer&apos;s forward feed</span>
+          </div>
+          <div className="section__body">
+            <div className="tw">
+              <table className="dt">
+                <colgroup>
+                  <col style={{ width: "112px" }} />
+                  <col style={{ width: "150px" }} />
+                  <col style={{ width: "110px" }} />
+                  <col style={{ width: "110px" }} />
+                  <col style={{ width: "130px" }} />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Action</th>
+                    <th>Withholding</th>
+                    <th>Status</th>
+                    <th>Net per share</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {r.upcoming.map((c) => (
+                    <tr key={c.eventId}>
+                      <td>{day(c.effectiveTimeUtc)}</td>
+                      <td>{c.caType.replace(/([a-z])([A-Z])/g, "$1 $2")}</td>
+                      <td>
+                        {c.withholdingTaxRate && Number(c.withholdingTaxRate) > 0
+                          ? pct(Number(c.withholdingTaxRate) * 100, 0)
+                          : "None"}
+                      </td>
+                      <td className="muted">{c.status}</td>
+                      <td>{c.netCashflowUsd ? usd(Number(c.netCashflowUsd), 5) : "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
-        </>
+        </section>
       ) : null}
 
       {r.reserves ? (
-        <>
-          <div className="section-title">Is it actually backed</div>
-          <div className="card">
-            <div className="card-head">
-              <div className="ticker" style={{ fontSize: 22 }}>
-                {r.reserves.ratio !== null ? pct(r.reserves.ratio * 100) : "not comparable"}
-              </div>
-              <div className="spacer" />
-              {r.reserves.ratio !== null ? (
-                <span className={`pill ${r.reserves.ratio >= 1 ? "good" : "bad"}`}>
-                  {r.reserves.ratio >= 1 ? "fully backed" : "under-collateralised"}
-                </span>
-              ) : (
-                <span className="pill">{r.reserves.dormant ? "dormant" : "figures disagree"}</span>
-              )}
+        <section className="section">
+          <div className="section__head">
+            <h2 className="section__title">Reserves</h2>
+            <span className="section__meta">issuer attestation, all chains</span>
+          </div>
+          <div className="section__body">
+            <div className="row-baseline">
+              <span className="stat__value">
+                {r.reserves.ratio !== null ? pct(r.reserves.ratio * 100) : "Not comparable"}
+              </span>
+              <span
+                className={`status ${
+                  r.reserves.ratio === null
+                    ? ""
+                    : r.reserves.ratio >= 1
+                      ? "status--ok"
+                      : "status--bad"
+                }`}
+              >
+                {r.reserves.ratio === null
+                  ? r.reserves.dormant
+                    ? "Dormant"
+                    : "Figures disagree"
+                  : r.reserves.ratio >= 1
+                    ? "Fully backed"
+                    : "Under-collateralised"}
+              </span>
             </div>
+
             {r.reserves.ratio !== null ? (
-              <div className="bar">
+              <div className="bar-meter">
                 <i
-                  className={r.reserves.ratio >= 1 ? "" : "under"}
+                  className={r.reserves.ratio >= 1 ? "" : "is-short"}
                   style={{ width: `${Math.min(100, r.reserves.ratio * 100)}%` }}
                 />
+                <span className="tick" />
               </div>
             ) : (
-              <p style={{ margin: "10px 0 6px", fontSize: 13, color: "var(--faint)", lineHeight: 1.6 }}>
+              <p className="empty__sub mt-3">
                 {r.reserves.dormant
-                  ? `Only ${num(r.reserves.circulating, 4)} ${r.symbol} are reported as circulating, so a backing ratio here would be division by almost nothing rather than a real measurement.`
-                  : "The issuer's snapshot and the chain are far enough apart that a ratio would mislead. Both raw figures are below."}
+                  ? `Only ${num(r.reserves.circulating, 4)} ${r.symbol} are reported as circulating, so a backing ratio would be division by almost nothing rather than a measurement.`
+                  : "The issuer's attestation and the chain describe different moments closely enough that a ratio would mislead."}
               </p>
             )}
-            <div className="sub">
-              {num(r.reserves.sharesHeld, 2)} real {r.underlying} shares held at{" "}
-              {r.reserves.providers.join(", ")} against {num(r.reserves.circulating, 2)} tokens
-              circulating across every chain this token is issued on.
-              {r.reserves.dormant && r.treasuryUnits !== null ? (
-                <>
-                  {" "}
-                  Solana still carries {num(r.supplyUnits, 2)} minted tokens, nearly all of them
-                  unissued and sitting with the issuer, which is why the two figures do not line up.
-                </>
-              ) : null}
-            </div>
 
-            {r.circulatingOnChain !== null && r.reserves.solanaShare !== null ? (
-              <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--line-soft)" }}>
-                <div
-                  className="k"
-                  style={{
-                    fontSize: 11.5,
-                    letterSpacing: "0.07em",
-                    color: "var(--faint)",
-                    textTransform: "uppercase",
-                    marginBottom: 8,
-                  }}
-                >
-                  How much of that float is on Solana
-                </div>
-                <div className="sub" style={{ lineHeight: 1.65 }}>
-                  {num(r.supplyUnits, 2)} tokens are minted on Solana, of which{" "}
-                  {num(r.treasuryUnits ?? 0, 2)} sit in accounts controlled by the issuer&apos;s own
-                  multiplier authority and have never been issued. That leaves{" "}
-                  <b>{num(r.circulatingOnChain, 2)}</b> in public hands here
-                  {r.reserves.solanaShare !== null ? (
-                    <>
-                      , or <b>{pct(r.reserves.solanaShare * 100, 1)}</b> of the global float. The
-                      remaining {num(r.reserves.otherChains ?? 0, 2)} live on the other chains this
-                      token is issued on.
-                    </>
-                  ) : (
-                    "."
-                  )}
-                </div>
-              </div>
-            ) : null}
+            <dl className="facts">
+              <dt>Shares held</dt>
+              <dd>{num(r.reserves.sharesHeld, 2)}</dd>
+              <dt>Custodians</dt>
+              <dd>{r.reserves.providers.join(", ") || "—"}</dd>
+              <dt>Tokens circulating</dt>
+              <dd>{num(r.reserves.circulating, 2)} across all chains</dd>
+              <dt>On Solana</dt>
+              <dd>
+                {r.circulatingOnChain !== null ? num(r.circulatingOnChain, 2) : "—"} in public
+                hands
+              </dd>
+              <dt>Share of global float</dt>
+              <dd>
+                {r.reserves.solanaShare !== null
+                  ? pct(r.reserves.solanaShare * 100, 1)
+                  : "not comparable"}
+              </dd>
+            </dl>
           </div>
-        </>
+        </section>
       ) : null}
 
-      <ul className="notes">
+      <ol className="notes">
         <li>
-          Dividends arrive as share growth, not cash. USD figures value that growth at
-          today&apos;s price, so they move with the stock.
+          The multiplier in force is read from the mint account on Solana mainnet and resolved
+          against its effective timestamp. The history and the forward feed come from the issuer.
         </li>
         <li>
-          Multiplier history comes from the issuer. The multiplier in force is read straight
-          from the mint account on Solana mainnet.
+          Dividends are credited as growth in the number of tokens, not as cash. USD figures value
+          that growth at today&apos;s price, so they move with the underlying stock.
         </li>
-      </ul>
-    </Shell>
-  );
-}
+        <li>
+          Reserve attestations cover every chain this token is issued on. xStocks are also deployed
+          on Ethereum, TON, Arbitrum, Optimism, BNB Chain, Mantle, Ink, XLayer and HyperEVM, so the
+          circulating figure is not Solana alone.
+        </li>
+      </ol>
 
-function Shell({ q, children }: { q: string; children: React.ReactNode }) {
-  return (
-    <>
-      <div style={{ paddingTop: 26 }}>
-        <Search initial={q} />
-      </div>
-      {children}
+      <p className="disclaimer">
+        Read-only. No wallet connection, no transactions, no custody. Not investment advice, and not
+        affiliated with Backed Finance or the Solana Foundation.
+      </p>
     </>
   );
 }

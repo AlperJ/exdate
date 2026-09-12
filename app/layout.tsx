@@ -1,30 +1,48 @@
 import type { Metadata } from "next";
+import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import BarSearch from "./BarSearch";
 import "./globals.css";
 
+const sans = IBM_Plex_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+  variable: "--sans-font",
+});
+
+const mono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  display: "swap",
+  variable: "--mono-font",
+});
+
 export const metadata: Metadata = {
-  title: "ExDate — the statement tokenized stocks never send you",
+  title: "ExDate — corporate actions on tokenized US equities",
   description:
-    "xStocks pay dividends by quietly raising a multiplier. No wallet shows it. ExDate reads the hidden record and tells you what you were actually paid.",
+    "xStocks on Solana pay dividends by raising a Token-2022 multiplier. Token counts never change and no wallet reports it. ExDate reads the record and states what was paid.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
       <body>
-        <div className="wrap">
-          <header className="masthead">
-            <a href="/" className="logo">
-              ex<span>date</span>
+        <header className="bar">
+          <div className="bar__in">
+            <a className="wordmark" href="/">
+              ExDate
             </a>
-            <span className="tag">tokenized stock dividends, made visible</span>
-          </header>
-          {children}
-          <footer>
-            Read-only. No wallet connection, no transactions, no custody. Data from the
-            xStocks public API, Solana mainnet RPC and Jupiter. Not investment advice,
-            and not affiliated with Backed Finance or Ondo.
-          </footer>
-        </div>
+            <span className="bar__rule" aria-hidden="true" />
+            <span className="bar__desc">Corporate actions on tokenized US equities</span>
+            <BarSearch />
+            <nav className="nav">
+              <a href="/assets">Assets</a>
+              <a href="/calendar">Calendar</a>
+              <a href="/method">Method</a>
+            </nav>
+          </div>
+        </header>
+        <main className="page">{children}</main>
       </body>
     </html>
   );
