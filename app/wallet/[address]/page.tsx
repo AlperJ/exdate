@@ -117,14 +117,19 @@ export default async function WalletPage({ params }: { params: Promise<{ address
                 <div className="row" key={`${p.mint}-${i}`}>
                   <div className="date">{day(e.date)}</div>
                   <div className="what">
-                    <b>{e.reason}</b>
+                    <b>{e.reason.replace(/([a-z])([A-Z])/g, "$1 $2")}</b>
                     <span className="mult">
                       {e.from.toFixed(9)} → {e.to.toFixed(9)}
+                      {e.isIncome ? "" : `  ·  ×${num(e.ratio, 2)}, price moved the opposite way`}
                     </span>
                   </div>
-                  <div className="amt">
+                  <div className="amt" style={e.isIncome ? undefined : { color: "var(--faint)" }}>
                     +{num(e.sharesGained, 6)}
-                    {e.usdGained ? <small>{usd(e.usdGained)}</small> : null}
+                    {e.isIncome ? (
+                      e.usdGained ? <small>{usd(e.usdGained)}</small> : null
+                    ) : (
+                      <small>no gain</small>
+                    )}
                   </div>
                 </div>
               ))}

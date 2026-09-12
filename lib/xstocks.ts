@@ -22,11 +22,37 @@ export type Asset = {
 
 export type MultiplierEvent = {
   id: string;
-  reason: string;             // "Dividend" | "Split" | ...
+  reason: string;             // "Dividend" | "Split" | "ReverseSplit" | "Administrative"
   multiplier: number;
   previousMultiplier: number;
   activationDateTime: string; // ISO
 };
+
+/**
+ * Does this multiplier change put money in the holder's pocket?
+ *
+ * Only a dividend does. A split raises the multiplier and cuts the share price by the
+ * same factor, so the position is worth exactly what it was a second earlier. Counting
+ * a split as income is the mistake that makes a tokenized-stock tracker untrustworthy:
+ * Netflix split 10:1 on 2025-11-16 and the multiplier went 1.0 to 10.0, which values at
+ * roughly $106M of "gains" that nobody received.
+ *
+ * Measured across all 832 assets on 2026-09-12: 641 Dividend, 8 Split, 3 Administrative,
+ * 2 ReverseSplit.
+ */
+export function isIncome(reason: string): boolean {
+  return reason.trim().toLowerCase() === "dividend";
+}
+
+/** A split's ratio is real and worth showing, it just is not income. */
+export function eventRatio(e: MultiplierEvent): number {
+  return e.previousMultiplier > 0 ? e.multiplier / e.previousMultiplier : 1;
+}
+
+/** Cumulative multiplier growth from dividends alone, ignoring splits. */
+export function dividendFactor(history: MultiplierEvent[]): number {
+  return history.reduce((f, e) => (isIncome(e.reason) ? f * eventRatio(e) : f), 1);
+}
 
 export type CorporateAction = {
   eventId: string;

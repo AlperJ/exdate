@@ -31,9 +31,10 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
     );
   }
 
-  const paid = r.history.length;
+  const paid = r.dividendCount;
   const per1k = r.perUnitGained * 1000;
   const per1kUsd = r.priceUsd ? per1k * r.priceUsd : null;
+  const hasSplit = Math.abs(r.splitFactor - 1) > 0.001;
 
   return (
     <Shell q={r.symbol}>
@@ -58,10 +59,32 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
           <div className="label">Paid invisibly since launch</div>
           <div className="big">{pct(r.totalGrowthPct)}</div>
           <div className="under">
-            Across {paid} {paid === 1 ? "event" : "events"}, every holder&apos;s balance grew by{" "}
-            {pct(r.totalGrowthPct)} without a single notification. Anyone holding 1,000{" "}
+            Across {paid} {paid === 1 ? "dividend" : "dividends"}, every holder&apos;s position grew
+            by {pct(r.totalGrowthPct)} without a single notification. Anyone holding 1,000{" "}
             {r.symbol} since launch gained <b>{num(per1k, 4)} {r.symbol}</b>
             {per1kUsd !== null ? <> , worth <b>{usd(per1kUsd)}</b> today</> : null}.
+            {hasSplit ? (
+              <>
+                {" "}
+                This stock also split {r.splitFactor >= 1 ? `${num(r.splitFactor, 2)}:1` : `1:${num(1 / r.splitFactor, 2)}`},
+                which multiplied the token count without changing what the position is worth.
+                That is excluded from the figure above.
+              </>
+            ) : null}
+          </div>
+        </div>
+      ) : hasSplit ? (
+        <div className="headline" style={{ borderColor: "var(--line)", background: "var(--surface)" }}>
+          <div className="label">Split, not a payout</div>
+          <div className="big" style={{ color: "var(--text)" }}>
+            {r.splitFactor >= 1 ? `${num(r.splitFactor, 0)}:1` : `1:${num(1 / r.splitFactor, 0)}`}
+          </div>
+          <div className="under">
+            {r.symbol} has never paid a dividend on chain. Its multiplier sits at{" "}
+            {r.effective.toFixed(4)} because the underlying stock split, which multiplied everyone&apos;s
+            token count by {num(r.splitFactor, 2)} and cut the price by the same factor. A wallet
+            showing {num(r.splitFactor, 0)}× more tokens after that date did not gain anything, and
+            any tracker calling this income is wrong.
           </div>
         </div>
       ) : (
@@ -118,25 +141,32 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
         </div>
       ) : null}
 
-      {paid > 0 ? (
+      {r.history.length > 0 ? (
         <>
-          <div className="section-title">Every invisible payment, per 1,000 {r.symbol} held</div>
+          <div className="section-title">Every multiplier change, per 1,000 {r.symbol} held</div>
           <div className="card">
             <div className="timeline">
               {[...r.history].reverse().map((e) => {
+                const income = e.reason.trim().toLowerCase() === "dividend";
                 const g = 1000 * (e.multiplier - e.previousMultiplier);
+                const ratio = e.previousMultiplier > 0 ? e.multiplier / e.previousMultiplier : 1;
                 return (
                   <div className="row" key={e.id}>
                     <div className="date">{day(e.activationDateTime)}</div>
                     <div className="what">
-                      <b>{e.reason}</b>
+                      <b>{e.reason.replace(/([a-z])([A-Z])/g, "$1 $2")}</b>
                       <span className="mult">
                         {e.previousMultiplier.toFixed(9)} → {e.multiplier.toFixed(9)}
+                        {income ? "" : `  ·  ×${num(ratio, 2)}, price moved the opposite way`}
                       </span>
                     </div>
-                    <div className="amt">
-                      +{num(g, 4)}
-                      {r.priceUsd ? <small>{usd(g * r.priceUsd)}</small> : null}
+                    <div className="amt" style={income ? undefined : { color: "var(--faint)" }}>
+                      {income ? `+${num(g, 4)}` : `+${num(g, 2)}`}
+                      {income && r.priceUsd ? (
+                        <small>{usd(g * r.priceUsd)}</small>
+                      ) : (
+                        <small>no gain</small>
+                      )}
                     </div>
                   </div>
                 );

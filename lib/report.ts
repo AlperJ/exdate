@@ -1,5 +1,6 @@
 import {
   fetchAssets, fetchMultiplierHistory, fetchReserves, fetchUpcoming, solanaMint,
+  isIncome, eventRatio, dividendFactor,
   type Asset, type MultiplierEvent, type CorporateAction,
 } from "./xstocks";
 import {
@@ -18,7 +19,10 @@ export type PaidEvent = {
   from: number;
   to: number;
   sharesGained: number;
+  /** Zero for splits: the multiplier rose but the share price fell by the same factor. */
   usdGained: number;
+  isIncome: boolean;
+  ratio: number;
 };
 
 export type PositionReport = {
@@ -68,16 +72,6 @@ export type WalletReport = {
   };
   notes: string[];
 };
-
-/** Multiplier in force at a given instant, from the issuer's history. */
-function multiplierAt(history: MultiplierEvent[], when: Date): number {
-  let m = history.length ? history[0].previousMultiplier : 1;
-  for (const e of history) {
-    if (new Date(e.activationDateTime) <= when) m = e.multiplier;
-    else break;
-  }
-  return m;
-}
 
 export async function buildReport(wallet: string): Promise<WalletReport> {
   const notes: string[] = [];
@@ -150,23 +144,27 @@ export async function buildReport(wallet: string): Promise<WalletReport> {
     const naiveBalance = units * naive;
     const hiddenShares = trueBalance - naiveBalance;
 
-    // Dividends and splits that landed while this wallet was holding.
-    const startM = since ? multiplierAt(history, since) : history.length ? history[0].previousMultiplier : 1;
-    const paid: PaidEvent[] = history
-      .filter((e) => (since ? new Date(e.activationDateTime) > since : true))
-      .map((e) => {
-        const gained = units * (e.multiplier - e.previousMultiplier);
-        return {
-          date: e.activationDateTime,
-          reason: e.reason,
-          from: e.previousMultiplier,
-          to: e.multiplier,
-          sharesGained: gained,
-          usdGained: price ? gained * price : 0,
-        };
-      });
+    // Events that landed while this wallet was holding. Splits move the multiplier but
+    // not the position's worth, so only dividends carry a dollar figure.
+    const mine_ = history.filter((e) => (since ? new Date(e.activationDateTime) > since : true));
+    const paid: PaidEvent[] = mine_.map((e) => {
+      const income = isIncome(e.reason);
+      const gained = units * (e.multiplier - e.previousMultiplier);
+      return {
+        date: e.activationDateTime,
+        reason: e.reason,
+        from: e.previousMultiplier,
+        to: e.multiplier,
+        sharesGained: gained,
+        usdGained: income && price ? gained * price : 0,
+        isIncome: income,
+        ratio: eventRatio(e),
+      };
+    });
 
-    const totalSharesGained = units * (effective - startM);
+    // Compound the dividend ratios only: a 10:1 split must not read as a 900% gain.
+    const divFactor = dividendFactor(mine_);
+    const totalSharesGained = units * effective * (1 - 1 / divFactor);
 
     positions.push({
       symbol: asset.symbol,
@@ -261,8 +259,13 @@ export type AssetReport = {
 
   priceUsd: number | null;
   history: MultiplierEvent[];
-  totalGrowthPct: number;    // total invisible payout since launch, as % of position
-  perUnitGained: number;     // shares gained per 1 token held since launch
+  dividendCount: number;
+  /** Dividend-only growth since launch, as a % of position value. Splits excluded. */
+  totalGrowthPct: number;
+  /** Extra tokens per 1 token held since launch, from dividends alone. */
+  perUnitGained: number;
+  /** Cumulative split ratio, shown separately because it is not income. */
+  splitFactor: number;
 
   pending: { from: number; to: number; activatesAt: string; secondsAway: number } | null;
   upcoming: CorporateAction[];
@@ -303,7 +306,12 @@ export async function buildAssetReport(symbol: string): Promise<AssetReport | nu
   const naive = naiveMultiplier(mint?.scaled ?? null);
   const pend = pendingChange(mint?.scaled ?? null);
   const decimals = mint?.decimals ?? 8;
-  const startM = history.length ? history[0].previousMultiplier : 1;
+
+  // Separate income from re-denomination. 641 of the 654 multiplier changes across all
+  // 832 assets are dividends; the other 13 are splits, reverse splits and administrative
+  // corrections, and none of those put money in a holder's pocket.
+  const divFactor = dividendFactor(history);
+  const splitFactor = history.reduce((f, e) => (isIncome(e.reason) ? f : f * eventRatio(e)), 1);
 
   const supplyUnits = mint ? (Number(mint.supplyRaw) / 10 ** decimals) * effective : 0;
   const treasury = await treasuryHeld(mintAddr, mint?.scaled?.authority ?? null);
@@ -330,8 +338,10 @@ export async function buildAssetReport(symbol: string): Promise<AssetReport | nu
     driftPct: naive > 0 ? (effective / naive - 1) * 100 : 0,
     priceUsd: prices[mintAddr]?.usdPrice ?? null,
     history,
-    totalGrowthPct: startM > 0 ? (effective / startM - 1) * 100 : 0,
-    perUnitGained: effective - startM,
+    dividendCount: history.filter((e) => isIncome(e.reason)).length,
+    totalGrowthPct: (divFactor - 1) * 100,
+    perUnitGained: effective * (1 - 1 / divFactor),
+    splitFactor,
     pending: pend
       ? { from: pend.from, to: pend.to, activatesAt: pend.activatesAt.toISOString(), secondsAway: pend.secondsAway }
       : null,
