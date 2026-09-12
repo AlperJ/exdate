@@ -17,29 +17,37 @@ export default async function Home() {
   return (
     <>
       <div className="masthead">
-        <h1>Dividends paid by tokenized US stocks on Solana</h1>
-        <p className="standfirst">
-          When a tokenized stock pays a dividend, nothing arrives in your wallet. The number of
-          tokens stays exactly the same and a hidden figure on the token moves instead, so no
-          wallet, explorer or portfolio tracker shows that you were paid.
-        </p>
-        <p className="standfirst">
-          <b>Paste a Solana address</b> to see what a wallet has been paid and when, or{" "}
-          <b>type a ticker</b> to see what that stock has paid its holders, what it owes next, and
-          whether it is really backed.
-        </p>
+        <div>
+          <h1>Tokenized stocks pay dividends invisibly</h1>
+          <p className="standfirst">
+            Nothing arrives in your wallet. The token count never changes, and no wallet, explorer
+            or tracker shows that you were paid.
+          </p>
+          <Search />
+        </div>
+
+        <div className="masthead__proof">
+          <div className="figure__label">Paid, unannounced</div>
+          <div className="figure__value">{usd(m.totalHiddenUsd, 0)}</div>
+          <p className="note">
+            {m.dividendPayments} payments
+            <br />
+            {m.assetsPricedAndPaying} stocks
+            <br />
+            as of {asOf}
+          </p>
+        </div>
       </div>
 
-      <Search />
-
       <div className="figure">
-        <div className="figure__label">Paid into Solana wallets without a transaction</div>
-        <div className="figure__value">{usd(m.totalHiddenUsd, 0)}</div>
+        <div className="figure__label">How that total accumulated</div>
         <hr className="figure__rule" />
         <p className="figure__context">
-          Across <b>{m.dividendPayments} dividends</b> on {m.assetsPricedAndPaying} tokenized stocks,
-          measured against {usd(m.totalFloatUsd, 0)} of positions as of {asOf}. Splits are excluded:
-          they raise the multiplier without paying anyone.
+          Every step is a day a stock paid its holders. The total covers the{" "}
+          {m.assetsPricedAndPaying} stocks that have a live dollar price, measured against{" "}
+          {usd(m.totalFloatUsd, 0)} of positions. In all, {m.index.filter((r) => r.dividends > 0).length}{" "}
+          stocks have paid; the rest have no price, so they cannot be added up in dollars. Splits
+          are excluded: they multiply the token count without paying anyone.
         </p>
         <StepChart
           points={m.cumulative.map((p) => ({
@@ -60,14 +68,14 @@ export default async function Home() {
           <div className="stat__note">issued on Solana by Backed</div>
         </div>
         <div>
-          <div className="stat__label">Average payout</div>
+          <div className="stat__label">Paid out in total</div>
           <div className="stat__value">{pct((m.totalHiddenUsd / m.totalFloatUsd) * 100, 3)}</div>
-          <div className="stat__note">of position value, across paying assets</div>
+          <div className="stat__note">of what these positions are worth, adding up every dividend since June 2025</div>
         </div>
         <div>
           <div className="stat__label">Payments recorded</div>
           <div className="stat__value">{num(m.dividendPayments, 0)}</div>
-          <div className="stat__note">dividend events since June 2025</div>
+          <div className="stat__note">on the 65 stocks with a live dollar price</div>
         </div>
       </div>
 
@@ -93,8 +101,8 @@ export default async function Home() {
                   <th>Symbol</th>
                   <th>Company</th>
                   <th>Payments</th>
-                  <th>Yield</th>
-                  <th>Paid (USD)</th>
+                  <th>Growth since launch</th>
+                  <th>Paid out (USD)</th>
                 </tr>
               </thead>
               <tbody>
@@ -140,8 +148,8 @@ export default async function Home() {
                   <th>Date</th>
                   <th>Symbol</th>
                   <th>Action</th>
-                  <th>Withholding</th>
-                  <th>Net per share</th>
+                  <th>US tax withheld</th>
+                  <th>You receive, per token</th>
                 </tr>
               </thead>
               <tbody>
@@ -176,10 +184,10 @@ export default async function Home() {
         </div>
         <div className="section__body">
           <p className="prose">
-            Of the {m.assetsWithMultiplierChange} assets whose multiplier has moved, {m.splits.length}{" "}
-            moved because the underlying stock split rather than because anyone was paid. A split
-            raises the multiplier and cuts the share price by the same factor, so the position is
-            worth what it was a second earlier.
+            Of the {m.assetsWithMultiplierChange} stocks whose number has moved, {m.splits.length}{" "}
+            moved because the stock itself split rather than because anyone was paid. A split
+            multiplies the token count and cuts the share price by the same factor, so the position
+            is worth exactly what it was a second earlier.
           </p>
           <div className="tw">
             <table className="dt dt--compact">
@@ -219,13 +227,13 @@ export default async function Home() {
       <section className="section">
         <div className="section__head">
           <h2 className="section__title">How the payment hides</h2>
-          <span className="section__meta">AAPLx, read from mainnet</span>
+          <span className="section__meta">for developers: if your app shows these balances, read this</span>
         </div>
         <div className="section__body">
           <p className="prose">
             Token-2022 stores the scaling factor in two fields. The one named{" "}
             <code className="lit">multiplier</code> is the old value.{" "}
-            <code className="lit">newMultiplier</code> takes over once its timestamp passes, and the
+            <code className="lit">newMultiplier</code> takes over once <code className="lit">newMultiplierEffectiveTimestamp</code> passes, and the
             chain never rewrites the old one. Read the obvious field and every balance shown is wrong.
           </p>
           <div className="tw">

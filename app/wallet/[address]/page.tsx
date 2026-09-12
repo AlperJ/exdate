@@ -74,14 +74,25 @@ export default async function WalletPage({ params }: { params: Promise<{ address
       </div>
 
       <div className="figure">
-        <div className="figure__label">Received without a transaction</div>
+        <div className="figure__label">
+          {t.positionCount > t.itemised
+            ? `Paid to the ${t.itemised} largest holdings, with no transaction`
+            : "Paid to this wallet, with no transaction"}
+        </div>
         <div className="figure__value">{usd(t.dividendUsd)}</div>
         <hr className="figure__rule" />
         <p className="figure__context">
-          Across <b>{t.dividendCount}</b> {t.dividendCount === 1 ? "payment" : "payments"} on the{" "}
-          {t.itemised} largest of {t.positionCount}{" "}
-          {t.positionCount === 1 ? "position" : "positions"}, together worth {usd(t.valueUsd, 0)}.
-          None of it produced a transaction, a notification, or a line in any explorer.
+          Across <b>{t.dividendCount}</b> {t.dividendCount === 1 ? "payment" : "payments"} on
+          holdings worth <b>{usd(t.itemisedValueUsd, 0)}</b>. Nothing was sent, nothing was
+          announced, and no explorer records any of it.
+          {t.positionCount > t.itemised ? (
+            <>
+              {" "}
+              This wallet holds {t.positionCount} tokenized stocks in all, worth{" "}
+              {usd(t.valueUsd, 0)}. The {t.positionCount - t.itemised} smaller ones are not listed
+              here and are not counted in the figure above.
+            </>
+          ) : null}
         </p>
       </div>
 
@@ -99,11 +110,11 @@ export default async function WalletPage({ params }: { params: Promise<{ address
           <div className="stat__note">of {t.itemised} itemised</div>
         </div>
         <div>
-          <div className="stat__label">Understatement if read naively</div>
+          <div className="stat__label">Hidden from apps reading the old field</div>
           <div className={`stat__value ${Math.abs(t.hiddenUsd) > 0.005 ? "is-warn" : ""}`}>
             {Math.abs(t.hiddenUsd) > 0.005 ? usd(Math.abs(t.hiddenUsd)) : "—"}
           </div>
-          <div className="stat__note">see note 1</div>
+          <div className="stat__note">nothing is missing from the wallet</div>
         </div>
       </div>
 
@@ -121,9 +132,11 @@ export default async function WalletPage({ params }: { params: Promise<{ address
 
       <ol className="notes">
         <li>
-          An integration reading the field named <span className="lit">multiplier</span> instead of
-          the one in force would understate this wallet by the amount shown. The chain leaves the old
-          value in place after a corporate action activates.
+          Nothing is missing from this wallet. A portfolio app that reads the old{" "}
+          <span className="lit">multiplier</span> field instead of the one in force would value it
+          that much too low, because the chain leaves the old value in place after a corporate
+          action activates. The gap can exceed the dividend total, since it also includes splits,
+          where the old field is wrong by whole multiples.
         </li>
         {r.notes.map((n, i) => (
           <li key={i}>{n}</li>

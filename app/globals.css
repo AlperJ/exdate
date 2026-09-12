@@ -1053,27 +1053,35 @@ p.prose:last-child {
 
 /* -------------------------------------------------------------- masthead -- */
 /*
-   A security pattern, the way an engraved certificate or a share coupon carries one.
-   It is the mark's own step repeated, so the band is made of the product's subject
-   rather than an ornament borrowed from somewhere else.
-
-   Faint enough that text sits straight on it with no backing plate: the first attempt
-   gave every line its own opaque box and the result was a patchwork. Neutral only, no
-   gradient, no shadow. It fades out on the left so nothing ever competes with the title.
+   Two columns so the opening is not a wall of text: the claim and the way in on the
+   left, the figure that proves it on the right. The security pattern behind them is
+   the mark's own step repeated, the way an engraved certificate carries one, faint
+   enough that type sits straight on it with no backing plate.
 */
 
 .masthead {
   position: relative;
-  margin: 0 -24px 0;
-  padding: 24px 24px 40px;
+  margin: 0 -24px;
+  padding: 36px 24px 40px;
   border-bottom: 1px solid var(--hairline);
   isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 64px;
+  align-items: start;
+}
+
+@media (max-width: 899px) {
+  .masthead {
+    grid-template-columns: 1fr;
+    row-gap: 32px;
+  }
 }
 
 @media (max-width: 639px) {
   .masthead {
-    margin: 0 -16px 0;
-    padding: 24px 16px 32px;
+    margin: 0 -16px;
+    padding: 28px 16px 32px;
   }
 }
 
@@ -1082,19 +1090,59 @@ p.prose:last-child {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='128' height='104' viewBox='0 0 128 104'><g fill='%23000000'><rect x='6' y='72' width='22' height='16'/><rect x='40' y='44' width='46' height='16'/><rect x='88' y='16' width='24' height='16'/></g></svg>");
+  /* Half the size of the first attempt: at 128px the blocks read as shapes, at 64px
+     they read as texture, which is what a security pattern is for. */
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='52' viewBox='0 0 64 52'><g fill='%23000000'><rect x='3' y='36' width='11' height='8'/><rect x='20' y='22' width='23' height='8'/><rect x='44' y='8' width='12' height='8'/></g></svg>");
   background-repeat: repeat;
-  background-position: left top;
-  opacity: 0.028;
-  -webkit-mask-image: linear-gradient(to right, transparent 0, transparent 34%, #000 78%);
-  mask-image: linear-gradient(to right, transparent 0, transparent 34%, #000 78%);
+  opacity: 0.035;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, transparent 30%, #000 72%);
+  mask-image: linear-gradient(to right, transparent 0, transparent 30%, #000 72%);
   pointer-events: none;
 }
 
 .masthead h1 {
+  margin: 0 0 12px;
+  max-width: 18ch;
+}
+
+.masthead .standfirst {
+  margin: 0;
+  max-width: 46ch;
+}
+
+.masthead .search {
+  margin-top: 24px;
+}
+
+/* The proving figure, sitting in the right column of the masthead. */
+.masthead__proof {
+  text-align: right;
+  border-left: 1px solid var(--rule-head);
+  padding-left: 32px;
+  min-width: 260px;
+}
+
+@media (max-width: 899px) {
+  .masthead__proof {
+    text-align: left;
+    border-left: 0;
+    border-top: 1px solid var(--rule-head);
+    padding-left: 0;
+    padding-top: 20px;
+  }
+}
+
+.masthead__proof .figure__label {
+  margin-bottom: 8px;
+}
+
+.masthead__proof .figure__value {
   margin-top: 0;
 }
 
-.standfirst + .standfirst {
-  margin-top: 14px;
+.masthead__proof .note {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--text-muted);
+  margin: 10px 0 0;
 }

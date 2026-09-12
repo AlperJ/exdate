@@ -51,6 +51,7 @@ export default function Search({
       </form>
 
       {examples && !compact ? (
+        <>
         <p className="search__hint">
           Examples:{" "}
           {EXAMPLES.map((t, i) => (
@@ -67,6 +68,11 @@ export default function Search({
             </span>
           ))}
         </p>
+        <p className="search__hint">
+          Bought on an exchange? Your tokens sit in the exchange&apos;s own wallet, so a wallet
+          lookup will not find them. Type the ticker instead to see what that stock paid per token.
+        </p>
+        </>
       ) : null}
     </>
   );

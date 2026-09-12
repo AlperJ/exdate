@@ -49,9 +49,9 @@ export default function AssetsPage() {
                   <th>Symbol</th>
                   <th>Company</th>
                   <th>Payments</th>
-                  <th>Yield</th>
+                  <th>Growth since launch</th>
                   <th>Last paid</th>
-                  <th>Paid (USD)</th>
+                  <th>Paid out (USD)</th>
                 </tr>
               </thead>
               <tbody>
@@ -97,7 +97,7 @@ export default function AssetsPage() {
                     <th>Symbol</th>
                     <th>Company</th>
                     <th>Ratio</th>
-                    <th>Float (USD)</th>
+                    <th>Value held (USD)</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -125,8 +125,9 @@ export default function AssetsPage() {
       <ol className="notes">
         <li>
           Measured on {day(m.measuredAt)} by reading every mint account on Solana mainnet and every
-          payout record from the issuer. Yield is the compounded dividend growth since the token was
-          issued, with splits excluded.
+          payout record from the issuer. Growth since launch is everything a token has paid, compounded, since it was issued. It is
+          not an annual yield: a stock listed earlier will show a bigger number for the same
+          dividend. Splits are excluded.
         </li>
         <li>
           Assets with no live price on Jupiter show no USD figure. Their payout percentage is still

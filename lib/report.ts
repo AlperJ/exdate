@@ -69,7 +69,10 @@ export type WalletReport = {
   generatedAt: string;
   positions: PositionReport[];
   totals: {
+    /** Every position in the wallet. */
     valueUsd: number;
+    /** Only the positions itemised below, so the headline and its scope agree. */
+    itemisedValueUsd: number;
     hiddenUsd: number;
     dividendUsd: number;
     dividendCount: number;
@@ -226,6 +229,7 @@ export async function buildReport(wallet: string): Promise<WalletReport> {
     positions: itemised,
     totals: {
       valueUsd: positions.reduce((s, p) => s + (p.valueUsd ?? 0), 0),
+      itemisedValueUsd: itemised.reduce((s, p) => s + (p.valueUsd ?? 0), 0),
       hiddenUsd: positions.reduce((s, p) => s + p.hiddenUsd, 0),
       dividendUsd: itemised.reduce((s, p) => s + p.totalUsdGained, 0),
       dividendCount: itemised.reduce((s, p) => s + p.paid.length, 0),
@@ -261,6 +265,16 @@ export type AssetReport = {
   dividendCount: number;
   /** Dividend-only growth since launch, as a % of position value. Splits excluded. */
   totalGrowthPct: number;
+  /**
+   * How much of a balance the stale field hides, as a percentage of the truth.
+   *
+   * This was published the wrong way round: dividing the live multiplier by the stale
+   * one gives the ratio between them, which on NFLXx after its ten-for-one split reads
+   * as 900%. An app reading the stale field there shows a tenth of the real balance, so
+   * it hides 90%, not 900%. Small dividends hide the error because 0.0603% comes out
+   * the same to four places either way.
+   */
+  hiddenPct: number;
   /** Extra tokens per 1 token held since launch, from dividends alone. */
   perUnitGained: number;
   /** Cumulative split ratio, shown separately because it is not income. */
@@ -395,6 +409,7 @@ export async function buildAssetReport(symbol: string): Promise<AssetReport | nu
     naive,
     effective,
     driftPct: naive > 0 ? (effective / naive - 1) * 100 : 0,
+    hiddenPct: effective > 0 ? (1 - naive / effective) * 100 : 0,
     priceUsd: prices[mintAddr]?.usdPrice ?? null,
     history,
     dividendCount: history.filter((e) => isIncome(e.reason)).length,

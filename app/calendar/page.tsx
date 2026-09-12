@@ -85,8 +85,8 @@ export default async function CalendarPage() {
                     <th>Symbol</th>
                     <th>Action</th>
                     <th>Gross</th>
-                    <th>Withholding</th>
-                    <th>Net per share</th>
+                    <th>US tax withheld</th>
+                    <th>You receive, per token</th>
                   </tr>
                 </thead>
                 <tbody>

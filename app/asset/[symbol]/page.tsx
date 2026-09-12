@@ -136,24 +136,26 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
 
       <div className="band band--4">
         <div>
-          <div className="stat__label">Multiplier in force</div>
+          <div className="stat__label">Live value on the token</div>
           <div className="stat__value">{r.effective.toFixed(10)}</div>
-          <div className="stat__note">read from the mint account</div>
+          <div className="stat__note">multiplies every holder&apos;s balance</div>
         </div>
         <div>
-          <div className="stat__label">Stale multiplier field</div>
+          <div className="stat__label">Old value still on the token</div>
           <div className={`stat__value ${drift ? "is-warn" : ""}`}>{r.naive.toFixed(10)}</div>
           <div className="stat__note">
-            {drift ? `naive readers understate by ${pct(r.driftPct, 4)}` : "currently in sync"}
+            {drift
+              ? `an app reading this shows ${pct(r.hiddenPct, r.hiddenPct >= 1 ? 1 : 4)} less than the real balance`
+              : "currently the same as the live value"}
           </div>
         </div>
         <div>
-          <div className="stat__label">Circulating on Solana</div>
+          <div className="stat__label">Held by the public</div>
           <div className="stat__value">{num(r.circulatingOnChain ?? r.supplyUnits, 0)}</div>
           <div className="stat__note">
             {r.treasuryUnits
-              ? `${num(r.treasuryUnits, 0)} more minted, held unissued by the issuer`
-              : "tokens, multiplier applied"}
+              ? `the issuer has made ${num(r.treasuryUnits, 0)} more that nobody owns yet; they are backed too and do not dilute yours`
+              : "tokens on Solana"}
           </div>
         </div>
         <div>
@@ -262,9 +264,9 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
                   <tr>
                     <th>Date</th>
                     <th>Action</th>
-                    <th>Withholding</th>
+                    <th>US tax withheld</th>
                     <th>Status</th>
-                    <th>Net per share</th>
+                    <th>You receive, per token</th>
                   </tr>
                 </thead>
                 <tbody>
