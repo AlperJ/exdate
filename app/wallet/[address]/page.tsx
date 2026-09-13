@@ -22,8 +22,15 @@ export async function generateMetadata({ params }: { params: Promise<{ address: 
   };
 }
 
-export default async function WalletPage({ params }: { params: Promise<{ address: string }> }) {
+export default async function WalletPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ address: string }>;
+  searchParams: Promise<{ show?: string }>;
+}) {
   const { address } = await params;
+  const { show } = await searchParams;
 
   // Reading the chain for a string that cannot be an address spends ten seconds behind a
   // screen that says we are reading balances. The shape is knowable instantly, so say so.
@@ -178,7 +185,7 @@ export default async function WalletPage({ params }: { params: Promise<{ address
           </span>
         </div>
         <div className="section__body">
-          <Positions positions={r.positions} />
+          <Positions positions={r.positions} openSymbol={show} />
         </div>
       </section>
 

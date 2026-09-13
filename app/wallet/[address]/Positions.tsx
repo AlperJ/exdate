@@ -5,10 +5,20 @@ import { usd, num, pct, signed, day } from "@/lib/fmt";
 import type { PositionReport } from "@/lib/report";
 import Sym from "@/app/Sym";
 
-export default function Positions({ positions }: { positions: PositionReport[] }) {
-  // A single-position wallet has nothing to choose between, so open it.
+export default function Positions({
+  positions,
+  openSymbol,
+}: {
+  positions: PositionReport[];
+  openSymbol?: string;
+}) {
+  // A single-position wallet has nothing to choose between, so open it. A ?show=NVDAx on
+  // the URL opens that one, so a payment can be linked to rather than described.
+  const asked = openSymbol
+    ? positions.find((p) => p.symbol.toLowerCase() === openSymbol.toLowerCase())
+    : null;
   const [open, setOpen] = useState<string | null>(
-    positions.length === 1 ? positions[0].mint : null
+    asked?.mint ?? (positions.length === 1 ? positions[0].mint : null)
   );
 
   return (
