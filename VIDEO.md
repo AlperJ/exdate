@@ -20,18 +20,22 @@ Timings are a budget, not a metronome. If you run long, cut scene 6 first.
 
 ---
 
-## 0:00 – 0:10 — Who you are
+## 0:00 – 0:12 — Who you are
 
 **On screen:** you, or just the ExDate front page, whichever you are comfortable with.
 
-> I'm Alperen, an independent developer from Turkey. I build tools for Solana. This is ExDate,
-> and it was built during this hackathon from an empty repository.
+> I'm Alperen, founder of j.tools. We're a team of three, working full time from our office in
+> Turkey, and we're part of Superteam Turkey. This is ExDate, and it was built during this
+> hackathon from an empty repository.
 
-*Say it once and move. Ten seconds, no more — the product is the pitch, not the biography.*
+*Say it once and move. The product is the pitch, not the biography.*
+
+**There is a printable two-language version of this whole script**, English to read aloud with
+the Turkish underneath each line: `VIDEO.pdf` in this folder, source at `docs/video-script.html`.
 
 ---
 
-## 0:10 – 0:35 — The problem, shown not described
+## 0:12 – 0:37 — The problem, shown not described
 
 **Do:** Tab 1, the front page. Sit still on the card on the right. Let it be read.
 
@@ -53,7 +57,7 @@ Timings are a budget, not a metronome. If you run long, cut scene 6 first.
 
 ---
 
-## 0:35 – 1:15 — What it does, on a real wallet
+## 0:37 – 1:17 — What it does, on a real wallet
 
 **Do:** Tab 3 or the same tab — click the search box, paste the address, hit Look up. **Let
 the load happen on camera.** It takes a second or two and that second is the proof it is live.
@@ -84,7 +88,7 @@ the load happen on camera.** It takes a second or two and that second is the pro
 
 ---
 
-## 1:15 – 1:35 — The other two things you can do
+## 1:17 – 1:37 — The other two things you can do
 
 **Do:** Tab 3, AAPLx.
 
@@ -101,7 +105,7 @@ the load happen on camera.** It takes a second or two and that second is the pro
 
 ---
 
-## 1:35 – 2:05 — Why it can be trusted
+## 1:37 – 2:07 — Why it can be trusted
 
 **Do:** Go to `/method`. Scroll slowly through the freshness table and the sources.
 
@@ -118,7 +122,7 @@ everything else.*
 
 ---
 
-## 2:05 – 2:30 — Honesty and scale
+## 2:07 – 2:32 — Honesty and scale
 
 **Do:** Stay on `/method`, scroll to the paragraph naming SolanaRWA.
 
@@ -136,7 +140,7 @@ everything else.*
 
 ---
 
-## 2:30 – 2:45 — Close
+## 2:32 – 2:45 — Close
 
 **Do:** Front page, still. Or your face again.
 
@@ -167,6 +171,6 @@ what the product cannot do yet spends its best thirty seconds on the weakest mat
 
 ## If you only get 90 seconds
 
-Keep 0:00–0:10, 0:10–0:35, 0:35–1:15, and the close. That is the intro, the problem, the
+Keep 0:00–0:12, 0:12–0:37, 0:37–1:17, and the close. That is the intro, the problem, the
 product working on a real wallet, and the thank you. Everything else is detail the deck
 already carries.
