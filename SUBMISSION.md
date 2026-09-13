@@ -177,37 +177,172 @@ problem is Solana-native, the fix has to be, and the data to fix it is all publi
 
 All four are stated on the site itself, on the *How this works* page.
 
+### How big this actually is
+
+The problem is not an xStocks problem. It is a Token-2022 problem, and the second issuer is
+larger than the first.
+
+| | Assets on Solana | Value | Pays by moving a multiplier |
+|---|---|---|---|
+| Ondo Global Markets | 395 | $831.7m | Yes — `ScaledUiAmount`, named in their own repo |
+| Backed / xStocks | 832 | $608.3m | Yes — the mechanic this site is built on |
+| Backpack Securities | catalogue live since Jun 2026 | — | "Automatic balance adjustments", extension not yet named |
+
+*Issuer values and asset counts: rwa.xyz, 13 September 2026.*
+
+We did not take Ondo's word for it. Their repository says GM tokens carry the
+`ScaledUiAmount` extension, so we read one: mint
+`123mYEnRLM2LLYsJW3K6oyYh8uP1fngj732iG638ondo` (AAPLon, Ondo's Apple) is a Token-2022 mint
+with `scaledUiAmountConfig` present and a multiplier of **1.003376073740221**. Apple's other
+tokenized form, AAPLx, sits at **1.003269012539819**.
+
+The same company, two tokens, two different accumulated dividend factors, on the same chain,
+and nothing anywhere compares them. That is Phase 4 below, and it is not hypothetical.
+
+So roughly **1,200 mints and $1.4bn** already pay this way on Solana, and every one of them
+is invisible to its holders in exactly the same manner. xStocks alone reports **300,000+
+holders**, up 20,000 in a single day on 11 September; rwa.xyz counts 524,773 addresses,
+**+83% in thirty days**. Across all tokenized equities the figure is 3.43m holders and
+$2.84bn.
+
+Kraken, which now owns Backed, publishes the mechanic in its own FAQ — the exact formula
+(net dividend after 30% withholding, divided by the prior day's close), the exact update
+time (8pm EST the day before ex-date) — and then tells the holder to *seek independent
+advice on your taxation position.* The largest distributor documents the event and declines
+to document the holder's position in it. That sentence is the whole opportunity.
+
+---
+
 ### Roadmap — what a prize would build
 
-The site proves the problem. It does not yet fix it, because the fix is not a website.
+The site proves the problem and proves the numbers. It is not the fix, because the fix is
+not a website. Each phase below has a reason it comes when it does.
 
-**1. A correct reader that other apps can drop in.**
-The real failure is that no wallet shows these payments, and ours showing them helps only
-the people who find us. Ship `@exdate/scaled-ui` — a tiny, dependency-free package that
-resolves the multiplier correctly, handles pending activations, and distinguishes a
-dividend from a split. Take it to Phantom, Solflare, Backpack and Step. One correct
-integration helps more holders than our entire site ever will.
+**Phase 1 — the correct reader, so the fix travels. (0–3 months)**
 
-**2. Tell people before it happens.**
-We know every payment 24 hours ahead because the issuer publishes it and the multiplier
-change is staged on chain. A holder should get a notification the day before, not discover
-it a year later. Email, Telegram, and a webhook for apps.
+Ship `@exdate/scaled-ui`: a dependency-free package, MIT, that resolves the multiplier
+against its effective timestamp, distinguishes a dividend from a split by the issuer's own
+`reason` field, and reconstructs the balance a wallet held on any past date. Ours showing
+these payments helps only the people who find us; one correct integration in Phantom,
+Solflare, Backpack or Step reaches more holders than this site ever will.
 
-**3. The tax export nobody can produce today.**
-A tokenized stock dividend is income in most jurisdictions, and there is currently no
-record of it: no transaction, no statement, nothing to give an accountant. We can generate
-one, per wallet, per year, from data that already exists.
+This is also the honest answer to a competitor. Another product already turns these
+multiplier changes into per-holder income, forward from the day you subscribe, for a wallet
+you connect. The library makes the hard half — the backward half, and the split/dividend
+distinction — free for everyone, including them.
 
-**4. Every issuer, not one.**
-Ondo Global Markets has 200+ tokenized stocks on Solana with the same class of mechanics.
-Superstate, Remora and others are arriving. The same stock exists as several different
-tokens with different prices; nobody compares them. We should.
+**Phase 2 — tell people before it happens, not a year after. (1–4 months)**
 
-**5. The audience that is not in a wallet.**
-Most people who own these bought them on Kraken or Bybit, where the tokens sit in the
-exchange's wallet and a lookup finds nothing. Whether those exchanges pass the dividend on
-is undocumented. Finding out, and publishing the answer, would serve the largest group of
-holders there is.
+Every payment is knowable roughly 24 hours ahead: the issuer publishes it and the multiplier
+is staged on chain with a future effective timestamp. A holder should be told the day
+before. Email, Telegram, and a webhook apps can subscribe to. This is the piece that turns a
+lookup into something people return to.
+
+**Phase 3 — the statement nobody can produce. (2–6 months)**
+
+A per-wallet, per-tax-year dividend statement: date, event, multiplier before and after,
+balance held that day, tokens received, value in the holder's own currency, withholding
+already applied. There is no transaction to show an accountant and no broker statement to
+request.
+
+The clock on this is regulatory, not commercial. **1099-DA cost-basis reporting begins with
+transactions on or after 1 January 2026**, with the first basis-carrying forms arriving in
+early 2027. A silent multiplier increase is an income event with a cost-basis consequence
+that no broker's books currently capture.
+
+**Phase 4 — every issuer, one record. (4–9 months)**
+
+Ondo first, because it is the larger set and uses the identical extension. Then Backpack,
+then whoever is next; the reader from Phase 1 makes each one a configuration rather than a
+rewrite. The same company then exists as several different tokens at several different
+prices, and nobody compares them. We would.
+
+**Phase 5 — the holders who are not in a wallet. (6–12 months)**
+
+Most people who own these bought them on Kraken or Bybit, where the tokens sit in an
+exchange omnibus wallet and an address lookup finds nothing. On-chain is only 14–20% of
+cumulative xStocks volume, so this is the majority, not the tail. Whether those venues pass
+the dividend through, and whether they tell the customer, is undocumented. Finding out and
+publishing the answer serves the largest group of holders there is, and it is journalism as
+much as engineering.
+
+---
+
+### Business model
+
+The honest version first: nothing here is charged for today, and the free surface stays
+free. What follows is where the money is, with the comparable prices that establish it.
+
+**This category already has a price, in traditional finance.** LSEG publishes its
+corporate-actions rate card: **£31,100 a year** for a single ISO 15022 corporate-actions
+data file, and a separate **distribution licence from £8,685 to £64,200** depending on how
+many downstream customers you redistribute to. That ladder — the same data priced seven
+times higher when you put it in front of more than 300 customers — is precisely the shape of
+a wallet or exchange integration.
+
+**And the feed is the cheap part.** ISSA's own research puts data sourcing at **56% of the
+total cost of processing a corporate action**, and says plainly that procuring the data
+costs less than "the activities to get that data useable: interpretations, cleansing,
+enrichment." The average corporate-action operating unit costs **$3–5m a year** to run, and
+**over 45% of brokers have taken a $1m+ loss** from a corporate-action processing error.
+ExDate does not sell a feed. It sells the interpreted, reconciled result, which is the
+expensive half, for a market where nobody produces it at all.
+
+**The model that works on Solana is Pyth's, and it is not the data that is sold.** Pyth
+gives its core feeds away forever and charges **$500/mo for the right to display** and
+**$2,500/mo for the right to redistribute**. That reached **$10.4m ARR and 122 paying
+accounts within eleven months**. The fence is the licence, not the numbers.
+
+So:
+
+| Tier | Who | Price | What it is |
+|---|---|---|---|
+| **Free, permanently** | any holder, any researcher, any judge | $0 | Paste any address. No sign-in, no wallet connection. Plus the open-source reader. |
+| **Statement** | a holder at tax time | **$29–49 per wallet-year** | The dated, exportable, filing-ready record. Priced against the one comparable product's $29 and the $29–99 norm across Koinly, CoinLedger, CoinTracker and Awaken. |
+| **Integration** | wallets, portfolio apps, tax software | **$200–1,000/mo** | Machine-readable API, freshness guarantees, and the right to show the result to their own users. Helius, Birdeye and Shyft all sit in this band. |
+| **Redistribution** | exchanges, custodians, issuers, funds | **quote, LSEG's ladder as the anchor** | Bulk history, event webhooks, an audit trail, and a signed artifact they can hand a regulator. |
+
+Free tier economics are the structural advantage. A wallet lookup is a handful of RPC reads,
+not a warehouse scan. Dune withdrew its free tier on 10 September 2026 citing compute cost;
+that failure mode does not apply here.
+
+**Non-dilutive money, in order of how soon it is reachable.** Solana Foundation grants are
+rolling with a decision in about three weeks, and the *convertible grant for public goods
+with a commercial component* is an almost exact description of an open-source correctness
+library with a paid integration tier on top. Colosseum's accelerator is $250,000 per
+startup, and the World's Fair hackathon runs to 12 October. A corporate-actions data project
+has already won a Solana RWA track: **Autonom took Cypherpunk's RWA prize in December 2025**
+with an oracle carrying corporate-action logic, then became Adrena's production oracle.
+
+---
+
+### Who this is for, and what each of them gets
+
+**A holder** finds out what they were actually paid, for free, without connecting anything,
+including everything that happened before they ever heard of us. On the two test wallets
+that is thirteen and eleven months of payments that no wallet, explorer or tracker has ever
+shown them.
+
+**A wallet or portfolio app** gets a correct reader it does not have to write, and stops
+showing a balance it cannot explain. xStocks' own developer documentation puts the
+obligation on them — *"wallets and applications are responsible for applying the
+multiplier"* — while giving them nothing to explain the change with.
+
+**Tax software** gets income classified correctly rather than a balance increase booked as
+phantom cost basis. The distinction is not academic: on our own numbers, counting splits as
+income would overstate the market by **$2.3m on a $12.0m base**, and would tell a Netflix
+holder they gained 900% on a position worth exactly what it was.
+
+**An exchange or custodian** gets a reconciliation it currently does by hand, against the
+$3–5m-a-year benchmark for running such a function.
+
+**An issuer** gets a public, independent record that its corporate actions landed as
+published — which is cheaper than being asked to prove it later.
+
+**A fund or market maker** gets clean event data so a split is not mistaken for a return.
+
+**A regulator or auditor** gets a reproducible trail: every figure on this site names its
+source, its scope and the date it was read, and the method page shows the arithmetic.
 
 ### Built for this hackathon
 
