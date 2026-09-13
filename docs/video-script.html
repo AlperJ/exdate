@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ExDate — pitch video script</title>
+<style>
+  @page { size: A4; margin: 15mm 14mm 16mm; }
+
+  :root {
+    --ink: #1b1a17;
+    --ink-2: #4a463f;
+    --muted: #6f6a61;
+    --rule: #d6d1c7;
+    --hair: #e8e4dc;
+    --accent: #0a5f4c;
+    --say: #8a5a00;
+    --do-bg: #f2efe8;
+    --sans: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+    --mono: "Consolas", "SF Mono", ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: var(--sans);
+    color: var(--ink-2);
+    font-size: 11pt;
+    line-height: 1.5;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  h1 { font-size: 21pt; margin: 0 0 2mm; color: var(--ink); letter-spacing: -0.01em; }
+  .sub { font-size: 10pt; color: var(--muted); margin: 0 0 1mm; }
+  .sub-tr { font-size: 9.5pt; color: var(--muted); font-style: italic; margin: 0 0 6mm; }
+
+  .box {
+    border: 1px solid var(--rule);
+    padding: 4mm 5mm;
+    margin-bottom: 7mm;
+    background: var(--do-bg);
+    page-break-inside: avoid;
+  }
+  .box h2 { font-size: 10.5pt; margin: 0 0 2.5mm; color: var(--ink); }
+  .box ol, .box ul { margin: 0; padding-left: 5mm; font-size: 9.5pt; }
+  .box li { margin-bottom: 1.8mm; }
+  .box .tr { color: var(--muted); font-style: italic; }
+
+  .scene { page-break-inside: avoid; border-top: 1.5pt solid var(--ink); padding-top: 2.5mm; margin-bottom: 7mm; }
+  .head { display: flex; align-items: baseline; gap: 4mm; margin-bottom: 2.5mm; }
+  .time { font-family: var(--mono); font-size: 11.5pt; font-weight: 700; color: var(--ink); white-space: nowrap; }
+  .title { font-size: 11pt; font-weight: 600; color: var(--ink); }
+  .title-tr { font-size: 9.5pt; color: var(--muted); font-style: italic; }
+
+  .do {
+    background: var(--do-bg);
+    border-left: 3pt solid var(--rule);
+    padding: 2mm 3.5mm;
+    margin: 0 0 3.5mm;
+    font-size: 9.5pt;
+  }
+  .do b { color: var(--ink); }
+  .do .tr { display: block; margin-top: 0.8mm; color: var(--muted); font-style: italic; }
+
+  .say { border-left: 3pt solid var(--accent); padding: 1mm 0 1mm 4.5mm; margin: 0 0 4mm; }
+
+  /* Spoken line. Extra line-height so the pronunciation sitting above a word
+     never collides with the line before it. */
+  .en { font-size: 12.5pt; line-height: 2.15; color: var(--ink); }
+
+  ruby { ruby-position: over; }
+  rt {
+    font-size: 7.5pt;
+    font-weight: 600;
+    color: var(--say);
+    font-family: var(--sans);
+    letter-spacing: 0.01em;
+    line-height: 1;
+  }
+
+  .tr { font-size: 9.5pt; line-height: 1.45; color: var(--muted); font-style: italic; margin-top: 1.5mm; }
+
+  .note { font-size: 9pt; color: var(--muted); border-top: 1px solid var(--hair); padding-top: 1.5mm; margin-top: 1mm; }
+  .note i { font-style: italic; }
+
+  .end {
+    border: 1.5pt solid var(--ink);
+    padding: 4mm 5mm;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11.5pt;
+    color: var(--ink);
+    margin-top: 2mm;
+  }
+
+  .tail { page-break-before: always; }
+  .tail h2 { font-size: 12.5pt; color: var(--ink); margin: 0 0 2.5mm; }
+  .tail h3 { font-size: 10.5pt; color: var(--ink); margin: 5mm 0 1.5mm; }
+  .tail p { font-size: 10pt; margin: 0 0 1.5mm; }
+  .tail .tr { font-size: 9.5pt; }
+  code { font-family: var(--mono); font-size: 9pt; background: var(--do-bg); padding: 0 1mm; }
+
+  .paste {
+    border: 2pt solid var(--ink);
+    padding: 4mm 5mm;
+    margin-bottom: 7mm;
+    page-break-inside: avoid;
+  }
+  .paste h2 { font-size: 11pt; margin: 0 0 3mm; color: var(--ink); }
+  .paste .row { display: grid; grid-template-columns: 22mm 1fr; gap: 2mm 4mm; align-items: baseline; margin-bottom: 3mm; }
+  .paste .when { font-family: var(--mono); font-size: 10pt; font-weight: 700; color: var(--ink); }
+  .paste .what { font-size: 10pt; }
+  .paste .addr {
+    font-family: var(--mono); font-size: 11pt; font-weight: 700; color: var(--ink);
+    background: var(--do-bg); padding: 1.5mm 2.5mm; display: inline-block; margin-top: 1mm;
+    word-break: break-all;
+  }
+  .paste .warn {
+    margin-top: 3mm; padding-top: 2.5mm; border-top: 1px solid var(--rule);
+    font-size: 9.5pt; color: var(--say);
+  }
+
+  table.say-key { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin-top: 2mm; }
+  table.say-key th {
+    text-align: left; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--muted); font-weight: 600; padding: 0 3mm 1.5mm 0; border-bottom: 1px solid var(--rule);
+  }
+  table.say-key td { padding: 1.6mm 3mm 1.6mm 0; border-bottom: 1px solid var(--hair); vertical-align: top; }
+  table.say-key td.w { font-weight: 600; color: var(--ink); white-space: nowrap; }
+  table.say-key td.p { font-weight: 600; color: var(--say); white-space: nowrap; }
+  table.say-key td.m { color: var(--muted); font-style: italic; }
+</style>
+</head>
+<body>
+
+<h1>ExDate — pitch video</h1>
+<p class="sub">2 minutes 58 at a clear 150 words a minute. Read the large line aloud. The small orange text above a word is how to say it; the italic line underneath is the Turkish.</p>
+<p class="sub-tr">2 dakika 58 saniye, dakikada 150 kelimelik net bir tempoda. Büyük satırı sesli oku. Kelimenin üstündeki küçük turuncu yazı onun okunuşu; alttaki italik satır Türkçesi.</p>
+
+<div class="box">
+  <h2>How to read the pronunciations &nbsp;·&nbsp; Okunuşları nasıl okuyacaksın</h2>
+  <ul>
+    <li><b>BÜYÜK harfli hece vurgulanır.</b> "DİV-ı-dendz" derken ilk heceye bas.</li>
+    <li><b>ı</b> = Türkçedeki ı gibi, yutulan kısa ses. İngilizcede çoğu vurgusuz hece budur.</li>
+    <li><b>th</b> = dilin ucu dişlerin arasında. <i>t</i> değil, <i>s</i> değil. "three, thousand, truth" hep böyle.</li>
+    <li><b>w</b> = dudaklar büzülür, <i>v</i> değil. "wallet" = <i>uo-lıt</i>, "we" = <i>ui</i>.</li>
+    <li><b>r</b> sonda yutulur: "figure" = <i>Fİ-gır</i>, "fi-gur" değil.</li>
+  </ul>
+</div>
+
+<div class="paste">
+  <h2>What you type, and when &nbsp;·&nbsp; Ne yazacaksın, ne zaman</h2>
+
+  <div class="row">
+    <span class="when">0:42</span>
+    <span class="what">Arama kutusuna <b>bu adresi yapıştır</b> ve Look up'a bas. Sahnenin tek yapıştırması bu.
+      <span class="addr">7BCp5XUXtKzZWYCvGR2fzFqoyKiJ7ozN8eCEHscpSMnB</span></span>
+  </div>
+
+  <div class="row">
+    <span class="when">1:20</span>
+    <span class="what">Üst çubuktaki arama kutusuna <b>sadece şunu yaz</b> ve Enter'a bas:
+      <span class="addr">AAPL</span></span>
+  </div>
+
+  <div class="row">
+    <span class="when">1:43</span>
+    <span class="what">Bir şey yazmıyorsun. Menüden <b>How this works</b> yerine <b>Method</b>'a tıkla.</span>
+  </div>
+
+  <div class="warn">
+    <b>Kayıttan hemen önce o cüzdanı bir kez aç.</b> Dolar rakamı hisse fiyatıyla birlikte oynuyor.
+    Bugün <b>$93.38</b>, <b>28 ödeme</b>, en eski <b>14&nbsp;Aug&nbsp;2025</b>. Ekranda başka bir şey
+    yazıyorsa metindeki rakamı değil, <b>ekrandaki rakamı</b> söyle. Ödeme sayısı ve tarih değişmez.
+  </div>
+</div>
+
+<div class="box">
+  <h2>Before you hit record &nbsp;·&nbsp; Kayda başlamadan önce</h2>
+  <ol>
+    <li>Open four tabs and let each finish loading once: the front page, the wallet link with <code>?show=NVDAx</code>, <code>/asset/AAPLx</code>, and <code>/calendar</code>.
+      <span class="tr">Dört sekmeyi aç ve her birini bir kez yüklet: ana sayfa, <code>?show=NVDAx</code> ekli cüzdan bağlantısı, <code>/asset/AAPLx</code> ve <code>/calendar</code>.</span></li>
+    <li>Copy the test address to the clipboard now, so the paste in scene 3 is one keystroke.
+      <span class="tr">Test adresini şimdiden panoya kopyala ki üçüncü sahnedeki yapıştırma tek tuş olsun.</span></li>
+    <li>Zoom the browser to 110%. Text that reads fine on your monitor is unreadable in a compressed recording.
+      <span class="tr">Tarayıcıyı %110 yap. Ekranında okunan yazı, sıkıştırılmış videoda okunmuyor.</span></li>
+    <li>Hide bookmarks and every other tab.
+      <span class="tr">Yer imlerini ve diğer tüm sekmeleri gizle.</span></li>
+  </ol>
+</div>
+
+<!-- 1 -->
+<div class="scene">
+  <div class="head"><span class="time">0:00–0:14</span><span class="title">Who you are</span><span class="title-tr">Kendini tanıt</span></div>
+  <div class="do"><b>Do:</b> You on camera, or just the ExDate front page. Whichever you are comfortable with.
+    <span class="tr"><b>Yap:</b> Kamerada sen, ya da sadece ExDate ana sayfası. Hangisinde rahatsan.</span></div>
+  <div class="say">
+    <div class="en">I'm Alperen, <ruby>founder<rt>FAUN-dır</rt></ruby> of j.tools. We're three people working full time from our <ruby>office<rt>O-fis</rt></ruby> in Turkey, part of Superteam Turkey. ExDate was built during this <ruby>hackathon<rt>HE-kı-thon</rt></ruby>, from an empty <ruby>repository<rt>ri-PO-zi-tri</rt></ruby>.</div>
+    <div class="tr">Ben Alperen, j.tools'un kurucusuyum. Üç kişilik bir ekibiz, Türkiye'deki ofisimizde tam zamanlı çalışıyoruz ve Superteam Türkiye'nin içindeyiz. Bu ExDate, ve bu hackathon sırasında boş bir depodan yazıldı.</div>
+  </div>
+  <p class="note"><i>Say it once and move on. The product is the pitch, not the biography.</i><br>
+    <i>Bir kez söyle ve geç. Asıl anlatan ürün, özgeçmiş değil.</i></p>
+</div>
+
+<!-- 2 -->
+<div class="scene">
+  <div class="head"><span class="time">0:14–0:42</span><span class="title">The problem, shown not described</span><span class="title-tr">Problem — anlatarak değil göstererek</span></div>
+  <div class="do"><b>Do:</b> Front page. Sit still on the card on the right and let it be read.
+    <span class="tr"><b>Yap:</b> Ana sayfa. Sağdaki kartın üzerinde sabit dur, okunmasına izin ver.</span></div>
+  <div class="say">
+    <div class="en"><ruby>Tokenized<rt>TO-kın-ayzd</rt></ruby> stocks on Solana pay real <ruby>dividends<rt>DİV-ı-dendz</rt></ruby> — but not as a <ruby>transfer<rt>TRENS-fır</rt></ruby>. The <ruby>issuer<rt>İŞ-u-ır</rt></ruby> <ruby>quietly<rt>KUAY-ıt-li</rt></ruby> raises a <ruby>multiplier<rt>MAL-ti-play-ır</rt></ruby> on the token, and every <ruby>balance<rt>BE-lıns</rt></ruby> goes up at that <ruby>instant<rt>İNS-tınt</rt></ruby>.</div>
+    <div class="tr">Solana'daki tokenize hisseler gerçek temettü ödüyor — ama transfer olarak değil. İhraççı token üzerindeki bir çarpanı sessizce yükseltiyor ve o anda her bakiye artıyor.</div>
+  </div>
+  <div class="do"><b>Do:</b> Cursor to the "Held before / Held after" rows, then down to the amber row.
+    <span class="tr"><b>Yap:</b> İmleci "Held before / Held after" satırlarına götür, sonra sarı satıra in.</span></div>
+  <div class="say">
+    <div class="en">This is Apple, in August. A <ruby>hundred<rt>HAN-drıd</rt></ruby> tokens became a hundred point three-three. The <ruby>transaction<rt>tren-ZEK-şın</rt></ruby> list says none.</div>
+    <div class="tr">Bu Apple, ağustosta. Yüz token, yüz virgül otuz üç oldu. İşlem listesi "hiçbiri" diyor.</div>
+  </div>
+  <div class="do"><b>Do:</b> Move the cursor to the $11,984,608 figure and stop.
+    <span class="tr"><b>Yap:</b> İmleci $11.984.608 rakamına götür ve dur.</span></div>
+  <div class="say">
+    <div class="en">No wallet, no <ruby>explorer<rt>eks-PLO-rır</rt></ruby>, no tracker shows it. Almost <ruby>twelve<rt>TUELV</rt></ruby> <ruby>million<rt>Mİ-lyın</rt></ruby> dollars, paid to people who were never told.</div>
+    <div class="tr">Hiçbir cüzdan, hiçbir explorer, hiçbir takipçi bunu göstermiyor. Neredeyse on iki milyon dolar, hiç haberi olmayan insanlara ödenmiş.</div>
+  </div>
+</div>
+
+<!-- 3 -->
+<div class="scene">
+  <div class="head"><span class="time">0:42–1:20</span><span class="title">What it does, on a real wallet</span><span class="title-tr">Ne yaptığı — gerçek bir cüzdan üstünde</span></div>
+  <div class="do"><b>Do:</b> Click the search box, paste the address, hit Look up. <b>Let the load happen on camera.</b> That second is the proof it is live.
+    <span class="tr"><b>Yap:</b> Arama kutusuna tıkla, adresi yapıştır, Look up'a bas. <b>Yüklenmeyi kamerada bırak.</b> O saniye, canlı olduğunun kanıtı.</span></div>
+  <div class="say">
+    <div class="en">So: <ruby>paste<rt>PEYST</rt></ruby> any Solana address. No sign-in, no <ruby>wallet<rt>UO-lıt</rt></ruby> connection — it even works for a wallet you don't own.</div>
+    <div class="tr">Şöyle: herhangi bir Solana adresini yapıştır. Giriş yok, cüzdan bağlama yok — sahibi olmadığın bir cüzdan için bile çalışıyor.</div>
+  </div>
+  <div class="do"><b>Do:</b> When the statement appears, cursor to the headline figure.
+    <span class="tr"><b>Yap:</b> Özet göründüğünde imleci baştaki rakama götür.</span></div>
+  <div class="say">
+    <div class="en">This one was paid <ruby>ninety-three<rt>NAYN-ti thri</rt></ruby> dollars and <ruby>thirty-eight<rt>THÖR-ti eyt</rt></ruby> cents, across twenty-eight payments. It has no <ruby>record<rt>RE-kırd</rt></ruby> of any of them.</div>
+    <div class="tr">Bu cüzdana yirmi sekiz ödemede doksan üç dolar otuz sekiz sent ödenmiş. Hiçbirinin kaydı yok.</div>
+  </div>
+  <div class="do"><b>Do:</b> Cursor to the sentence about the oldest payment.
+    <span class="tr"><b>Yap:</b> İmleci en eski ödemeden bahseden cümleye götür.</span></div>
+  <div class="say">
+    <div class="en">The <ruby>oldest<rt>OL-dıst</rt></ruby> is from August last year. <ruby>Thirteen<rt>thör-TİN</rt></ruby> months anything starting at signup shows as zero.</div>
+    <div class="tr">En eskisi geçen yılın ağustosundan — kaydolduğun gün başlayan bir şeyin sıfır göstereceği on üç ay.</div>
+  </div>
+  <div class="do"><b>Do:</b> Scroll to the positions table. Click <b>Show</b> on the NVDAx row.
+    <span class="tr"><b>Yap:</b> Pozisyonlar tablosuna in. NVDAx satırındaki <b>Show</b>'a tıkla.</span></div>
+  <div class="say">
+    <div class="en">Every row opens into what produced it. NVIDIA paid this wallet five times: the multiplier before and after, and what it was <ruby>worth<rt>UÖRTH</rt></ruby>.</div>
+    <div class="tr">Her satır, onu üreten şeye açılıyor. NVIDIA bu cüzdana beş kez ödeme yapmış: öncesindeki ve sonrasındaki çarpan, ve ne ettiği.</div>
+  </div>
+  <div class="do"><b>Do:</b> Cursor along the "10 Sept 2026" row, left to right, slowly.
+    <span class="tr"><b>Yap:</b> İmleci "10 Sept 2026" satırı boyunca soldan sağa, yavaşça gezdir.</span></div>
+  <div class="say">
+    <div class="en">And each is <ruby>valued<rt>VEL-yud</rt></ruby> against the balance held that day — not today's.</div>
+    <div class="tr">Ve her biri o gün tutulan bakiyeye göre değerlenmiş — bugünküne göre değil.</div>
+  </div>
+</div>
+
+<!-- 4 -->
+<div class="scene">
+  <div class="head"><span class="time">1:20–1:43</span><span class="title">The other two things you can do</span><span class="title-tr">Yapabileceğin diğer iki şey</span></div>
+  <div class="do"><b>Do:</b> Tab with AAPLx.
+    <span class="tr"><b>Yap:</b> AAPLx sekmesi.</span></div>
+  <div class="say">
+    <div class="en">Type a <ruby>ticker<rt>Tİ-kır</rt></ruby> and you get the other direction: what that stock has paid, what it <ruby>owes<rt>OUZ</rt></ruby> next, the tax <ruby>withheld<rt>uıth-HELD</rt></ruby>, and whether it is really backed by shares in <ruby>custody<rt>KAS-tı-di</rt></ruby>.</div>
+    <div class="tr">Bir sembol yaz, diğer yönü al: o hisse ne ödemiş, sırada ne var, ne kadar vergi kesilmiş, ve tokenlar gerçekten saklamadaki hisselerle karşılanıyor mu.</div>
+  </div>
+  <div class="do"><b>Do:</b> Calendar tab.
+    <span class="tr"><b>Yap:</b> Takvim sekmesi.</span></div>
+  <div class="say">
+    <div class="en">And the calendar. The issuer lists five hundred and <ruby>thirty-nine<rt>THÖR-ti nayn</rt></ruby> payments as upcoming. Only thirty-eight are. We check every row against the clock.</div>
+    <div class="tr">Ve takvim. İhraççı beş yüz otuz dokuz ödemeyi "yaklaşan" diye listeliyor. Sadece otuz sekizi öyle. Biz her satırı saate karşı kontrol ediyoruz.</div>
+  </div>
+</div>
+
+<!-- 5 -->
+<div class="scene">
+  <div class="head"><span class="time">1:43–2:10</span><span class="title">Why it can be trusted</span><span class="title-tr">Neden güvenilebilir</span></div>
+  <div class="do"><b>Do:</b> Go to <code>/method</code>. Scroll slowly through the freshness table and the sources.
+    <span class="tr"><b>Yap:</b> <code>/method</code> sayfasına git. Tazelik tablosunu ve kaynakları yavaşça geç.</span></div>
+  <div class="say">
+    <div class="en">Everything is read from Solana and the issuer's public <ruby>records<rt>RE-kırdz</rt></ruby>, and every page says which <ruby>source<rt>SORS</rt></ruby> produced which <ruby>figure<rt>Fİ-gır</rt></ruby>.</div>
+    <div class="tr">Buradaki her şey Solana'dan ve ihraççının açık kayıtlarından okunuyor, ve her sayfa hangi rakamın hangi kaynaktan geldiğini yazıyor.</div>
+  </div>
+  <div class="say">
+    <div class="en">Apple's five dividends hand-<ruby>compound<rt>kım-PAUND</rt></ruby> to the chain's own multiplier to the last <ruby>digit<rt>Dİ-cit</rt></ruby>. <ruby>Adversarial<rt>ed-vır-SE-ri-ıl</rt></ruby> reviewers tried to prove our figures wrong and broke several — including one where our own <ruby>headline<rt>HED-layn</rt></ruby> was seven times too high. All fixed, all written down, <ruby>mistakes<rt>mis-TEYKS</rt></ruby> included.</div>
+    <div class="tr">Apple'ın beş temettüsü elle bileşiklendiğinde zincirin kendi çarpanına son haneye kadar oturuyor. Karşıt denetçiler rakamlarımızı çürütmeye çalıştı ve birkaçını kırdı — biri kendi ana rakamımızın yedi kat fazla olmasıydı. Hepsi düzeltildi, hepsi yazılı, hatalar dahil.</div>
+  </div>
+  <p class="note"><i>Do not rush this part. Accuracy is the product, and a judge who believes the numbers believes everything else.</i><br>
+    <i>Burayı acele etme. Doğruluk ürünün kendisi; rakamlara inanan jüri geri kalan her şeye inanır.</i></p>
+</div>
+
+<!-- 6 -->
+<div class="scene">
+  <div class="head"><span class="time">2:10–2:39</span><span class="title">Honesty and scale</span><span class="title-tr">Dürüstlük ve ölçek</span></div>
+  <div class="do"><b>Do:</b> Stay on <code>/method</code>, scroll to the paragraph naming SolanaRWA.
+    <span class="tr"><b>Yap:</b> <code>/method</code>'da kal, SolanaRWA'nın adının geçtiği paragrafa in.</span></div>
+  <div class="say">
+    <div class="en">We're not the first, and we say so ourselves. <ruby>SolanaRWA<rt>solana ar-dabıl-yu-EY</rt></ruby> does this on the same <ruby>extension<rt>eks-TEN-şın</rt></ruby> — but they need you to <ruby>connect<rt>kı-NEKT</rt></ruby> a wallet, and only see forward from the day you sign up. Nobody had built the <ruby>backward<rt>BEK-wırd</rt></ruby> half.</div>
+    <div class="tr">İlk biz değiliz, ve bunu kendimiz söylüyoruz. SolanaRWA bunu aynı eklenti üzerinde yapıyor — ama cüzdan bağlamanı istiyorlar ve sadece kaydolduğun günden ileriye bakıyorlar. Geri yarısını kimse yapmamıştı.</div>
+  </div>
+  <div class="do"><b>Do:</b> Back to the front page.
+    <span class="tr"><b>Yap:</b> Ana sayfaya dön.</span></div>
+  <div class="say">
+    <div class="en">And it isn't only xStocks. <ruby>Ondo<rt>ON-do</rt></ruby> uses the same extension and is bigger: one point four <ruby>billion<rt>Bİ-lyın</rt></ruby> dollars, three hundred <ruby>thousand<rt>THAU-zınd</rt></ruby> holders. None of them can see it.</div>
+    <div class="tr">Ve bu sadece xStocks değil. Ondo aynı eklentiyi kullanıyor ve daha büyük: bir virgül dört milyar dolar, üç yüz bin sahip. Hiçbiri bunu göremiyor.</div>
+  </div>
+</div>
+
+<!-- 7 -->
+<div class="scene">
+  <div class="head"><span class="time">2:39–2:58</span><span class="title">Close</span><span class="title-tr">Kapanış</span></div>
+  <div class="do"><b>Do:</b> Front page, still. Or your face again.
+    <span class="tr"><b>Yap:</b> Ana sayfada sabit. Ya da tekrar yüzün.</span></div>
+  <div class="say">
+    <div class="en">ExDate is live, free, <ruby>read-only<rt>RİD-onli</rt></ruby>, and open source.</div>
+    <div class="tr">ExDate yayında, ücretsiz, salt okunur, ve kodu açık.</div>
+  </div>
+  <div class="say">
+    <div class="en">The <ruby>roadmap<rt>ROUD-mep</rt></ruby> and the numbers are in the pitch deck. Thank you for reading this far, and for running <ruby>Stocklana<rt>STOK-la-na</rt></ruby>.</div>
+    <div class="tr">Yol haritası ve rakamlar sunum dosyasında. Buraya kadar okuduğunuz ve Stocklana'yı düzenlediğiniz için teşekkürler.</div>
+  </div>
+  <div class="say">
+    <div class="en">Go and paste an address. It's the fastest way to see whether I'm telling the <ruby>truth<rt>TRUTH</rt></ruby>.</div>
+    <div class="tr">Gidin bir adres yapıştırın. Doğru söyleyip söylemediğimi görmenin en hızlı yolu bu.</div>
+  </div>
+  <div class="end">exdate-ten.vercel.app<br>github.com/AlperJ/exdate</div>
+</div>
+
+<div class="tail">
+  <h2>Pronunciation key &nbsp;·&nbsp; Okunuş listesi</h2>
+  <p class="tr" style="margin-bottom:3mm">BÜYÜK hece vurgulu. <b>ı</b> = Türkçe ı. <b>th</b> = dil dişler arasında. <b>w</b> = dudak büzülür, v değil.</p>
+  <table class="say-key">
+    <tr><th>Word</th><th>Say it</th><th>Anlamı</th></tr>
+    <tr><td class="w">dividends</td><td class="p">DİV-ı-dendz</td><td class="m">temettüler</td></tr>
+    <tr><td class="w">issuer</td><td class="p">İŞ-u-ır</td><td class="m">ihraççı</td></tr>
+    <tr><td class="w">quietly</td><td class="p">KUAY-ıt-li</td><td class="m">sessizce</td></tr>
+    <tr><td class="w">multiplier</td><td class="p">MAL-ti-play-ır</td><td class="m">çarpan</td></tr>
+    <tr><td class="w">withheld</td><td class="p">uıth-HELD</td><td class="m">kesilen (vergi)</td></tr>
+    <tr><td class="w">custody</td><td class="p">KAS-tı-di</td><td class="m">saklama</td></tr>
+    <tr><td class="w">digit</td><td class="p">Dİ-cit</td><td class="m">hane, rakam</td></tr>
+    <tr><td class="w">adversarial</td><td class="p">ed-vır-SE-ri-ıl</td><td class="m">karşıt, düşmanca</td></tr>
+    <tr><td class="w">silent</td><td class="p">SAY-lınt</td><td class="m">sessiz</td></tr>
+    <tr><td class="w">figure</td><td class="p">Fİ-gır</td><td class="m">rakam</td></tr>
+    <tr><td class="w">weakest</td><td class="p">Uİ-kıst</td><td class="m">en zayıf</td></tr>
+    <tr><td class="w">SolanaRWA</td><td class="p">solana ar-dabıl-yu-EY</td><td class="m">rakip ürünün adı</td></tr>
+    <tr><td class="w">Stocklana</td><td class="p">STOK-la-na</td><td class="m">hackathonun adı</td></tr>
+    <tr><td class="w">AAPLx</td><td class="p">Apple eks</td><td class="m">harf harf okumana gerek yok</td></tr>
+    <tr><td class="w">NVDAx</td><td class="p">en-vidya eks</td><td class="m">NVIDIA'nın tokenı</td></tr>
+    <tr><td class="w">$11,984,608</td><td class="p">ilevın milyın, nayn handrıd<br>eyti-for thauzınd, siks handrıd end eyt</td><td class="m">metinde bunu okumuyorsun; "almost twelve million" diyorsun</td></tr>
+    <tr><td class="w">records <i>(fiil)</i></td><td class="p">ri-KORDZ</td><td class="m">kaydeder — vurgu sonda</td></tr>
+    <tr><td class="w">records <i>(isim)</i></td><td class="p">RE-kırdz</td><td class="m">kayıtlar — vurgu başta</td></tr>
+    <tr><td class="w">wallet</td><td class="p">UO-lıt</td><td class="m">cüzdan</td></tr>
+    <tr><td class="w">worth</td><td class="p">UÖRTH</td><td class="m">değerinde</td></tr>
+    <tr><td class="w">thousand</td><td class="p">THAU-zınd</td><td class="m">bin</td></tr>
+    <tr><td class="w">truth</td><td class="p">TRUTH</td><td class="m">gerçek, doğru</td></tr>
+    <tr><td class="w">repository</td><td class="p">ri-PO-zi-tri</td><td class="m">kod deposu</td></tr>
+    <tr><td class="w">hackathon</td><td class="p">HE-kı-thon</td><td class="m">hackathon</td></tr>
+    <tr><td class="w">apologise</td><td class="p">ı-PO-lı-cayz</td><td class="m">özür dilemek</td></tr>
+    <tr><td class="w">judge</td><td class="p">CAC</td><td class="m">jüri üyesi</td></tr>
+  </table>
+
+  <h2 style="margin-top:8mm">Two things to avoid &nbsp;·&nbsp; Kaçınılacak iki şey</h2>
+  <h3>Do not read numbers off the script while the screen shows something else</h3>
+  <p class="tr"><i><b>Ekranda başka şey varken metinden rakam okuma.</b> Söylediğin her rakam o anda ekranda görünmeli. İkisi ayrışırsa jüri fark eder ve ikisine birden güveni gider.</i></p>
+  <h3>Do not apologise for what is missing</h3>
+  <p class="tr"><i><b>Eksikler için özür dileme.</b> Yol haritası sunumda. Henüz yapamadıklarını sıralayan bir tanıtım videosu, en iyi otuz saniyesini en zayıf malzemeye harcar.</i></p>
+
+  <h2 style="margin-top:8mm">If you only get 90 seconds &nbsp;·&nbsp; Sadece 90 saniyen varsa</h2>
+  <p class="tr"><i>1, 2, 3. sahneleri ve kapanışı tut. Bu; tanıtım, problem, gerçek bir cüzdanda çalışan ürün, ve teşekkür demek. Gerisi zaten sunumda olan detay.</i></p>
+
+  <h2 style="margin-top:8mm">Links &nbsp;·&nbsp; Bağlantılar</h2>
+  <p><code>https://exdate-ten.vercel.app</code></p>
+  <p><code>https://exdate-ten.vercel.app/wallet/7BCp5XUXtKzZWYCvGR2fzFqoyKiJ7ozN8eCEHscpSMnB?show=NVDAx</code></p>
+  <p><code>https://exdate-ten.vercel.app/asset/AAPLx</code> &nbsp; <code>/calendar</code> &nbsp; <code>/method</code></p>
+  <p style="margin-top:2mm">Yapıştırılacak adres:</p>
+  <p><code>7BCp5XUXtKzZWYCvGR2fzFqoyKiJ7ozN8eCEHscpSMnB</code></p>
+</div>
+
+</body>
+</html>

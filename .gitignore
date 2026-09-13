@@ -19,3 +19,7 @@ owners.txt
 # ham video cekimleri, depoya girmez
 video/cekim/
 video/*.mp4
+
+# eski taslak metinler, yerini VIDEO-METIN.pdf aldi
+VIDEO-SON.pdf
+VIDEO-okunusla.pdf

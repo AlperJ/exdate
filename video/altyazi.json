@@ -1,0 +1,101 @@
+{
+  "_comment": [
+    "Subtitle cues, in the order they are spoken. The text is the script's own",
+    "English, so what appears on screen is correct regardless of how the line",
+    "lands in the take. Generated from docs/video-script.html, not hand-typed,",
+    "so the subtitles and the script cannot drift apart.",
+    "",
+    "Timings are not here. They come from the footage: scripts/altyazi.mjs runs",
+    "silence detection over each clip, finds the speech runs, and distributes each",
+    "scene's cues across them by word count. That way the subtitles follow the",
+    "pace actually spoken rather than a guess made in advance.",
+    "",
+    "Two lines maximum per cue, 46 characters each, split at a phrase boundary."
+  ],
+  "scenes": [
+    {
+      "file": "01-giris",
+      "cues": [
+        "I'm Alperen, founder of j.tools.",
+        "We're three people working full\ntime from our office in Turkey,",
+        "part of Superteam Turkey.",
+        "ExDate was built during this hackathon,\nfrom an empty repository."
+      ]
+    },
+    {
+      "file": "02-problem",
+      "cues": [
+        "Tokenized stocks on Solana pay real\ndividends — but not as a transfer.",
+        "The issuer quietly raises\na multiplier on the token,",
+        "and every balance goes up at that instant.",
+        "This is Apple, in August.",
+        "A hundred tokens became a\nhundred point three-three.",
+        "The transaction list says none.",
+        "No wallet, no explorer, no tracker shows it.",
+        "Almost twelve million dollars,\npaid to people who were never told."
+      ]
+    },
+    {
+      "file": "03-cuzdan",
+      "cues": [
+        "So: paste any Solana address.",
+        "No sign-in, no wallet connection —\nit even works for a wallet you don't own.",
+        "This one was paid ninety-three\ndollars and thirty-eight cents,",
+        "across twenty-eight payments.",
+        "It has no record of any of them.",
+        "The oldest is from August last year.",
+        "Thirteen months anything\nstarting at signup shows as zero.",
+        "Every row opens into what produced it.",
+        "NVIDIA paid this wallet five times:\nthe multiplier before and after,",
+        "and what it was worth.",
+        "And each is valued against the\nbalance held that day — not today's."
+      ]
+    },
+    {
+      "file": "04-digerleri",
+      "cues": [
+        "Type a ticker and you get the other\ndirection: what that stock has paid,",
+        "what it owes next, the tax withheld,",
+        "and whether it is really\nbacked by shares in custody.",
+        "And the calendar.",
+        "The issuer lists five hundred and\nthirty-nine payments as upcoming.",
+        "Only thirty-eight are.",
+        "We check every row against the clock."
+      ]
+    },
+    {
+      "file": "05-guven",
+      "cues": [
+        "Everything is read from Solana\nand the issuer's public records,",
+        "and every page says which\nsource produced which figure.",
+        "Apple's five dividends hand-compound to the\nchain's own multiplier to the last digit.",
+        "Adversarial reviewers tried to prove\nour figures wrong and broke several —",
+        "including one where our own\nheadline was seven times too high.",
+        "All fixed, all written down,\nmistakes included."
+      ]
+    },
+    {
+      "file": "06-durustluk",
+      "cues": [
+        "We're not the first, and we say so ourselves.",
+        "SolanaRWA does this on the same extension —\nbut they need you to connect a wallet,",
+        "and only see forward from the day you sign up.",
+        "Nobody had built the backward half.",
+        "And it isn't only xStocks.",
+        "Ondo uses the same extension and is bigger:\none point four billion dollars,",
+        "three hundred thousand holders.",
+        "None of them can see it."
+      ]
+    },
+    {
+      "file": "07-kapanis",
+      "cues": [
+        "ExDate is live, free,\nread-only, and open source.",
+        "The roadmap and the numbers\nare in the pitch deck.",
+        "Thank you for reading this far,\nand for running Stocklana.",
+        "Go and paste an address.",
+        "It's the fastest way to see\nwhether I'm telling the truth."
+      ]
+    }
+  ]
+}

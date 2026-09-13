@@ -3,13 +3,13 @@
 Kaydettiğin dosyaları **`video/cekim/`** içine at. İsimlendirme önemli, sıralamayı ondan çıkarıyorum:
 
 ```
-01-giris.mp4        0:00–0:12   kendini tanıtma
-02-problem.mp4      0:12–0:37   ana sayfa, kart
-03-cuzdan.mp4       0:37–1:17   adres yapıştırma + NVDAx açma
-04-digerleri.mp4    1:17–1:37   AAPL + takvim
-05-guven.mp4        1:37–2:07   method sayfası
-06-durustluk.mp4    2:07–2:32   SolanaRWA + Ondo
-07-kapanis.mp4      2:32–2:45   kapanış
+01-giris.mp4        0:00–0:14   kendini tanıtma
+02-problem.mp4      0:14–0:42   ana sayfa, kart
+03-cuzdan.mp4       0:42–1:20   adres yapıştırma + NVDAx açma
+04-digerleri.mp4    1:20–1:43   AAPL + takvim
+05-guven.mp4        1:43–2:10   method sayfası
+06-durustluk.mp4    2:10–2:39   SolanaRWA + Ondo
+07-kapanis.mp4      2:39–2:58   kapanış
 ```
 
 Bir sahneyi birkaç kez çektiysen `03-cuzdan-2.mp4`, `03-cuzdan-3.mp4` diye numaralandır,
@@ -35,6 +35,8 @@ mesafesi. Değişirse birleştirince fark ediliyor.
 - Ses seviyelerini eşitleyeceğim, klipler arası seviye farkı kalmayacak
 - Sonuna 5 saniyelik kapanış kartı koyacağım (exdate-ten.vercel.app + github)
 - Gerekirse sahne geçişlerine kısa kararma
+- Konuştuğun İngilizceyi altyazı olarak bindireceğim — metin senin okuduğun metnin kendisi,
+  zamanlamayı klipteki sessizliklerden çıkarıyorum
 - Tek dosya, YouTube'a yüklenebilir halde
 
 ## Ben ne yapamam
