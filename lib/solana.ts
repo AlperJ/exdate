@@ -1,12 +1,13 @@
 // Minimal Solana JSON-RPC client. No SDK: token reads only need jsonParsed responses.
 export const TOKEN_2022 = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb";
 
+/**
+ * Server-side only. Every caller runs on the server, and the URL carries an API key, so
+ * there is deliberately no NEXT_PUBLIC fallback: a variable by that name would ship the
+ * key into the browser bundle for anyone to lift off the page.
+ */
 export function rpcUrl(): string {
-  return (
-    process.env.SOLANA_RPC_URL ??
-    process.env.NEXT_PUBLIC_SOLANA_RPC_URL ??
-    "https://api.mainnet-beta.solana.com"
-  );
+  return process.env.SOLANA_RPC_URL ?? "https://api.mainnet-beta.solana.com";
 }
 
 let id = 0;
