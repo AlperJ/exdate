@@ -1,0 +1,632 @@
+<title>The Invisible Dividend</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+  /* One committed visual world: the registrar's statement the product itself is built as.
+     Every colour is painted explicitly so the deck holds on any host ground. */
+  :root {
+    --ground: #f5f4f1;
+    --surface: #ffffff;
+    --ink: #26241f;
+    --ink-2: #57534b;
+    --muted: #6b665e;
+    --faint: #8a847a;
+    --rule: #c3bdb2;
+    --hair: #e6e2db;
+    --pos: #0a5f4c;
+    --warn: #8a5a00;
+    --neg: #c22030;
+    --sans: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Consolas, monospace;
+    color-scheme: light;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink-2);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .deck { display: block; }
+
+  .slide {
+    position: relative;
+    min-height: 86vh;
+    padding: 72px 8vw 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-bottom: 1px solid var(--hair);
+    scroll-margin-top: 0;
+  }
+
+  .slide--dark {
+    background: var(--ink);
+    color: #cdc9c1;
+    border-bottom-color: #3a3733;
+  }
+
+  .slide__no {
+    position: absolute;
+    top: 32px;
+    left: 8vw;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--faint);
+    letter-spacing: 0.04em;
+  }
+  .slide--dark .slide__no { color: #6b665e; }
+
+  .wrap { max-width: 1020px; width: 100%; }
+
+  h1, h2 {
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0;
+    text-wrap: balance;
+    letter-spacing: -0.02em;
+  }
+  .slide--dark h1, .slide--dark h2 { color: var(--ground); }
+
+  h1 { font-size: clamp(38px, 5.4vw, 68px); line-height: 1.04; }
+  h2 { font-size: clamp(27px, 3.4vw, 42px); line-height: 1.12; }
+
+  .eyebrow {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 22px;
+  }
+  .slide--dark .eyebrow { color: #8a847a; }
+
+  p { margin: 20px 0 0; max-width: 62ch; }
+  p.lead { font-size: clamp(19px, 2vw, 23px); line-height: 1.5; color: var(--ink-2); }
+  .slide--dark p, .slide--dark p.lead { color: #b3aea5; }
+  strong { font-weight: 500; color: var(--ink); }
+  .slide--dark strong { color: var(--ground); }
+
+  .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+  /* the mark: three blocks stepping up, the product's own subject */
+  .mark { display: block; }
+  .mark rect { fill: currentColor; }
+
+  .brandrow { display: flex; align-items: center; gap: 16px; color: var(--ink); }
+  .brandname { font-size: 26px; font-weight: 600; letter-spacing: -0.01em; }
+
+  /* the headline figure */
+  .big {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: clamp(56px, 11vw, 132px);
+    line-height: 0.95;
+    letter-spacing: -0.045em;
+    font-variant-numeric: tabular-nums;
+    color: var(--ground);
+    margin: 10px 0 0;
+  }
+  .bigsub { margin-top: 26px; font-size: 18px; color: #8a847a; max-width: 56ch; }
+
+  /* the two fields, the memorable frame */
+  .fields { display: grid; gap: 0; margin-top: 44px; max-width: 860px; }
+  .field {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    align-items: baseline;
+    padding: 22px 0;
+    border-top: 1px solid var(--hair);
+  }
+  .field:last-child { border-bottom: 1px solid var(--hair); }
+  .field__name { font-family: var(--mono); font-size: 15px; color: var(--muted); }
+  .field__val {
+    font-family: var(--mono);
+    font-size: clamp(18px, 2.6vw, 30px);
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+  .field--stale .field__name,
+  .field--stale .field__val { color: var(--faint); }
+  .field--stale .field__val { text-decoration: line-through; text-decoration-color: var(--rule); }
+  .field--live .field__val { color: var(--pos); }
+  .field__tag {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-left: 12px;
+    color: var(--warn);
+  }
+
+  /* findings, a real list of three */
+  .finds { display: grid; gap: 0; margin-top: 40px; }
+  .find {
+    display: grid;
+    grid-template-columns: 132px 1fr;
+    gap: 32px;
+    padding: 26px 0;
+    border-top: 1px solid var(--hair);
+    align-items: start;
+  }
+  .find:last-child { border-bottom: 1px solid var(--hair); }
+  .find__fig {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 27px;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+  .find__t { font-weight: 500; color: var(--ink); }
+  .find p { margin-top: 6px; font-size: 15.5px; }
+
+  /* what you do: three columns */
+  .does { display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px; margin-top: 44px; }
+  .does > div { border-top: 2px solid var(--ink); padding-top: 18px; }
+  .does h3 { margin: 0; font-size: 17px; font-weight: 600; color: var(--ink); }
+  .does p { margin-top: 8px; font-size: 15px; }
+
+  .road { display: grid; gap: 0; margin-top: 40px; counter-reset: r; }
+  .road > div {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    gap: 24px;
+    padding: 20px 0;
+    border-top: 1px solid var(--hair);
+  }
+  .road > div:last-child { border-bottom: 1px solid var(--hair); }
+  .road > div::before {
+    counter-increment: r;
+    content: counter(r);
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--faint);
+    padding-top: 3px;
+  }
+  .road h3 { margin: 0; font-size: 17px; font-weight: 500; color: var(--ink); }
+  .road p { margin-top: 5px; font-size: 15px; max-width: 66ch; }
+
+  .plain { display: grid; gap: 14px; margin-top: 38px; max-width: 70ch; }
+  .plain > div { padding-left: 22px; position: relative; font-size: 16px; }
+  .plain > div::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 11px;
+    width: 9px; height: 1px;
+    background: var(--rule);
+  }
+
+  .links { display: flex; flex-wrap: wrap; gap: 14px 40px; margin-top: 40px; }
+  .links a {
+    font-family: var(--mono);
+    font-size: 17px;
+    color: var(--ground);
+    text-decoration: none;
+    border-bottom: 1px solid #57534b;
+    padding-bottom: 3px;
+  }
+  .links a:hover { border-bottom-color: var(--ground); }
+  .links a:focus-visible { outline: 2px solid var(--ground); outline-offset: 3px; }
+
+  .foot {
+    position: fixed;
+    right: 18px;
+    bottom: 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--faint);
+    background: var(--ground);
+    padding: 4px 8px;
+    border: 1px solid var(--hair);
+    border-radius: 2px;
+    pointer-events: none;
+  }
+
+  @media (max-width: 860px) {
+    .does { grid-template-columns: 1fr; gap: 28px; }
+    .find { grid-template-columns: 1fr; gap: 8px; }
+    .slide { padding: 60px 6vw 64px; min-height: auto; }
+    .foot { display: none; }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .step1, .step2, .step3 { animation: rise 620ms cubic-bezier(.2,.7,.3,1) both; }
+    .step1 { animation-delay: 60ms; }
+    .step2 { animation-delay: 200ms; }
+    .step3 { animation-delay: 340ms; }
+    @keyframes rise {
+      from { transform: translateY(7px); opacity: 0.15; }
+      to   { transform: translateY(0);   opacity: 1; }
+    }
+  }
+</style>
+
+<div class="deck">
+
+  <section class="slide" id="s1">
+    <span class="slide__no">Stocklana · Solana Foundation</span>
+    <div class="wrap">
+      <div class="brandrow">
+        <svg class="mark" viewBox="0 0 32 26" width="52" height="42" aria-hidden="true">
+          <rect class="step1" x="4" y="18" width="5.5" height="4"></rect>
+          <rect class="step2" x="10" y="11" width="11.5" height="4"></rect>
+          <rect class="step3" x="22" y="4" width="6" height="4"></rect>
+        </svg>
+        <span class="brandname">ExDate</span>
+      </div>
+      <h1 style="margin-top:40px">Your tokenized stocks paid you.<br>Nothing told you.</h1>
+      <p class="lead">A dividend on a tokenized stock arrives with no transaction, no notification,
+        and no change to the number of tokens in your wallet. We found $11,984,613 of them.</p>
+    </div>
+  </section>
+
+  <section class="slide" id="s2">
+    <span class="slide__no">01 · The problem</span>
+    <div class="wrap">
+      <div class="eyebrow">What happens when AAPLx pays</div>
+      <h2>Apple has paid five dividends on Solana. Nothing told the people who held it.</h2>
+      <p class="lead">There is no transfer. The token count is identical before and after. What
+        moves is a multiplier stored on the token, and every holder's balance is worth more the
+        instant the issuer nudges it.</p>
+      <p>No wallet surfaces it. No explorer records it. No portfolio tracker accounts for it.
+        You can hold Apple through AAPLx for a year, be paid five times, and have no way to
+        find out.</p>
+    </div>
+  </section>
+
+  <section class="slide" id="s3">
+    <span class="slide__no">02 · Why nothing shows it</span>
+    <div class="wrap">
+      <div class="eyebrow">AAPLx, read from Solana mainnet</div>
+      <h2>The obvious field is the stale one, and reading it fails without an error.</h2>
+      <div class="fields">
+        <div class="field field--stale">
+          <span class="field__name">multiplier<span class="field__tag">stale</span></span>
+          <span class="field__val">1.0026642075893797</span>
+        </div>
+        <div class="field field--live">
+          <span class="field__name">newMultiplier</span>
+          <span class="field__val">1.0032690125398187</span>
+        </div>
+      </div>
+      <p><strong>newMultiplier</strong> takes over the moment
+        <span class="mono">newMultiplierEffectiveTimestamp</span> passes, and the chain never
+        rewrites the old field. On a cash dividend the error is 0.06%. On NFLXx after its
+        ten-for-one split, an app reading the obvious field shows <strong>a tenth of the real
+        balance</strong>.</p>
+    </div>
+  </section>
+
+  <section class="slide slide--dark" id="s4">
+    <span class="slide__no">03 · What it adds up to</span>
+    <div class="wrap">
+      <div class="eyebrow">Paid to holders with no transaction, as of 13 September 2026</div>
+      <div class="big">$11,984,613</div>
+      <p class="bigsub">Across <strong>624 payments</strong> on <strong>325 tokenized
+        stocks</strong>, out of 832 issued on Solana. 628 payments across 329 stocks reached a
+        holder; four of those stocks had no usable price, so they are counted and left out of the
+        money. Every figure read from the chain and from the issuer&rsquo;s own records.</p>
+    </div>
+  </section>
+
+  <section class="slide" id="s4b">
+    <span class="slide__no">04 · How big this actually is</span>
+    <div class="wrap">
+      <h2>It is not an xStocks problem. The second issuer is larger than the first.</h2>
+      <div class="fields">
+        <div class="field">
+          <span class="field__name">Ondo Global Markets &mdash; 395 assets</span>
+          <span class="field__val">$831.7m</span>
+        </div>
+        <div class="field">
+          <span class="field__name">Backed / xStocks &mdash; 832 assets</span>
+          <span class="field__val">$608.3m</span>
+        </div>
+        <div class="field field--live">
+          <span class="field__name">Holders, xStocks alone, +83% in 30 days</span>
+          <span class="field__val">300,000+</span>
+        </div>
+      </div>
+      <p>We did not take Ondo&rsquo;s word for it. Their repository says GM tokens carry the
+        <span class="mono">ScaledUiAmount</span> extension, so we read the mint. AAPLon, Ondo&rsquo;s
+        Apple, carries a multiplier of <strong>1.003376073740221</strong>. Apple&rsquo;s other
+        tokenized form, AAPLx, sits at <strong>1.003269012539819</strong>. Same company, two
+        tokens, two different accumulated dividend factors, and nothing compares them.</p>
+      <p>Roughly <strong>1,200 mints and $1.4bn</strong> already pay this way on Solana, every one
+        of them invisible to its holders in the same manner. <span class="mono">rwa.xyz</span>,
+        13 September 2026.</p>
+    </div>
+  </section>
+
+  <section class="slide" id="s5">
+    <span class="slide__no">05 · What we found measuring it</span>
+    <div class="wrap">
+      <h2>Three things the numbers only show once you join them to a holder.</h2>
+      <div class="finds">
+        <div class="find">
+          <div class="find__fig">900%</div>
+          <div>
+            <div class="find__t">A split is not a dividend.</div>
+            <p>Of 654 recorded corporate actions, 641 are dividends and 13 are splits or corrections, and
+              651 of the 654 have actually taken effect.
+              Count them all as income and the total reads $14.3m instead of $12.0m &mdash; 19%
+              too much. But the error is not spread across the market: it lands entirely on the
+              twelve stocks that split. Netflix went from 1.0 to 10.0 and holders received nothing,
+              so a tracker reading that as income tells a Netflix holder they gained
+              <strong>900%</strong> on a position worth exactly what it was.</p>
+          </div>
+        </div>
+        <div class="find">
+          <div class="find__fig">38 / 539</div>
+          <div>
+            <div class="find__t">The issuer's forward calendar is 93% stale.</div>
+            <p>It serves 539 rows as upcoming. 482 already activated, 14 are the same event listed
+              twice, and 5 carry no date at all &mdash; and an undated row is the dangerous one,
+              because <span class="mono">+new Date(null)</span> is zero and it sorts silently into
+              the distant past. 38 rows are genuinely ahead. Build a calendar off that endpoint
+              without checking the clock and your number is fourteen times too large.</p>
+          </div>
+        </div>
+        <div class="find">
+          <div class="find__fig">90%</div>
+          <div>
+            <div class="find__t">The dividend market is one instrument.</div>
+            <p>Nine tenths of the total is STRCx, a variable-rate preferred that pays like a bond.
+              The other 324 stocks come to $1.2m between them, and across all 325 priced payers the
+              typical one has paid 0.370% of its own value since launch. Tokenized equity dividends are tiny — which is exactly why nobody
+              noticed they were invisible.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" id="s6">
+    <span class="slide__no">06 · The product</span>
+    <div class="wrap">
+      <div class="eyebrow">Live at exdate-ten.vercel.app</div>
+      <h2>Three things you can do, right now, without connecting anything.</h2>
+      <div class="does">
+        <div>
+          <h3>Paste a wallet</h3>
+          <p>Get a statement: what was paid, when, per holding, with the multiplier change behind
+            every payment.</p>
+        </div>
+        <div>
+          <h3>Type a ticker</h3>
+          <p>See what that stock has paid since launch, when the next payment lands, the tax
+            withheld, and whether the tokens are really backed by shares in custody.</p>
+        </div>
+        <div>
+          <h3>Read the calendar</h3>
+          <p>Every payment still to come, filtered against the clock on every request, with the
+            date each one activates.</p>
+        </div>
+      </div>
+      <p>Entirely read-only. No wallet connection, no transaction, no custody, no contract.
+        It reads public state and states what it found.</p>
+    </div>
+  </section>
+
+  <section class="slide" id="s7">
+    <span class="slide__no">07 · Why Solana</span>
+    <div class="wrap">
+      <h2>The mechanism barely exists off Solana.</h2>
+      <p class="lead">Paying a dividend by moving a multiplier on the token is a Token-2022
+        extension. Its EVM analogue, ERC-8056, runs mainly on Robinhood Chain, where Scallar
+        already indexes it. Almost every tokenized equity that pays this way is on Solana, so
+        the problem is Solana-native, the fix has to be, and every byte of data needed to
+        build it is already public.</p>
+    </div>
+  </section>
+
+  <section class="slide" id="s8">
+    <span class="slide__no">08 · What a prize builds</span>
+    <div class="wrap">
+      <h2>The site proves the problem. The fix is not a website.</h2>
+      <div class="road">
+        <div>
+          <div>
+            <h3>The correct reader, so the fix travels &mdash; 0&ndash;3 months</h3>
+            <p>An MIT package that resolves the multiplier against its effective timestamp, tells
+              a dividend from a split by the issuer&rsquo;s own reason field, and rebuilds the
+              balance a wallet held on any past date. Ours showing these payments helps only the
+              people who find us; one integration in Phantom, Solflare, Backpack or Step reaches
+              more holders than this site ever will. It makes the hard half free for everyone,
+              including the competitor.</p>
+          </div>
+        </div>
+        <div>
+          <div>
+            <h3>Tell people before it happens &mdash; 1&ndash;4 months</h3>
+            <p>Every payment is knowable a day ahead: the issuer publishes it and the change is
+              staged on chain with a future effective timestamp. Email, Telegram, and a webhook
+              apps can subscribe to. This is what turns a lookup into something people come back
+              to.</p>
+          </div>
+        </div>
+        <div>
+          <div>
+            <h3>The statement nobody can produce &mdash; 2&ndash;6 months</h3>
+            <p>Per wallet, per tax year: date, event, multiplier before and after, balance held
+              that day, tokens received, value, withholding already applied. The clock on this is
+              regulatory, not commercial. <strong>1099-DA cost-basis reporting begins with
+              transactions on or after 1 January 2026</strong>, first forms early 2027.</p>
+          </div>
+        </div>
+        <div>
+          <div>
+            <h3>Every issuer, one record &mdash; 4&ndash;9 months</h3>
+            <p>Ondo first, because it is the larger set and uses the identical extension. Then
+              Backpack, then whoever is next. The reader from phase one makes each new issuer a
+              configuration rather than a rewrite.</p>
+          </div>
+        </div>
+        <div>
+          <div>
+            <h3>The holders who are not in a wallet &mdash; 6&ndash;12 months</h3>
+            <p>On-chain is only 14&ndash;20% of cumulative xStocks volume, so the majority bought
+              on Kraken or Bybit, where an address lookup finds nothing. Whether those venues pass
+              the dividend through, and whether they tell the customer, is undocumented. Finding
+              out is journalism as much as engineering.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" id="s8b">
+    <span class="slide__no">09 · How it pays for itself</span>
+    <div class="wrap">
+      <h2>This category already has a price. We are the expensive half of it.</h2>
+      <p class="lead">LSEG publishes a corporate-actions rate card: <strong>&pound;31,100 a year</strong>
+        for one ISO 15022 data file, and <strong>&pound;8,685 to &pound;64,200</strong> for the right to
+        redistribute it, scaling with how many customers you put it in front of. That ladder is
+        the exact shape of a wallet integration.</p>
+      <p>And the feed is the cheap part. ISSA puts data sourcing at <strong>56% of the total cost
+        of processing a corporate action</strong>, and says procuring the data costs less than
+        &ldquo;interpretations, cleansing, enrichment&rdquo;. A corporate-action unit costs
+        <strong>$3&ndash;5m a year</strong> to run, and over <strong>45% of brokers have taken a
+        $1m+ loss</strong> from a processing error. We do not sell a feed. We sell the
+        reconciled result.</p>
+      <div class="road">
+        <div>
+          <div>
+            <h3>Free, permanently &mdash; $0</h3>
+            <p>Any address, any holder, any judge. No sign-in, no wallet connection. Plus the
+              open-source reader. A lookup is a handful of RPC reads, so this stays cheap.</p>
+          </div>
+        </div>
+        <div>
+          <div>
+            <h3>The statement &mdash; $29&ndash;49 per wallet-year</h3>
+            <p>The dated, exportable, filing-ready record. Every comparable product gives tracking
+              away and charges for the artifact: Koinly, CoinLedger, CoinTracker and Awaken all
+              land between $29 and $99 per tax year.</p>
+          </div>
+        </div>
+        <div>
+          <div>
+            <h3>Integration &mdash; $200&ndash;1,000/mo</h3>
+            <p>Machine-readable access, freshness guarantees, and the right to show the result to
+              your own users. Helius, Birdeye and Shyft all price in this band.</p>
+          </div>
+        </div>
+        <div>
+          <div>
+            <h3>Redistribution &mdash; quoted, on LSEG&rsquo;s ladder</h3>
+            <p>Exchanges, custodians, issuers and funds: bulk history, event webhooks, an audit
+              trail, and a signed artifact they can hand a regulator.</p>
+          </div>
+        </div>
+      </div>
+      <p>Pyth proved the model at Solana speed: core feeds free forever, <strong>$500/mo to
+        display, $2,500/mo to redistribute</strong>, and <strong>$10.4m ARR within eleven
+        months</strong>. The fence is the licence, not the numbers.</p>
+    </div>
+  </section>
+
+  <section class="slide" id="s9">
+    <span class="slide__no">10 · What it is not</span>
+    <div class="wrap">
+      <h2>Stated plainly, because the whole product is a claim about accuracy.</h2>
+      <div class="plain">
+        <div>It is read-only. It tells you what happened; it does not let you act on it.</div>
+        <div>Dollar figures value the tokens the issuer reports as circulating — its own published
+          number, covering every chain a token is issued on.</div>
+        <div>Dividends arrive as extra tokens, not cash, so dollar figures value that growth at
+          today's price and move with the stock.</div>
+        <div>Wallet figures use the balance the wallet actually held on each payment date, read
+          from the last transaction before it. Where an account trades too often for that walk to
+          reach back, the row is labelled <strong>estimated</strong> and the headline says how
+          many.</div>
+        <div>Before submitting, adversarial reviewers were told to prove our numbers false by
+          routes the app does not use. They confirmed most and broke several. Every one is fixed
+          and written up, including the one where our own headline was seven times too high, and
+          the one where every wallet figure was priced against today&rsquo;s balance instead of the
+          balance held on the day.</div>
+        <div><strong>We are not the first, and one of them is close.</strong> SolanaRWA has been
+          turning these same multiplier changes into per-holder dividend income since May 2026, on
+          this chain and this token extension. Lido has let anyone paste an Ethereum address and
+          read their rebase history for five years. Dinari keeps per-account dividend records on
+          EVM chains behind KYC. We searched twice, and we name them ourselves.</div>
+        <div>The events themselves are the issuer's, published free and already labelled dividend
+          or split. We did not discover them and we do not claim them. What we could not find is
+          the backward half: SolanaRWA compares each refresh against its last snapshot, so it sees
+          payments from the day you sign up, for a wallet you connect and control &mdash; its own
+          writing calls reconstructing the history instead &ldquo;possible but more complex&rdquo;.
+          Paste any address here, with no sign-in, and read what it was already paid, against the
+          balance it actually held on each date, with splits kept separate from dividends.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide slide--dark" id="s10">
+    <span class="slide__no">11</span>
+    <div class="wrap">
+      <div class="brandrow" style="color:#f5f4f1">
+        <svg class="mark" viewBox="0 0 32 26" width="44" height="36" aria-hidden="true">
+          <rect x="4" y="18" width="5.5" height="4"></rect>
+          <rect x="10" y="11" width="11.5" height="4"></rect>
+          <rect x="22" y="4" width="6" height="4"></rect>
+        </svg>
+        <span class="brandname">ExDate</span>
+      </div>
+      <h2 style="margin-top:36px">$11,984,613 was paid to people who were never told.<br>Now they
+        can be.</h2>
+      <div class="links">
+        <a href="https://exdate-ten.vercel.app">exdate-ten.vercel.app</a>
+        <a href="https://github.com/AlperJ/exdate">github.com/AlperJ/exdate</a>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="foot" id="foot">1 / 10</div>
+
+<script>
+  (function () {
+    var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+    var foot = document.getElementById("foot");
+
+    function current() {
+      var best = 0, bestDist = Infinity;
+      for (var i = 0; i < slides.length; i++) {
+        var d = Math.abs(slides[i].getBoundingClientRect().top);
+        if (d < bestDist) { bestDist = d; best = i; }
+      }
+      return best;
+    }
+
+    function paint() { foot.textContent = (current() + 1) + " / " + slides.length; }
+
+    document.addEventListener("keydown", function (e) {
+      var i = current();
+      if (e.key === "ArrowDown" || e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") {
+        if (i < slides.length - 1) { slides[i + 1].scrollIntoView({ behavior: "smooth" }); e.preventDefault(); }
+      } else if (e.key === "ArrowUp" || e.key === "ArrowLeft" || e.key === "PageUp") {
+        if (i > 0) { slides[i - 1].scrollIntoView({ behavior: "smooth" }); e.preventDefault(); }
+      } else if (e.key === "Home") {
+        slides[0].scrollIntoView({ behavior: "smooth" }); e.preventDefault();
+      } else if (e.key === "End") {
+        slides[slides.length - 1].scrollIntoView({ behavior: "smooth" }); e.preventDefault();
+      }
+    });
+
+    window.addEventListener("scroll", paint, { passive: true });
+    paint();
+  })();
+</script>
