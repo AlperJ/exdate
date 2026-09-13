@@ -1,0 +1,59 @@
+name: Re-measure the market
+
+# The market-wide dollar totals are the one figure on the site that is a measurement
+# rather than a live read, because pricing 832 assets against their own circulating
+# supply takes minutes. Left to a human it goes stale silently, which is the exact
+# failure this project exists to point at. So it measures itself.
+#
+# Twice a day, and on demand. The snapshot refuses to write a file whose chart and
+# headline disagree, so a bad run fails loudly instead of publishing a wrong number.
+
+on:
+  schedule:
+    # 05:10 and 17:10 UTC, comfortably after the 23:55Z activation window.
+    - cron: "10 5,17 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - run: npm ci
+
+      - name: Measure
+        env:
+          SOLANA_RPC_URL: ${{ secrets.SOLANA_RPC_URL }}
+        run: npm run snapshot
+
+      - name: Commit if anything moved
+        id: commit
+        run: |
+          git config user.name "exdate-bot"
+          git config user.email "noreply@anthropic.com"
+          if git diff --quiet -- data/market.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "nothing moved"
+          else
+            git add data/market.json
+            git commit -m "Re-measured $(date -u +'%Y-%m-%d %H:%M')Z"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Vercel is not wired to this repository, so the commit alone does not publish.
+      # Add a Deploy Hook URL as the DEPLOY_HOOK secret and this step ships it.
+      # Without the secret the measurement is still committed, just not yet live.
+      - name: Publish
+        if: steps.commit.outputs.changed == 'true' && env.DEPLOY_HOOK != ''
+        env:
+          DEPLOY_HOOK: ${{ secrets.DEPLOY_HOOK }}
+        run: curl -fsS -X POST "$DEPLOY_HOOK"
