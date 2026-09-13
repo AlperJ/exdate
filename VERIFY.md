@@ -327,3 +327,38 @@ throws rather than write a file where the two disagree.
 page can miscount them. The calendar prints the breakdown: 539 rows are 482 already
 activated, 14 repeats, 5 undated and 38 genuinely ahead. Those four numbers sum to 539.
 
+## Claim audit, 13 September 2026
+
+Forty-five agents read every published number and claim in the pitch deck, `SUBMISSION.md`
+and the site against the measured data, then adversarially verified each finding against the
+files themselves. Twenty-eight survived verification. The ones that mattered:
+
+**The split-as-income figure was about sixty times too large, and it was live.** The method
+page told readers that counting Netflix's split as income would add about **$106m** to the
+front page. It would add **$1,145,811**. The $106m was computed when the dollar basis was
+the whole mint supply; correcting that basis to the issuer's circulating figure cut the
+headline sevenfold, and this derived number was never recomputed. It survived every earlier
+review because nothing on the site produced it, so nothing contradicted it.
+
+The snapshot now measures it. Counting every multiplier change as income gives
+**$14,292,658** against the true **$11,984,609** — 19% too much — and the largest single
+contributor is **TQQQx at $1,948,218**, not Netflix. The same stale pair ($151m, $174m)
+was in `SUBMISSION.md` and the deck and is gone from both.
+
+**The wallet's payment count included splits.** `dividendCount` summed `p.paid.length`,
+every multiplier event the wallet held through, under a label reading "dividends credited
+while held". A wallet holding a stock that split was told it had been paid for it. The asset
+pages had always filtered on `isIncome`; the wallet now does too.
+
+**"Largest payers, 8 of 832"** labelled a table drawn from the 325 payers we can price.
+
+**"Read live from the issuer's forward feed on every request"** sat in the same file as
+`export const revalidate = 900`.
+
+**"What nobody does is join an event to a wallet"** was in the section that promises rigour.
+Dinari keeps per-account dividend records on EVM chains and Scallar indexes the same class of
+multiplier on Robinhood Chain. The page now names them and narrows the claim to what is ours.
+
+**The deck described the wallet methodology we replaced** — "figures assume a position was
+held unchanged since it was acquired" — and undercounted its own corrections as "three".
+
