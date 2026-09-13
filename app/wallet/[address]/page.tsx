@@ -186,8 +186,8 @@ export default async function WalletPage({ params }: { params: Promise<{ address
           <li key={i}>{n}</li>
         ))}
         <li>
-          Per-payment figures assume the balance was unchanged since the position was acquired.
-          Buying or selling between events shifts the real number.
+          Each payment is valued against the balance this wallet actually held on that date, read
+          from the last transaction before it. Buying or selling between payments is accounted for.
         </li>
       </ol>
 

@@ -202,8 +202,9 @@ const balance = (Number(rawAmount) / 10 ** decimals) * m;`}
               and HyperEVM.
             </li>
             <li>
-              Per-wallet figures assume a position was held unchanged since it was acquired. Buying
-              or selling between payouts shifts the real number.
+              Per-wallet figures use the balance the wallet actually held on each payment date,
+              read from the transaction immediately before it. Buying or selling between payouts is
+              accounted for, not assumed away.
             </li>
             <li>
               A dividend is credited as growth in the number of tokens. Valuing it in dollars uses
@@ -211,8 +212,10 @@ const balance = (Number(rawAmount) / 10 ** decimals) * m;`}
               the token gain is fixed.
             </li>
             <li>
-              Positions whose token account has too much history to date cheaply are shown with the
-              asset&apos;s full payout record rather than a guessed acquisition date.
+              An account that trades constantly can outrun that walk. Where it does, the payment
+              row is labelled <b>estimated</b> on the wallet page, the headline says how many rows
+              are estimated and that the figure will move between loads, and those rows fall back
+              to today&apos;s balance. On ordinary wallets there are none.
             </li>
           </ol>
         </div>
