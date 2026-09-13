@@ -15,3 +15,7 @@ owners.txt
 
 .vercel
 .env*
+
+# ham video cekimleri, depoya girmez
+video/cekim/
+video/*.mp4
