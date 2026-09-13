@@ -208,6 +208,22 @@
     background: var(--rule);
   }
 
+  /* Screenshots of the running product. A hairline and a soft lift so they read as a
+     screen rather than as an illustration, on a deck that is otherwise flat. */
+  .shot {
+    margin-top: 34px;
+    border: 1px solid var(--rule);
+    box-shadow: 0 1px 2px rgba(38, 36, 31, 0.06), 0 12px 28px rgba(38, 36, 31, 0.09);
+    background: #fff;
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .shot--crop { object-fit: cover; object-position: top center; max-height: 56vh; }
+  .cap { margin-top: 16px; font-size: 14.5px; color: var(--muted); max-width: 78ch; }
+  .slide--shot { justify-content: flex-start; padding-top: 64px; }
+  .slide--shot .wrap { max-width: 1180px; }
+
   .links { display: flex; flex-wrap: wrap; gap: 14px 40px; margin-top: 40px; }
   .links a {
     font-family: var(--mono);
@@ -267,8 +283,10 @@
         <span class="brandname">ExDate</span>
       </div>
       <h1 style="margin-top:40px">Your tokenized stocks paid you.<br>Nothing told you.</h1>
-      <p class="lead">A dividend on a tokenized stock arrives with no transaction, no notification,
-        and no change to the number of tokens in your wallet. We found $11,984,613 of them.</p>
+      <p class="lead">A dividend on a tokenized stock arrives with no transaction, no
+        notification, and nothing in any wallet, explorer or tracker to say it happened. We read
+        every one ever paid on Solana and added them up: <strong>$11,984,608</strong>, across 628
+        payments, to <strong>300,000 people</strong> who were never told.</p>
     </div>
   </section>
 
@@ -313,7 +331,7 @@
     <span class="slide__no">03 · What it adds up to</span>
     <div class="wrap">
       <div class="eyebrow">Paid to holders with no transaction, as of 13 September 2026</div>
-      <div class="big">$11,984,613</div>
+      <div class="big">$11,984,608</div>
       <p class="bigsub">Across <strong>624 payments</strong> on <strong>325 tokenized
         stocks</strong>, out of 832 issued on Solana. 628 payments across 329 stocks reached a
         holder; four of those stocks had no usable price, so they are counted and left out of the
@@ -420,8 +438,41 @@
     </div>
   </section>
 
+  <section class="slide slide--shot" id="s6a">
+    <span class="slide__no">07 · The front page</span>
+    <div class="wrap">
+      <h2>One real payment, on the page, with nothing to click.</h2>
+      <p class="cap">AAPLx, 8 August 2026. A holder of 100 tokens went from 100.266421 to
+        100.326901 and the transaction list says <strong>none</strong>. Read from the chain and
+        dated, not drawn.</p>
+      <img class="shot shot--crop" src="shots/home.png" alt="ExDate front page showing a real AAPLx dividend and a total of $11,984,608" width="1440" height="900">
+    </div>
+  </section>
+
+  <section class="slide slide--shot" id="s6b">
+    <span class="slide__no">08 · A real wallet</span>
+    <div class="wrap">
+      <h2>Paste an address. This one was paid $93.38 and never knew.</h2>
+      <p class="cap">Eighteen positions, twenty-eight payments, the oldest from 14 August 2025 &mdash;
+        thirteen months a tracker that starts at signup would show as zero. No sign-in, no wallet
+        connection, and you can paste this address yourself.</p>
+      <img class="shot shot--crop" src="shots/wallet.png" alt="A wallet statement showing $93.38 paid across 28 payments on 18 positions" width="1440" height="1200">
+    </div>
+  </section>
+
+  <section class="slide slide--shot" id="s6c">
+    <span class="slide__no">09 · The proof, per payment</span>
+    <div class="wrap">
+      <h2>Every figure opens into the multiplier that produced it.</h2>
+      <p class="cap">NVIDIA paid this wallet five times. Each row carries the multiplier before and
+        after, the tokens that appeared, and what they were worth &mdash; priced against the balance
+        the wallet actually held that day, read from the transaction immediately before it.</p>
+      <img class="shot shot--crop" src="shots/proof.png" alt="NVDAx payment history expanded, showing five dividends with multiplier transitions" width="1440" height="1250">
+    </div>
+  </section>
+
   <section class="slide" id="s7">
-    <span class="slide__no">07 · Why Solana</span>
+    <span class="slide__no">10 · Why Solana</span>
     <div class="wrap">
       <h2>The mechanism barely exists off Solana.</h2>
       <p class="lead">Paying a dividend by moving a multiplier on the token is a Token-2022
@@ -433,7 +484,7 @@
   </section>
 
   <section class="slide" id="s8">
-    <span class="slide__no">08 · What a prize builds</span>
+    <span class="slide__no">11 · What a prize builds</span>
     <div class="wrap">
       <h2>The site proves the problem. The fix is not a website.</h2>
       <div class="road">
@@ -488,7 +539,7 @@
   </section>
 
   <section class="slide" id="s8a">
-    <span class="slide__no">09 · How it holds the data</span>
+    <span class="slide__no">12 · How it holds the data</span>
     <div class="wrap">
       <h2>No database. Every wallet is read from the chain when you ask.</h2>
       <p class="lead">An index only knows what it was running for. That cold start is exactly
@@ -522,7 +573,7 @@
   </section>
 
   <section class="slide" id="s8b">
-    <span class="slide__no">10 · How it pays for itself</span>
+    <span class="slide__no">13 · How it pays for itself</span>
     <div class="wrap">
       <h2>This category already has a price. We are the expensive half of it.</h2>
       <p class="lead">LSEG publishes a corporate-actions rate card: <strong>&pound;31,100 a year</strong>
@@ -573,7 +624,7 @@
   </section>
 
   <section class="slide" id="s9">
-    <span class="slide__no">11 · What it is not</span>
+    <span class="slide__no">14 · What it is not</span>
     <div class="wrap">
       <h2>Stated plainly, because the whole product is a claim about accuracy.</h2>
       <div class="plain">
@@ -608,7 +659,7 @@
   </section>
 
   <section class="slide slide--dark" id="s10">
-    <span class="slide__no">12</span>
+    <span class="slide__no">15</span>
     <div class="wrap">
       <div class="brandrow" style="color:#f5f4f1">
         <svg class="mark" viewBox="0 0 32 26" width="44" height="36" aria-hidden="true">
@@ -618,8 +669,10 @@
         </svg>
         <span class="brandname">ExDate</span>
       </div>
-      <h2 style="margin-top:36px">$11,984,613 was paid to people who were never told.<br>Now they
-        can be.</h2>
+      <h2 style="margin-top:36px">$11,984,608 was paid to people<br>who were never told.</h2>
+      <p class="lead">300,000 hold these today, up 83% in thirty days, and the number of tokens
+        paying this way doubled the moment Ondo shipped on the same extension. Every one of those
+        holders has a payment record that does not exist anywhere. Paste any address and it does.</p>
       <div class="links">
         <a href="https://exdate-ten.vercel.app">exdate-ten.vercel.app</a>
         <a href="https://github.com/AlperJ/exdate">github.com/AlperJ/exdate</a>
