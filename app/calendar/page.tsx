@@ -122,8 +122,8 @@ export default async function CalendarPage() {
 
       <ol className="notes">
         <li>
-          Read live from the issuer&apos;s forward feed on every request, then filtered against the
-          clock. The feed serves {market.feedRows} rows under the heading
+          Read from the issuer&apos;s forward feed and filtered against the clock each time this
+          page is rebuilt, which is at most fifteen minutes apart. The feed serves {market.feedRows} rows under the heading
           &ldquo;upcoming&rdquo;, and they are not {market.feedRows} upcoming events:{" "}
           {market.feedRows - market.feedDistinct} are repeats of an event already in the list,{" "}
           {market.feedUndated} carry no date at all, and {market.feedAlreadyActivated} have already

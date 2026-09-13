@@ -46,7 +46,8 @@ issued on Solana:
 | Payments genuinely still to come | **38** |
 
 Every one of those figures is read from Solana mainnet and from the issuer's public
-records. Nothing is estimated.
+records, except the dollar total, which also needs a price: each token is valued at the
+underlying equity's price, not at the thin on-chain quote. Nothing is projected or modelled.
 
 The two scopes are deliberately different and the site says so. 641 dividend events exist
 in the issuer's records; three have not activated yet, and ten sit on tokens with zero
@@ -85,14 +86,18 @@ the correct read is non-obvious and the incorrect one fails silently.
 
 ### What we found while building it
 
-Three findings that did not exist before we measured:
+Three things that only became visible once we measured the whole set. The labels are the
+issuer's and we do not claim them; what they add up to is ours:
 
-**A split is not a dividend, and the difference is worth $151m.** Of 654 multiplier changes
-across all 832 assets, 641 are dividends and 13 are splits, reverse splits or
-administrative corrections. Count the splits as income and the total reads $174m instead of
-$12m. Netflix split ten for one and its multiplier went from 1.0 to 10.0; holders received
-nothing. Any tracker that treats a multiplier change as income will tell a Netflix holder
-they made 900%.
+**A split is not a dividend, and counting them as one costs 19% of the headline.** Of 654
+recorded corporate actions across all 832 assets, 641 are dividends and 13 are splits,
+reverse splits or administrative corrections; 651 of the 654 have actually taken effect.
+Count every one of them as income and the total reads $14,292,658 instead of $11,984,609.
+The error is not spread across the market: it lands entirely on the twelve stocks that
+split, the largest single contributor being TQQQx at $1,948,218. Netflix split ten for one
+and its multiplier went from 1.0 to 10.0 while holders received nothing, so a tracker
+reading that as income tells a Netflix holder they gained 900% on a position worth exactly
+what it was.
 
 **The issuer's forward feed is 93% stale, and not only stale.** It serves 539 rows as
 "upcoming". 482 already activated, 14 are the same event listed twice, and 5 carry no date
@@ -135,7 +140,9 @@ in `PRIORART.md`.
 
 ### Why Solana
 
-The mechanism does not exist anywhere else. Paying a dividend by moving a multiplier on the
+The mechanism barely exists off Solana. Its EVM analogue, ERC-8056 scaled UI amount, runs
+mainly on Robinhood Chain, where Scallar already indexes it. Paying a dividend by moving a
+multiplier on the
 token is a Token-2022 extension, and over 90% of tokenized equity lives on Solana. The
 problem is Solana-native, the fix has to be, and the data to fix it is all public.
 
@@ -199,7 +206,7 @@ balance instead of the balance held on the day.
 
 A separate pass read every sentence on the site as three different people: a holder who
 owns 0.6 of a token, a judge with ten minutes, and a developer sent the link to fix wrong
-balances. Thirty findings, in `COPY.md`. The ones that mattered were not stylistic: a
+balances. Thirty-four findings, in `COPY.md`. The ones that mattered were not stylistic: a
 green "Fully backed" badge sitting above two figures that divide to 13%, a dash in the
 paid column that both readers took to mean "paid nothing", and a count that silently shrank
 whenever a price was missing.

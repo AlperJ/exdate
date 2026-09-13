@@ -322,7 +322,9 @@ async function buildReportUncached(wallet: string): Promise<WalletReport> {
       itemisedValueUsd: itemised.reduce((s, p) => s + (p.valueUsd ?? 0), 0),
       hiddenUsd: positions.reduce((s, p) => s + p.hiddenUsd, 0),
       dividendUsd: itemised.reduce((s, p) => s + p.totalUsdGained, 0),
-      dividendCount: itemised.reduce((s, p) => s + p.paid.length, 0),
+      // Only income. A split is a payment row the wallet held through, but nobody was paid
+      // for it, and the label under this number says "dividends".
+      dividendCount: itemised.reduce((s, p) => s + p.paid.filter((e) => e.isIncome).length, 0),
       estimatedRows: estimated,
       positionCount: positions.length,
       itemised: itemised.length,

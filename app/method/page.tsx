@@ -234,8 +234,11 @@ const balance = (Number(rawAmount) / 10 ** decimals) * m;`}
         <div className="section__body">
           <p className="prose">
             The issuer publishes these events openly: its corporate-action feed is free and needs
-            no key, and it labels a dividend differently from a split. None of that is ours. What
-            nobody does is join an event to a wallet and say what a holder was paid.
+            no key, and it labels a dividend differently from a split. None of that is ours, and we
+            are not the first to work this ground. Dinari keeps a per-account dividend record for
+            its own tokens on other chains, behind an API key. Scallar indexes the same kind of
+            multiplier on Robinhood Chain. What we could not find anywhere is this join: an
+            arbitrary Solana wallet nobody has onboarded, an event, and what that wallet was paid.
           </p>
           <p className="prose">
             Before making that claim we read what the Solana surfaces actually ship. Solana

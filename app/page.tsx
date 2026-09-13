@@ -98,7 +98,7 @@ export default async function Home() {
         <div className="section__head">
           <h2 className="section__title">Largest payers</h2>
           <span className="section__meta">
-            8 of {num(assetCount, 0)} · as of {asOf}
+            8 of {num(m.assetsPricedAndPaying, 0)} payers we can price · as of {asOf}
           </span>
         </div>
         <div className="section__body">
