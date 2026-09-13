@@ -40,7 +40,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <nav className="nav">
               <a href="/assets">Assets</a>
               <a href="/calendar">Calendar</a>
-              <a href="/method">How this works</a>
+              <a href="/how-it-works">How it works</a>
+              <a href="/method">Method</a>
             </nav>
           </div>
         </header>

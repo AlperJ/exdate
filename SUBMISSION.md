@@ -175,7 +175,9 @@ problem is Solana-native, the fix has to be, and the data to fix it is all publi
   the transaction immediately before it. Where an account trades too often for that walk to
   reach back, the row is marked estimated on the page and the headline says how many.
 
-All four are stated on the site itself, on the *How this works* page.
+All four are stated on the site itself. *How it works* shows what the product does, with
+screenshots of the running thing; *Method and sources* is the working out, for anyone who
+wants to check us or build against the same data.
 
 ### How big this actually is
 

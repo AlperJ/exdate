@@ -234,9 +234,10 @@ export default async function Home() {
       </section>
 
       <p className="prose prose--standalone">
-        Every figure here is read from Solana and from the issuer&apos;s own records.{" "}
-        <a href="/method">How this works</a> states each source, what the numbers exclude, and who
-        else was already working on this.
+        New here? <a href="/how-it-works">How it works</a> shows what you get, with pictures.
+        Every figure is read from Solana and from the issuer&apos;s own records;{" "}
+        <a href="/method">Method and sources</a> states where each one comes from, what they
+        exclude, and who else was already working on this.
       </p>
 
       <ol className="notes">

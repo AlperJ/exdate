@@ -13,11 +13,17 @@ export default function MethodPage() {
 
   return (
     <>
-      <h1>Method</h1>
+      <h1>Method and sources</h1>
 
       <p className="standfirst">
-        Every figure here is derived from public data that anyone can fetch. This page states which
-        source produced which number, and what the numbers deliberately exclude.
+        This page is the working out. It states which source produced which number, how the
+        multiplier is resolved, what the figures deliberately exclude, and what we got wrong and
+        corrected along the way. It is written for anyone who wants to check us, or who is
+        building against the same data.
+      </p>
+      <p className="prose">
+        If you are here to find out what the site does and what you get from it,{" "}
+        <a href="/how-it-works">How it works</a> is the shorter answer, with pictures.
       </p>
 
       <section className="section">
