@@ -184,33 +184,6 @@ export async function fetchHoldings(owner: string): Promise<TokenHolding[]> {
     .filter((h) => h.rawAmount !== "0");
 }
 
-/**
- * When this token account first appeared, or null if we cannot say cheaply.
- *
- * Signatures come back newest first, so finding the true first one means walking the
- * whole history. That is fine for a personal wallet and ruinous for an AMM pool with
- * hundreds of thousands of transactions. Walk one page: if it is not full, the oldest
- * entry is genuinely the first. If it is full, give up and let the caller show the
- * asset's full payout history instead of inventing a start date.
- *
- * Failed transactions are skipped. A transaction that reverted moved no tokens, so the
- * account did not hold anything because of it: on one test wallet the oldest signature
- * was a failed one and the real first receipt came three and a half minutes later.
- */
-export async function firstSeen(tokenAccount: string): Promise<Date | null> {
-  const ONE_PAGE = 1000;
-  const sigs = await rpc<{ signature: string; blockTime: number | null; err: unknown }[]>(
-    "getSignaturesForAddress",
-    [tokenAccount, { limit: ONE_PAGE }]
-  );
-  if (!sigs?.length || sigs.length >= ONE_PAGE) return null;
-  const oldest = sigs.reduce<number | null>(
-    (min, s) => (!s.err && s.blockTime && (min === null || s.blockTime < min) ? s.blockTime : min),
-    null
-  );
-  return oldest ? new Date(oldest * 1000) : null;
-}
-
 export type LargestAccount = { address: string; amount: string; uiAmountString: string };
 
 /**
@@ -345,16 +318,26 @@ export type BalancePoint = { at: number; raw: number };
  * Where the walk runs out before reaching that point, `coveredFrom` says so and the
  * caller marks those rows estimated rather than quietly using today's balance.
  */
-export type Timeline = { points: BalancePoint[]; coveredFrom: number };
+export type Timeline = {
+  points: BalancePoint[];
+  /** Before this moment we know nothing; 0 means we reached the account's first transaction. */
+  coveredFrom: number;
+  /** When this account first transacted, if the walk got that far. */
+  firstAt: number | null;
+};
 
-const TIMELINE_PAGE = 100;
-const TIMELINE_CAP = 600; // deeper than this buys a handful of rows for ten more seconds
+// A full signature page costs one request whether it holds ten entries or a thousand, and
+// only a handful of transactions are read afterwards. Asking for a thousand means almost
+// every position resolves in a single round trip, and that same page tells us when the
+// account first transacted, so nothing has to walk it twice.
+const TIMELINE_PAGE = 1000;
+const TIMELINE_CAP = 3000;
 
 export async function balanceTimeline(
   tokenAccount: string,
   when: number[]
 ): Promise<Timeline | null> {
-  if (!when.length) return { points: [], coveredFrom: 0 };
+  if (!when.length) return { points: [], coveredFrom: 0, firstAt: null };
   const since = when[0];
 
   type Sig = { signature: string; blockTime: number | null; err: unknown };
@@ -384,9 +367,13 @@ export async function balanceTimeline(
   }
 
   const ok = sigs.filter((s) => !s.err && s.blockTime); // newest first
-  if (!ok.length) return { points: [], coveredFrom: 0 };
+  if (!ok.length) return { points: [], coveredFrom: 0, firstAt: null };
   const oldest = (ok[ok.length - 1].blockTime as number) * 1000;
   const coveredFrom = reachedStart ? 0 : oldest;
+  // Failed transactions are excluded above, so this is the first one that actually moved
+  // something: on one test wallet the raw oldest signature had reverted and the real first
+  // receipt came three and a half minutes later.
+  const firstAt = reachedStart ? oldest : null;
 
   // Only the transaction immediately before a payment sets that payment's basis, so
   // read those and nothing else. A busy account with four dividends costs four reads
@@ -397,7 +384,7 @@ export async function balanceTimeline(
     const s = ok.find((x) => (x.blockTime as number) * 1000 <= t);
     if (s) wanted.add(s.signature);
   }
-  if (!wanted.size) return { points: [], coveredFrom };
+  if (!wanted.size) return { points: [], coveredFrom, firstAt };
 
   let txs: ({ blockTime: number | null; meta: { err: unknown } | null } | null)[];
   try {
@@ -418,7 +405,7 @@ export async function balanceTimeline(
     if (raw !== null && tx.blockTime) points.push({ at: tx.blockTime * 1000, raw });
   }
   points.sort((a, b) => a.at - b.at);
-  return { points, coveredFrom };
+  return { points, coveredFrom, firstAt };
 }
 
 /** The balance this account was left holding by a transaction, raw units. */

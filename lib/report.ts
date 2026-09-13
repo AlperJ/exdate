@@ -4,12 +4,13 @@ import {
   type Asset, type MultiplierEvent, type CorporateAction, type Reserves,
 } from "./xstocks";
 import {
-  fetchHoldings, fetchMint, fetchMints, firstSeen, effectiveMultiplier, naiveMultiplier,
+  fetchHoldings, fetchMint, fetchMints, effectiveMultiplier, naiveMultiplier,
   pendingChange, treasuryHeld, balanceTimeline, balanceAt,
   type Timeline,
 } from "./solana";
 
 import { fetchPrices } from "./price";
+import { cache } from "react";
 
 /** Positions we pull full payout history for. The rest are counted, not itemised. */
 const DETAILED = 20;
@@ -101,7 +102,15 @@ export type WalletReport = {
   notes: string[];
 };
 
-export async function buildReport(wallet: string): Promise<WalletReport> {
+/**
+ * Deduplicated per request. The page and its `generateMetadata` both need the report, and
+ * without this every wallet lookup did the whole chain walk twice: it doubled the load,
+ * and the extra pressure was enough to push rows into "estimated" that had resolved
+ * exactly a moment earlier.
+ */
+export const buildReport = cache(buildReportUncached);
+
+async function buildReportUncached(wallet: string): Promise<WalletReport> {
   const notes: string[] = [];
 
   const [holdings, assets, upcomingAll] = await Promise.all([
@@ -146,9 +155,9 @@ export async function buildReport(wallet: string): Promise<WalletReport> {
 
   const positions: PositionReport[] = [];
 
-  // The itemised positions each need four round trips and none of them depend on one
-  // another, so they go out together. Fetching them one position at a time is what made
-  // a thirty-two position wallet take the better part of a minute.
+  // The itemised positions do not depend on one another, so they go out together.
+  // Fetching them one position at a time is what made a thirty-two position wallet take
+  // the better part of a minute.
   type Deep = {
     history: MultiplierEvent[];
     reserves: Awaited<ReturnType<typeof fetchReserves>>;
@@ -157,20 +166,27 @@ export async function buildReport(wallet: string): Promise<WalletReport> {
   };
   const deepData = await mapLimit(valued.slice(0, DETAILED), 6, async (v): Promise<Deep> => {
     const asset = byMint.get(v.h.mint)!;
-    const [history, reserves, since] = await Promise.all([
+    const [history, reserves] = await Promise.all([
       fetchMultiplierHistory(asset.symbol).catch(() => [] as MultiplierEvent[]),
       fetchReserves(asset.symbol),
-      firstSeen(v.h.tokenAccount).catch(() => null),
     ]);
-    // Rebuilding the balance costs requests, so only do it when there is a payment to
-    // price, and only walk back as far as the oldest one.
-    const mine = history.filter((e) => (since ? new Date(e.activationDateTime) > since : true));
-    const timeline = mine.length
+
+    // Only events that have actually happened can have been received.
+    const now = Date.now();
+    const applied = history.filter((e) => +new Date(e.activationDateTime) <= now);
+
+    // One walk of the account's signatures answers both questions: what it held at each
+    // payment, and when it first transacted. Asking `firstSeen` separately walked the
+    // same account a second time, and on a twenty-position wallet that was twenty extra
+    // thousand-signature requests, enough to get rate limited into estimating.
+    const timeline = applied.length
       ? await balanceTimeline(
           v.h.tokenAccount,
-          mine.map((e) => +new Date(e.activationDateTime))
+          applied.map((e) => +new Date(e.activationDateTime))
         ).catch(() => null)
       : null;
+
+    const since = timeline?.firstAt ? new Date(timeline.firstAt) : null;
     return { history, reserves, since, timeline };
   });
 
@@ -226,9 +242,9 @@ export async function buildReport(wallet: string): Promise<WalletReport> {
       };
     });
 
-    // `firstSeen` gives up on an account with a thousand or more signatures, and without
+    // The walk gives up on an account with three thousand or more signatures, and without
     // an acquisition date the wallet would claim the asset's entire payout history. The
-    // timeline settles it properly: a payment the wallet demonstrably held nothing for is
+    // balances settle it properly: a payment the wallet demonstrably held nothing for is
     // not a payment to this wallet, whatever the acquisition date does or does not say.
     const held = paid.filter((e) => !e.exact || e.heldThen === null || e.heldThen > 0);
 
@@ -435,7 +451,9 @@ function buildReserves(r: Reserves, onChain: number | null) {
   };
 }
 
-export async function buildAssetReport(symbol: string): Promise<AssetReport | null> {
+export const buildAssetReport = cache(buildAssetReportUncached);
+
+async function buildAssetReportUncached(symbol: string): Promise<AssetReport | null> {
   const assets = await fetchAssets();
   const asset = matchAsset(assets, symbol);
   if (!asset) return null;
