@@ -200,19 +200,11 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="section">
-        <div className="section__head">
-          <h2 className="section__title">Where these numbers come from</h2>
-        </div>
-        <div className="section__body">
-          <p className="prose">
-            Every figure here is read from Solana and from the issuer&apos;s own records. The issuer
-            publishes the events; what nobody does is join them to a wallet.{" "}
-            <a href="/method">How this works</a> states each source, what the numbers deliberately
-            exclude, and what we checked before claiming any of it.
-          </p>
-        </div>
-      </section>
+      <p className="prose prose--standalone">
+        Every figure here is read from Solana and from the issuer&apos;s own records.{" "}
+        <a href="/method">How this works</a> states each source, what the numbers exclude, and who
+        else was already working on this.
+      </p>
 
       <ol className="notes">
         <li>
@@ -222,9 +214,8 @@ export default async function Home() {
         </li>
         <li>
           Dollar figures value the tokens the issuer reports as circulating, its own published
-          number, which covers every chain each token is issued on. An earlier version valued the
-          whole mint including the tokens the issuer created and never sold, and that overstated
-          the total roughly sevenfold.
+          number, which covers every chain each token is issued on, not the tokens it created and
+          never sold.
         </li>
         <li>
           Dividends are credited as growth in the number of tokens, not as cash. USD figures value

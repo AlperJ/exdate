@@ -1166,3 +1166,10 @@ p.prose:last-child {
   color: var(--text);
   white-space: pre;
 }
+
+/* A closing line that does not warrant a section heading of its own. */
+.prose--standalone {
+  margin: var(--s12) 0 0;
+  padding-top: var(--s6);
+  border-top: 1px solid var(--hairline);
+}
