@@ -1,13 +1,13 @@
 {
-  "measuredAt": "2026-09-13T00:31:39.268Z",
+  "measuredAt": "2026-09-13T14:56:58.284Z",
   "medianYieldPct": 0.3695697359999972,
   "leader": {
     "symbol": "STRCx",
     "name": "Strategy PP Variable xStock",
-    "hiddenUsd": 10776744.436582157,
-    "share": 0.8992153815283483
+    "hiddenUsd": 10776744.394494625,
+    "share": 0.8992154313092962
   },
-  "restUsd": 1207864.2099753562,
+  "restUsd": 1207863.5417851433,
   "assetCount": 832,
   "assetsWithMultiplierChange": 335,
   "assetsPricedAndPaying": 325,
@@ -24,13 +24,21 @@
     "Administrative": 3,
     "ReverseSplit": 2
   },
-  "splitAsIncomeUsd": 14292658.456174195,
+  "hero": {
+    "symbol": "AAPLx",
+    "name": "Apple xStock",
+    "underlying": "AAPL",
+    "at": "2026-08-08T00:30:00.000Z",
+    "from": 1.0026642075893797,
+    "to": 1.0032690125398187
+  },
+  "splitAsIncomeUsd": 14292657.74589645,
   "splitCostUsd": 2308049.80961668,
   "splitWorstSymbol": "TQQQx",
   "splitWorstUsd": 1948218.1557342138,
   "eventsApplied": 651,
-  "totalFloatUsd": 421865290.51661086,
-  "totalHiddenUsd": 11984608.646557514,
+  "totalFloatUsd": 421865183.307518,
+  "totalHiddenUsd": 11984607.936279768,
   "splits": [
     {
       "symbol": "KLACx",
@@ -84,121 +92,121 @@
   "cumulative": [
     {
       "month": "2025-06",
-      "usd": 2591.3014041640004,
+      "usd": 2591.293787582287,
       "count": 1,
-      "monthUsd": 2591.3014041640004,
+      "monthUsd": 2591.293787582287,
       "monthCount": 1
     },
     {
       "month": "2025-07",
-      "usd": 17548.416536286226,
+      "usd": 17548.408598629383,
       "count": 8,
-      "monthUsd": 14957.115132122224,
+      "monthUsd": 14957.114811047097,
       "monthCount": 7
     },
     {
       "month": "2025-08",
-      "usd": 34682.62456078318,
+      "usd": 34682.606044301516,
       "count": 17,
-      "monthUsd": 17134.20802449696,
+      "monthUsd": 17134.19744567213,
       "monthCount": 9
     },
     {
       "month": "2025-09",
-      "usd": 103024.64400441309,
+      "usd": 103024.57254334337,
       "count": 40,
-      "monthUsd": 68342.0194436299,
+      "monthUsd": 68341.96649904185,
       "monthCount": 23
     },
     {
       "month": "2025-10",
-      "usd": 202976.18018310197,
+      "usd": 202976.0009087968,
       "count": 58,
-      "monthUsd": 99951.53617868888,
+      "monthUsd": 99951.42836545341,
       "monthCount": 18
     },
     {
       "month": "2025-11",
-      "usd": 232360.3250770224,
+      "usd": 232360.13786470072,
       "count": 67,
-      "monthUsd": 29384.14489392044,
+      "monthUsd": 29384.13695590394,
       "monthCount": 9
     },
     {
       "month": "2025-12",
-      "usd": 351230.76582699176,
+      "usd": 351230.5033615036,
       "count": 93,
-      "monthUsd": 118870.44074996935,
+      "monthUsd": 118870.36549680287,
       "monthCount": 26
     },
     {
       "month": "2026-01",
-      "usd": 462626.7711970764,
+      "usd": 462626.4380247569,
       "count": 106,
-      "monthUsd": 111396.00537008465,
+      "monthUsd": 111395.9346632533,
       "monthCount": 13
     },
     {
       "month": "2026-02",
-      "usd": 2315164.1991741005,
+      "usd": 2315163.8482407485,
       "count": 120,
-      "monthUsd": 1852537.4279770243,
+      "monthUsd": 1852537.4102159915,
       "monthCount": 14
     },
     {
       "month": "2026-03",
-      "usd": 3411801.201113484,
+      "usd": 3411800.7682696497,
       "count": 157,
-      "monthUsd": 1096637.0019393836,
+      "monthUsd": 1096636.9200289014,
       "monthCount": 37
     },
     {
       "month": "2026-04",
-      "usd": 5049302.334283714,
+      "usd": 5049301.892034184,
       "count": 176,
-      "monthUsd": 1637501.1331702305,
+      "monthUsd": 1637501.1237645345,
       "monthCount": 19
     },
     {
       "month": "2026-05",
-      "usd": 6505458.022553413,
+      "usd": 6505457.4706987245,
       "count": 201,
-      "monthUsd": 1456155.6882696992,
+      "monthUsd": 1456155.57866454,
       "monthCount": 25
     },
     {
       "month": "2026-06",
-      "usd": 8927317.200248301,
+      "usd": 8927316.546925543,
       "count": 271,
-      "monthUsd": 2421859.177694887,
+      "monthUsd": 2421859.0762268184,
       "monthCount": 70
     },
     {
       "month": "2026-07",
-      "usd": 10480029.949458417,
+      "usd": 10480029.286140349,
       "count": 332,
-      "monthUsd": 1552712.7492101155,
+      "monthUsd": 1552712.7392148054,
       "monthCount": 61
     },
     {
       "month": "2026-08",
-      "usd": 11915914.249423543,
+      "usd": 11915913.538417421,
       "count": 522,
-      "monthUsd": 1435884.2999651267,
+      "monthUsd": 1435884.2522770725,
       "monthCount": 190
     },
     {
       "month": "2026-09",
-      "usd": 11984608.64655754,
+      "usd": 11984607.936279796,
       "count": 624,
-      "monthUsd": 68694.39713399707,
+      "monthUsd": 68694.39786237452,
       "monthCount": 102
     }
   ],
   "topPayers": [
     {
       "symbol": "STRCx",
-      "circulating": 1462430.6045503335,
+      "circulating": 1462430.5988389524,
       "name": "Strategy PP Variable xStock",
       "underlying": "STRC",
       "logo": "https://xstocks-metadata.backed.fi/logos/tokens/STRCx.png",
@@ -206,13 +214,13 @@
       "yieldPct": 8.089299772563653,
       "splitFactor": 1,
       "lastPaid": "2026-08-30T23:55:00.000Z",
-      "floatUsd": 143998960.69235086,
-      "hiddenUsd": 10776744.436582157,
-      "allEventsUsd": 10776744.436582157
+      "floatUsd": 143998960.12997687,
+      "hiddenUsd": 10776744.394494625,
+      "allEventsUsd": 10776744.394494625
     },
     {
       "symbol": "SPYx",
-      "circulating": 76752.80744805722,
+      "circulating": 76752.74978517512,
       "name": "SP500 xStock",
       "underlying": "SPY",
       "logo": "https://xstocks-metadata.backed.fi/logos/tokens/SPYx.png",
@@ -220,13 +228,13 @@
       "yieldPct": 0.5714560286254056,
       "splitFactor": 1,
       "lastPaid": "2026-06-18T04:00:00.000Z",
-      "floatUsd": 58661403.204475656,
-      "hiddenUsd": 333319.3515591733,
-      "allEventsUsd": 333319.3515591733
+      "floatUsd": 58661359.133311495,
+      "hiddenUsd": 333319.1011428679,
+      "allEventsUsd": 333319.1011428679
     },
     {
       "symbol": "QQQx",
-      "circulating": 50669.760230210064,
+      "circulating": 50669.732081191614,
       "name": "Nasdaq xStock",
       "underlying": "QQQ",
       "logo": "https://xstocks-metadata.backed.fi/logos/tokens/QQQx.png",
@@ -234,13 +242,13 @@
       "yieldPct": 0.2725029655105127,
       "splitFactor": 1,
       "lastPaid": "2026-06-21T23:55:00.000Z",
-      "floatUsd": 36223304.89097487,
-      "hiddenUsd": 98441.32450525681,
-      "allEventsUsd": 98441.32450525681
+      "floatUsd": 36223284.76752307,
+      "hiddenUsd": 98441.26981728025,
+      "allEventsUsd": 98441.26981728025
     },
     {
       "symbol": "GOOGLx",
-      "circulating": 105869.72238192346,
+      "circulating": 105869.63862331051,
       "name": "Alphabet xStock",
       "underlying": "GOOGL",
       "logo": "https://xstocks-metadata.backed.fi/logos/tokens/GOOGLx.png",
@@ -248,13 +256,13 @@
       "yieldPct": 0.23772500603487234,
       "splitFactor": 1,
       "lastPaid": "2026-09-04T00:30:00.000Z",
-      "floatUsd": 35825202.42195789,
-      "hiddenUsd": 84963.4851693565,
-      "allEventsUsd": 84963.4851693565
+      "floatUsd": 35825174.07892273,
+      "hiddenUsd": 84963.4179506701,
+      "allEventsUsd": 84963.4179506701
     },
     {
       "symbol": "NVDAx",
-      "circulating": 179187.17501725478,
+      "circulating": 179187.3503427614,
       "name": "NVIDIA xStock",
       "underlying": "NVDA",
       "logo": "https://xstocks-metadata.backed.fi/logos/tokens/NVDAx.png",
@@ -262,13 +270,13 @@
       "yieldPct": 0.17011968010742784,
       "splitFactor": 1,
       "lastPaid": "2026-09-10T00:30:00.000Z",
-      "floatUsd": 39109392.81926603,
-      "hiddenUsd": 66419.78083740483,
-      "allEventsUsd": 66419.78083740483
+      "floatUsd": 39109431.0858111,
+      "hiddenUsd": 66419.8458257709,
+      "allEventsUsd": 66419.8458257709
     },
     {
       "symbol": "AAPLx",
-      "circulating": 43558.77924354722,
+      "circulating": 43558.74516899002,
       "name": "Apple xStock",
       "underlying": "AAPL",
       "logo": "https://xstocks-metadata.backed.fi/logos/tokens/AAPLx.png",
@@ -276,13 +284,13 @@
       "yieldPct": 0.32690125398189274,
       "splitFactor": 1,
       "lastPaid": "2026-08-08T00:30:00.000Z",
-      "floatUsd": 14486778.800818935,
-      "hiddenUsd": 47203.15385957438,
-      "allEventsUsd": 47203.15385957438
+      "floatUsd": 14486767.4683027,
+      "hiddenUsd": 47203.11693414639,
+      "allEventsUsd": 47203.11693414639
     },
     {
       "symbol": "MSFTx",
-      "circulating": 14454.984208206884,
+      "circulating": 14454.946397968235,
       "name": "Microsoft xStock",
       "underlying": "MSFT",
       "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MSFTx.png",
@@ -290,13 +298,13 @@
       "yieldPct": 0.590339047874533,
       "splitFactor": 1,
       "lastPaid": "2026-08-20T00:30:00.000Z",
-      "floatUsd": 7151892.53669452,
-      "hiddenUsd": 41972.63346138811,
-      "allEventsUsd": 41972.63346138811
+      "floatUsd": 7151873.829322743,
+      "hiddenUsd": 41972.52367259381,
+      "allEventsUsd": 41972.52367259381
     },
     {
       "symbol": "MCDx",
-      "circulating": 6667.310052372387,
+      "circulating": 6667.301659666538,
       "name": "McDonald's xStock",
       "underlying": "MCD",
       "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MCDx.png",
@@ -304,9 +312,9 @@
       "yieldPct": 2.1180700488286908,
       "splitFactor": 1,
       "lastPaid": "2026-09-01T00:30:00.000Z",
-      "floatUsd": 1683629.8011560806,
-      "hiddenUsd": 34920.81130635309,
-      "allEventsUsd": 34920.81130635309
+      "floatUsd": 1683627.6818291603,
+      "hiddenUsd": 34920.76734858077,
+      "allEventsUsd": 34920.76734858077
     },
     {
       "symbol": "CVXx",
@@ -324,7 +332,7 @@
     },
     {
       "symbol": "ORCLx",
-      "circulating": 19937.348352823763,
+      "circulating": 19937.3468453054,
       "name": "Oracle xStock",
       "underlying": "ORCL",
       "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ORCLx.png",
@@ -332,9 +340,9 @@
       "yieldPct": 0.9318667481834186,
       "splitFactor": 1,
       "lastPaid": "2026-07-10T00:30:00.000Z",
-      "floatUsd": 2946937.466296045,
-      "hiddenUsd": 27207.98814380988,
-      "allEventsUsd": 27207.98814380988
+      "floatUsd": 2946937.243469907,
+      "hiddenUsd": 27207.98608653822,
+      "allEventsUsd": 27207.98608653822
     },
     {
       "symbol": "AVGOx",
@@ -352,7 +360,7 @@
     },
     {
       "symbol": "METAx",
-      "circulating": 15310.94286870462,
+      "circulating": 15310.937700764556,
       "name": "Meta xStock",
       "underlying": "META",
       "logo": "https://xstocks-metadata.backed.fi/logos/tokens/METAx.png",
@@ -360,9 +368,9 @@
       "yieldPct": 0.2298265651937914,
       "splitFactor": 1,
       "lastPaid": "2026-06-14T23:55:00.000Z",
-      "floatUsd": 9915060.382915739,
-      "hiddenUsd": 22735.191205906907,
-      "allEventsUsd": 22735.191205906907
+      "floatUsd": 9915057.036261111,
+      "hiddenUsd": 22735.183532042105,
+      "allEventsUsd": 22735.183532042105
     }
   ],
   "index": [
@@ -374,9 +382,9 @@
       "yieldPct": 8.089299772563653,
       "splitFactor": 1,
       "lastPaid": "2026-08-30T23:55:00.000Z",
-      "hiddenUsd": 10776744.436582157,
-      "floatUsd": 143998960.69235086,
-      "circulating": 1462430.6045503335
+      "hiddenUsd": 10776744.394494625,
+      "floatUsd": 143998960.12997687,
+      "circulating": 1462430.5988389524
     },
     {
       "symbol": "SPYx",
@@ -386,9 +394,9 @@
       "yieldPct": 0.5714560286254056,
       "splitFactor": 1,
       "lastPaid": "2026-06-18T04:00:00.000Z",
-      "hiddenUsd": 333319.3515591733,
-      "floatUsd": 58661403.204475656,
-      "circulating": 76752.80744805722
+      "hiddenUsd": 333319.1011428679,
+      "floatUsd": 58661359.133311495,
+      "circulating": 76752.74978517512
     },
     {
       "symbol": "QQQx",
@@ -398,9 +406,9 @@
       "yieldPct": 0.2725029655105127,
       "splitFactor": 1,
       "lastPaid": "2026-06-21T23:55:00.000Z",
-      "hiddenUsd": 98441.32450525681,
-      "floatUsd": 36223304.89097487,
-      "circulating": 50669.760230210064
+      "hiddenUsd": 98441.26981728025,
+      "floatUsd": 36223284.76752307,
+      "circulating": 50669.732081191614
     },
     {
       "symbol": "GOOGLx",
@@ -410,9 +418,9 @@
       "yieldPct": 0.23772500603487234,
       "splitFactor": 1,
       "lastPaid": "2026-09-04T00:30:00.000Z",
-      "hiddenUsd": 84963.4851693565,
-      "floatUsd": 35825202.42195789,
-      "circulating": 105869.72238192346
+      "hiddenUsd": 84963.4179506701,
+      "floatUsd": 35825174.07892273,
+      "circulating": 105869.63862331051
     },
     {
       "symbol": "NVDAx",
@@ -422,9 +430,9 @@
       "yieldPct": 0.17011968010742784,
       "splitFactor": 1,
       "lastPaid": "2026-09-10T00:30:00.000Z",
-      "hiddenUsd": 66419.78083740483,
-      "floatUsd": 39109392.81926603,
-      "circulating": 179187.17501725478
+      "hiddenUsd": 66419.8458257709,
+      "floatUsd": 39109431.0858111,
+      "circulating": 179187.3503427614
     },
     {
       "symbol": "AAPLx",
@@ -434,9 +442,9 @@
       "yieldPct": 0.32690125398189274,
       "splitFactor": 1,
       "lastPaid": "2026-08-08T00:30:00.000Z",
-      "hiddenUsd": 47203.15385957438,
-      "floatUsd": 14486778.800818935,
-      "circulating": 43558.77924354722
+      "hiddenUsd": 47203.11693414639,
+      "floatUsd": 14486767.4683027,
+      "circulating": 43558.74516899002
     },
     {
       "symbol": "MSFTx",
@@ -446,9 +454,9 @@
       "yieldPct": 0.590339047874533,
       "splitFactor": 1,
       "lastPaid": "2026-08-20T00:30:00.000Z",
-      "hiddenUsd": 41972.63346138811,
-      "floatUsd": 7151892.53669452,
-      "circulating": 14454.984208206884
+      "hiddenUsd": 41972.52367259381,
+      "floatUsd": 7151873.829322743,
+      "circulating": 14454.946397968235
     },
     {
       "symbol": "MCDx",
@@ -458,9 +466,9 @@
       "yieldPct": 2.1180700488286908,
       "splitFactor": 1,
       "lastPaid": "2026-09-01T00:30:00.000Z",
-      "hiddenUsd": 34920.81130635309,
-      "floatUsd": 1683629.8011560806,
-      "circulating": 6667.310052372387
+      "hiddenUsd": 34920.76734858077,
+      "floatUsd": 1683627.6818291603,
+      "circulating": 6667.301659666538
     },
     {
       "symbol": "CVXx",
@@ -482,9 +490,9 @@
       "yieldPct": 0.9318667481834186,
       "splitFactor": 1,
       "lastPaid": "2026-07-10T00:30:00.000Z",
-      "hiddenUsd": 27207.98814380988,
-      "floatUsd": 2946937.466296045,
-      "circulating": 19937.348352823763
+      "hiddenUsd": 27207.98608653822,
+      "floatUsd": 2946937.243469907,
+      "circulating": 19937.3468453054
     },
     {
       "symbol": "AVGOx",
@@ -506,9 +514,9 @@
       "yieldPct": 0.2298265651937914,
       "splitFactor": 1,
       "lastPaid": "2026-06-14T23:55:00.000Z",
-      "hiddenUsd": 22735.191205906907,
-      "floatUsd": 9915060.382915739,
-      "circulating": 15310.94286870462
+      "hiddenUsd": 22735.183532042105,
+      "floatUsd": 9915057.036261111,
+      "circulating": 15310.937700764556
     },
     {
       "symbol": "IBMx",
@@ -530,9 +538,9 @@
       "yieldPct": 3.7054990743787597,
       "splitFactor": 1,
       "lastPaid": "2026-08-15T00:30:00.000Z",
-      "hiddenUsd": 18833.214088586494,
-      "floatUsd": 527083.6200543194,
-      "circulating": 12226.48156006308
+      "hiddenUsd": 18833.207421012987,
+      "floatUsd": 527083.4334494858,
+      "circulating": 12226.477231488883
     },
     {
       "symbol": "PFEx",
@@ -578,9 +586,9 @@
       "yieldPct": 1.833179673869001,
       "splitFactor": 1,
       "lastPaid": "2026-06-14T23:55:00.000Z",
-      "hiddenUsd": 16598.39871175083,
-      "floatUsd": 922041.4902074836,
-      "circulating": 10436.236448302023
+      "hiddenUsd": 16598.39728616637,
+      "floatUsd": 922041.4110162291,
+      "circulating": 10436.235551966374
     },
     {
       "symbol": "TSMx",
@@ -602,9 +610,9 @@
       "yieldPct": 1.472895117999995,
       "splitFactor": 1,
       "lastPaid": "2025-11-07T23:55:00.000Z",
-      "hiddenUsd": 13659.77944846389,
-      "floatUsd": 941069.971900736,
-      "circulating": 180974.99459629538
+      "hiddenUsd": 13659.778427092197,
+      "floatUsd": 941069.9015348684,
+      "circulating": 180974.98106439775
     },
     {
       "symbol": "XOMx",
@@ -614,9 +622,9 @@
       "yieldPct": 1.7648970535190989,
       "splitFactor": 1,
       "lastPaid": "2026-08-15T00:30:00.000Z",
-      "hiddenUsd": 13469.096415445896,
-      "floatUsd": 776635.2192546973,
-      "circulating": 4673.457812340217
+      "hiddenUsd": 13469.065140462239,
+      "floatUsd": 776633.4159226072,
+      "circulating": 4673.446960660773
     },
     {
       "symbol": "UNHx",
@@ -626,9 +634,9 @@
       "yieldPct": 2.7347868536810926,
       "splitFactor": 1,
       "lastPaid": "2026-09-12T00:30:00.000Z",
-      "hiddenUsd": 13450.231603545064,
-      "floatUsd": 505270.3376363313,
-      "circulating": 1334.1175445207173
+      "hiddenUsd": 13450.192069437644,
+      "floatUsd": 505268.8525011758,
+      "circulating": 1334.1136231647235
     },
     {
       "symbol": "MRVLx",
@@ -746,9 +754,9 @@
       "yieldPct": 0.5309167384000002,
       "splitFactor": 1,
       "lastPaid": "2025-10-08T23:55:00.000Z",
-      "hiddenUsd": 6530.036263335949,
-      "floatUsd": 1236484.9032007114,
-      "circulating": 58601.180246479205
+      "hiddenUsd": 6529.979601755316,
+      "floatUsd": 1236474.1741348656,
+      "circulating": 58600.671759946235
     },
     {
       "symbol": "CMCSAx",
@@ -818,9 +826,9 @@
       "yieldPct": 1.3917471389408353,
       "splitFactor": 1,
       "lastPaid": "2026-07-05T23:55:00.000Z",
-      "hiddenUsd": 5220.056319703323,
-      "floatUsd": 380292.2352843354,
-      "circulating": 1066.4392464507441
+      "hiddenUsd": 5220.040686446146,
+      "floatUsd": 380291.0963682102,
+      "circulating": 1066.4360526309877
     },
     {
       "symbol": "MDTx",
@@ -1010,9 +1018,9 @@
       "yieldPct": 0.7184561024149438,
       "splitFactor": 1,
       "lastPaid": "2026-08-21T00:30:00.000Z",
-      "hiddenUsd": 2013.0910877557662,
-      "floatUsd": 282209.9021370541,
-      "circulating": 2636.140404926234
+      "hiddenUsd": 2013.082853731905,
+      "floatUsd": 282208.74783108046,
+      "circulating": 2636.1296224817006
     },
     {
       "symbol": "QCOMx",
@@ -4315,6 +4323,18 @@
       "circulating": 11730.837710776974
     },
     {
+      "symbol": "NFLXx",
+      "name": "Netflix xStock",
+      "underlying": "NFLX",
+      "dividends": 0,
+      "yieldPct": 0,
+      "splitFactor": 10,
+      "lastPaid": null,
+      "hiddenUsd": 0,
+      "floatUsd": 1273119.6717558645,
+      "circulating": 16469.853450916748
+    },
+    {
       "symbol": "CRWDx",
       "name": "CrowdStrike xStock",
       "underlying": "CRWD",
@@ -4325,18 +4345,6 @@
       "hiddenUsd": 0,
       "floatUsd": 707927.2015427345,
       "circulating": 3429.879852435729
-    },
-    {
-      "symbol": "NFLXx",
-      "name": "Netflix xStock",
-      "underlying": "NFLX",
-      "dividends": 0,
-      "yieldPct": 0,
-      "splitFactor": 10,
-      "lastPaid": null,
-      "hiddenUsd": 0,
-      "floatUsd": 1273123.1426804645,
-      "circulating": 16469.89835291675
     },
     {
       "symbol": "WHGROx",
@@ -4444,7 +4452,7 @@
           "ratio": 1.000000657507339
         }
       ],
-      "circulating": 1462430.6045503335,
+      "circulating": 1462430.5988389524,
       "name": "Strategy PP Variable xStock",
       "underlying": "STRC",
       "logo": "https://xstocks-metadata.backed.fi/logos/tokens/STRCx.png",
@@ -4452,9 +4460,9 @@
       "yieldPct": 8.089299772563653,
       "splitFactor": 1,
       "lastPaid": "2026-08-30T23:55:00.000Z",
-      "floatUsd": 143998960.69235086,
-      "hiddenUsd": 10776744.436582157,
-      "allEventsUsd": 10776744.436582157
+      "floatUsd": 143998960.12997687,
+      "hiddenUsd": 10776744.394494625,
+      "allEventsUsd": 10776744.394494625
     },
     {
       "symbol": "CVXx",
@@ -4516,7 +4524,7 @@
           "ratio": 1.003832455173
         }
       ],
-      "circulating": 6667.310052372387,
+      "circulating": 6667.301659666538,
       "name": "McDonald's xStock",
       "underlying": "MCD",
       "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MCDx.png",
@@ -4524,9 +4532,9 @@
       "yieldPct": 2.1180700488286908,
       "splitFactor": 1,
       "lastPaid": "2026-09-01T00:30:00.000Z",
-      "floatUsd": 1683629.8011560806,
-      "hiddenUsd": 34920.81130635309,
-      "allEventsUsd": 34920.81130635309
+      "floatUsd": 1683627.6818291603,
+      "hiddenUsd": 34920.76734858077,
+      "allEventsUsd": 34920.76734858077
     },
     {
       "symbol": "IBMx",
@@ -4624,7 +4632,7 @@
           "ratio": 1.001443001443
         }
       ],
-      "circulating": 19937.348352823763,
+      "circulating": 19937.3468453054,
       "name": "Oracle xStock",
       "underlying": "ORCL",
       "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ORCLx.png",
@@ -4632,9 +4640,9 @@
       "yieldPct": 0.9318667481834186,
       "splitFactor": 1,
       "lastPaid": "2026-07-10T00:30:00.000Z",
-      "floatUsd": 2946937.466296045,
-      "hiddenUsd": 27207.98814380988,
-      "allEventsUsd": 27207.98814380988
+      "floatUsd": 2946937.243469907,
+      "hiddenUsd": 27207.98608653822,
+      "allEventsUsd": 27207.98608653822
     },
     {
       "symbol": "MSFTx",
@@ -4660,7 +4668,7 @@
           "ratio": 1.0009778552409
         }
       ],
-      "circulating": 14454.984208206884,
+      "circulating": 14454.946397968235,
       "name": "Microsoft xStock",
       "underlying": "MSFT",
       "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MSFTx.png",
@@ -4668,9 +4676,9 @@
       "yieldPct": 0.590339047874533,
       "splitFactor": 1,
       "lastPaid": "2026-08-20T00:30:00.000Z",
-      "floatUsd": 7151892.53669452,
-      "hiddenUsd": 41972.63346138811,
-      "allEventsUsd": 41972.63346138811
+      "floatUsd": 7151873.829322743,
+      "hiddenUsd": 41972.52367259381,
+      "allEventsUsd": 41972.52367259381
     },
     {
       "symbol": "SPYx",
@@ -4692,7 +4700,7 @@
           "ratio": 1.00099942056
         }
       ],
-      "circulating": 76752.80744805722,
+      "circulating": 76752.74978517512,
       "name": "SP500 xStock",
       "underlying": "SPY",
       "logo": "https://xstocks-metadata.backed.fi/logos/tokens/SPYx.png",
@@ -4700,9 +4708,9 @@
       "yieldPct": 0.5714560286254056,
       "splitFactor": 1,
       "lastPaid": "2026-06-18T04:00:00.000Z",
-      "floatUsd": 58661403.204475656,
-      "hiddenUsd": 333319.3515591733,
-      "allEventsUsd": 333319.3515591733
+      "floatUsd": 58661359.133311495,
+      "hiddenUsd": 333319.1011428679,
+      "allEventsUsd": 333319.1011428679
     }
   ],
   "upcoming": [

@@ -20,23 +20,56 @@ export default async function Home() {
         <div>
           <h1>Tokenized stocks pay dividends invisibly</h1>
           <p className="standfirst">
-            Nothing arrives in your wallet. The token count never changes, and nothing tells you
-            which payment moved your balance, what it was worth, or when the next one lands.
+            Nothing arrives in your wallet and no transaction records it, so no wallet, explorer or
+            tracker shows that you were paid. <b>Paste an address</b> to read what yours received,
+            all of it, back to the first payment. <b>Type a ticker</b> to see what that stock has
+            paid and when the next one lands.
           </p>
           <Search />
         </div>
 
-        <div className="masthead__proof">
-          <div className="figure__label">Paid, unannounced</div>
-          <div className="figure__value">{usd(m.totalHiddenUsd, 0)}</div>
-          <p className="note">
-            {m.dividendPayments} payments
-            <br />
-            {m.assetsPricedAndPaying} stocks
-            <br />
-            as of {asOf}
-          </p>
-        </div>
+        <aside className="masthead__proof">
+          {m.hero ? (
+            <div className="demo">
+              <div className="demo__head">
+                <span className="demo__label">What a payment looks like</span>
+                <span className="demo__meta">
+                  {m.hero.symbol} · {day(m.hero.at)}
+                </span>
+              </div>
+
+              <dl className="demo__rows">
+                <dt>Held before</dt>
+                <dd className="lit">{(100 * m.hero.from).toFixed(6)}</dd>
+                <dt>Held after</dt>
+                <dd className="lit">{(100 * m.hero.to).toFixed(6)}</dd>
+                <dt className="is-pos">Paid</dt>
+                <dd className="lit is-pos">+{(100 * (m.hero.to - m.hero.from)).toFixed(6)}</dd>
+              </dl>
+
+              <div className="demo__void">
+                <span>Transactions in the wallet</span>
+                <b>none</b>
+              </div>
+
+              <p className="demo__foot">
+                The number on the token moved from{" "}
+                <span className="lit">{m.hero.from.toFixed(9)}</span> to{" "}
+                <span className="lit">{m.hero.to.toFixed(9)}</span>. Nothing was sent, so nothing
+                recorded it.
+              </p>
+            </div>
+          ) : null}
+
+          <div className="demo__total">
+            <div className="figure__label">Paid this way, all stocks</div>
+            <div className="figure__value">{usd(m.totalHiddenUsd, 0)}</div>
+            <p className="note">
+              {num(m.dividendPaymentsAll, 0)} payments across {m.assetsEverPaid} stocks · as of{" "}
+              {asOf}
+            </p>
+          </div>
+        </aside>
       </div>
 
       <div className="figure">

@@ -1066,8 +1066,8 @@ p.prose:last-child {
   border-bottom: 1px solid var(--hairline);
   isolation: isolate;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  column-gap: 64px;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
+  column-gap: 56px;
   align-items: start;
 }
 
@@ -1172,4 +1172,112 @@ p.prose:last-child {
   margin: var(--s12) 0 0;
   padding-top: var(--s6);
   border-top: 1px solid var(--hairline);
+}
+
+/* ---------------------------------------------------------------------------
+   The masthead demonstration.
+
+   The thesis of the product is a balance that moves with no transaction behind
+   it, which is a hard thing to say in a sentence and an easy one to show. So the
+   right of the masthead carries one real payment, read from the chain and dated,
+   with the empty transaction list underneath it as the punchline.
+   --------------------------------------------------------------------------- */
+
+.demo {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  padding: var(--s5) var(--s5) var(--s4);
+  min-width: 330px;
+  text-align: left;
+}
+
+/* Stacked rather than side by side: the column is too narrow to hold both on one
+   line without the label wrapping mid-phrase. */
+.demo__head {
+  display: grid;
+  gap: 3px;
+  padding-bottom: var(--s3);
+  border-bottom: 1px solid var(--rule-head);
+}
+
+.demo__label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.demo__meta {
+  font: 400 12px/1 var(--mono);
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+.demo__rows {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0 var(--s5);
+  margin: 0;
+  padding: var(--s3) 0 var(--s3);
+}
+
+.demo__rows dt {
+  font-size: 13px;
+  color: var(--text-2);
+  padding: 5px 0;
+  text-align: left;
+  justify-self: start;
+}
+
+.demo__rows dd {
+  margin: 0;
+  padding: 5px 0;
+  font-size: 14px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.demo__rows .is-pos {
+  color: var(--pos);
+  font-weight: 500;
+}
+
+/* The empty row is the argument: a balance moved and the ledger has nothing. */
+.demo__void {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s4);
+  padding: var(--s3) var(--s3);
+  background: var(--warn-wash);
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.demo__void b {
+  font: 500 13px/1 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--warn);
+}
+
+.demo__foot {
+  margin: var(--s3) 0 0;
+  text-align: left;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.demo__total {
+  margin-top: var(--s5);
+  padding-top: var(--s4);
+  border-top: 2px solid var(--text);
+}
+
+@media (max-width: 899px) {
+  .demo {
+    min-width: 0;
+  }
 }

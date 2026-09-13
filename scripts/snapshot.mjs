@@ -98,6 +98,11 @@ console.log(`  ${upcomingRaw.length} satir`);
 console.log("carpan gecmisleri...");
 const CONC = 8, rows = [], unattested = [], unheld = [];
 const reasons = new Map();
+
+// One real payment, carried to the front page so the mechanic can be shown rather than
+// described. Apple because everyone knows what a dividend from it means.
+const HERO_SYMBOL = "AAPLx";
+let hero = null;
 let scanned = 0;
 async function work(sub) {
   for (const { a, m } of sub) {
@@ -117,6 +122,21 @@ async function work(sub) {
     const applied = hist.filter((e) => e.activationDateTime <= nowIso);
     let divF = 1, splitF = 1, nDiv = 0, last = null;
     for (const e of applied) reasons.set(e.reason, (reasons.get(e.reason) ?? 0) + 1);
+
+    if (a.symbol === HERO_SYMBOL) {
+      const div = applied.filter((e) => isIncome(e.reason))
+        .sort((x, y) => (x.activationDateTime < y.activationDateTime ? 1 : -1))[0];
+      if (div) {
+        hero = {
+          symbol: a.symbol,
+          name: a.name,
+          underlying: a.underlyingSymbol,
+          at: div.activationDateTime,
+          from: div.previousMultiplier,
+          to: div.multiplier,
+        };
+      }
+    }
     for (const e of applied) {
       const r = e.previousMultiplier > 0 ? e.multiplier / e.previousMultiplier : 1;
       if (isIncome(e.reason)) { divF *= r; nDiv++; if (!last || e.activationDateTime > last) last = e.activationDateTime; }
@@ -265,6 +285,7 @@ const snapshot = {
   // Every activated multiplier change, by the reason the issuer recorded. Hardcoding
   // these was fine on the day they were written and would rot silently after it.
   reasonCounts: Object.fromEntries([...reasons].sort((a, b) => b[1] - a[1])),
+  hero,
   // Counting a split as income: what it would add, and which asset carries most of it.
   splitAsIncomeUsd: paying.reduce((s, r) => s + (r.allEventsUsd ?? 0), 0),
   splitCostUsd: paying.reduce((s, r) => s + (r.allEventsUsd ?? 0) - r.hiddenUsd, 0),
