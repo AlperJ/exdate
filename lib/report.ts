@@ -306,7 +306,7 @@ async function buildReportUncached(wallet: string): Promise<WalletReport> {
   }
   if (itemised.some((p) => p.heldSince === null)) {
     notes.push(
-      "For some positions we could not work out when they were bought, so we show everything that token has ever paid. That can be more than this wallet actually received."
+      "For some positions we could not work out when they were bought, so every payment that token has ever made is listed. Those are the rows marked estimated: they may be payments this wallet was not holding for."
     );
   }
   notes.push(
