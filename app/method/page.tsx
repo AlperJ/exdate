@@ -1,4 +1,4 @@
-import { day, num } from "@/lib/fmt";
+import { day, num, usd, pct } from "@/lib/fmt";
 import market from "@/data/market.json";
 
 export const metadata = {
@@ -137,8 +137,13 @@ const balance = (Number(rawAmount) / 10 ** decimals) * m;`}
             </table>
           </div>
           <p className="section__after muted">
-            Netflix split ten for one on 16 Nov 2025. Pricing the extra tokens as a gain would add
-            about $106m to the total on the front page. Holders received nothing, so it is excluded.
+            Counting every one of those changes as income would put {usd(m.splitAsIncomeUsd, 0)} on
+            the front page instead of {usd(m.totalHiddenUsd, 0)} — {pct((m.splitCostUsd / m.totalHiddenUsd) * 100, 0)}{" "}
+            too much, {usd(m.splitWorstUsd, 0)} of it from {m.splitWorstSymbol} alone. The error is
+            not spread evenly: it lands entirely on the {m.splits.length} stocks that split. Netflix
+            split ten for one on 16 Nov 2025 and its multiplier went from 1.0 to 10.0, so a tracker
+            reading that as income tells a Netflix holder they gained 900% on a position that
+            gained nothing.
           </p>
 
           <p className="prose">

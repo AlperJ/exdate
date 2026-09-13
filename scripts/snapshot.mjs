@@ -152,9 +152,16 @@ async function work(sub) {
       at: e.activationDateTime,
       ratio: e.previousMultiplier > 0 ? e.multiplier / e.previousMultiplier : 1,
     }));
+    // What a tracker that treated every multiplier change as income would print for this
+    // asset. Derived, dated and published rather than asserted: the figure this replaced
+    // was computed against total mint supply and survived the correction to circulating
+    // supply unrecomputed, which left it about sixty times too large.
+    const allF = divF * splitF;
+
     rows.push({ symbol: a.symbol, events, circulating, name: a.name, underlying: a.underlyingSymbol, logo: a.logo,
       dividends: nDiv, yieldPct: (divF - 1) * 100, splitFactor: splitF, lastPaid: last,
-      floatUsd, hiddenUsd: floatUsd ? floatUsd * (1 - 1 / divF) : null });
+      floatUsd, hiddenUsd: floatUsd ? floatUsd * (1 - 1 / divF) : null,
+      allEventsUsd: floatUsd ? floatUsd * (1 - 1 / allF) : null });
   }
 }
 await Promise.all(Array.from({ length: CONC }, (_, i) => work(list.filter((_, k) => k % CONC === i))));
@@ -258,6 +265,19 @@ const snapshot = {
   // Every activated multiplier change, by the reason the issuer recorded. Hardcoding
   // these was fine on the day they were written and would rot silently after it.
   reasonCounts: Object.fromEntries([...reasons].sort((a, b) => b[1] - a[1])),
+  // Counting a split as income: what it would add, and which asset carries most of it.
+  splitAsIncomeUsd: paying.reduce((s, r) => s + (r.allEventsUsd ?? 0), 0),
+  splitCostUsd: paying.reduce((s, r) => s + (r.allEventsUsd ?? 0) - r.hiddenUsd, 0),
+  splitWorstSymbol: (() => {
+    const w = [...paying].sort((a, b) =>
+      ((b.allEventsUsd ?? 0) - b.hiddenUsd) - ((a.allEventsUsd ?? 0) - a.hiddenUsd))[0];
+    return w && (w.allEventsUsd ?? 0) - w.hiddenUsd > 0 ? w.symbol : null;
+  })(),
+  splitWorstUsd: (() => {
+    const w = [...paying].sort((a, b) =>
+      ((b.allEventsUsd ?? 0) - b.hiddenUsd) - ((a.allEventsUsd ?? 0) - a.hiddenUsd))[0];
+    return w ? (w.allEventsUsd ?? 0) - w.hiddenUsd : 0;
+  })(),
   eventsApplied: [...reasons.values()].reduce((t, n) => t + n, 0),
   totalFloatUsd: paying.reduce((s, r) => s + r.floatUsd, 0),
   totalHiddenUsd: paying.reduce((s, r) => s + r.hiddenUsd, 0),
@@ -291,5 +311,8 @@ console.log(`\nyazildi: data/market.json`);
 console.log(`  odenen: ${snapshot.assetsEverPaid} varlik / ${snapshot.dividendPaymentsAll} odeme`);
 console.log(`  fiyatlanan: ${snapshot.assetsPricedAndPaying} varlik / ${snapshot.dividendPayments} odeme` +
   ` (${snapshot.unpricedPayers} varligin fiyati yok, paraya dahil degil)`);
-console.log(`  gorunmez temettu: $${Math.round(snapshot.totalHiddenUsd).toLocaleString("en-US")}`);
+console.log(`  gorunmez temettu: ${Math.round(snapshot.totalHiddenUsd).toLocaleString("en-US")}`);
+console.log(`  bolunmeler gelir sayilsa: ${Math.round(snapshot.splitAsIncomeUsd).toLocaleString("en-US")}` +
+  ` (+${Math.round(snapshot.splitCostUsd).toLocaleString("en-US")}, en cok ${snapshot.splitWorstSymbol} ` +
+  `${Math.round(snapshot.splitWorstUsd).toLocaleString("en-US")})`);
 console.log(`  gelecek olay: ${snapshot.upcomingCount}`);
