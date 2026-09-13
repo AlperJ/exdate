@@ -98,6 +98,8 @@ export type WalletReport = {
     itemised: number;
     /** Payment rows whose basis could not be established, so they use today's balance. */
     estimatedRows: number;
+    /** The earliest payment this wallet received, ISO, or null if it has received none. */
+    firstPaidAt: string | null;
   };
   notes: string[];
 };
@@ -296,6 +298,13 @@ async function buildReportUncached(wallet: string): Promise<WalletReport> {
     (n, p) => n + p.paid.filter((e) => e.isIncome && !e.exact).length,
     0
   );
+
+  // The oldest payment on record for this wallet. Anything that only starts watching the
+  // multiplier when a user signs up cannot see back this far, which is the whole point.
+  const firstPaid =
+    itemised
+      .flatMap((p) => p.paid.filter((e) => e.isIncome).map((e) => e.date))
+      .sort()[0] ?? null;
   if (estimated > 0) {
     const total = itemised.reduce((n, p) => n + p.paid.filter((e) => e.isIncome).length, 0);
     notes.push(
@@ -326,6 +335,7 @@ async function buildReportUncached(wallet: string): Promise<WalletReport> {
       // for it, and the label under this number says "dividends".
       dividendCount: itemised.reduce((s, p) => s + p.paid.filter((e) => e.isIncome).length, 0),
       estimatedRows: estimated,
+      firstPaidAt: firstPaid,
       positionCount: positions.length,
       itemised: itemised.length,
     },

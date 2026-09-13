@@ -1,5 +1,5 @@
 import { buildReport } from "@/lib/report";
-import { usd, time } from "@/lib/fmt";
+import { usd, time, day } from "@/lib/fmt";
 import Positions from "./Positions";
 
 /** What a Solana address can look like. Checking this costs nothing and saves a round trip. */
@@ -119,6 +119,14 @@ export default async function WalletPage({ params }: { params: Promise<{ address
           Across <b>{t.dividendCount}</b> {t.dividendCount === 1 ? "payment" : "payments"} on
           holdings worth <b>{usd(t.itemisedValueUsd, 0)}</b>. Nothing was sent, nothing was
           announced, and no explorer records any of it.
+          {t.firstPaidAt && t.dividendCount > 0 ? (
+            <>
+              {" "}
+              Every one of them had already happened before you looked. The oldest is from{" "}
+              <b>{day(t.firstPaidAt)}</b>, and anything that only starts watching when you sign up
+              shows none of it.
+            </>
+          ) : null}
           {t.estimatedRows > 0 ? (
             <>
               {" "}

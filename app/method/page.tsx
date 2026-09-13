@@ -166,6 +166,80 @@ const balance = (Number(rawAmount) / 10 ** decimals) * m;`}
 
       <section className="section">
         <div className="section__head">
+          <h2 className="section__title">How current each number is</h2>
+          <span className="section__meta">nothing here is indexed in advance</span>
+        </div>
+        <div className="section__body">
+          <p className="prose">
+            There is no database of holders and nothing to sign up for. A wallet is read from the
+            chain at the moment you ask for it, so a position bought a minute ago appears the first
+            time you look. Nothing has to have been watching beforehand.
+          </p>
+          <div className="tw">
+            <table className="dt dt--compact">
+              <colgroup>
+                <col />
+                <col style={{ width: "150px" }} />
+                <col style={{ width: "230px" }} />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>What</th>
+                  <th>How fresh</th>
+                  <th>Where it comes from</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Balances, multipliers, token accounts</td>
+                  <td className="pos">Live, every request</td>
+                  <td className="muted">Solana mainnet RPC, uncached</td>
+                </tr>
+                <tr>
+                  <td>A wallet&apos;s payment history</td>
+                  <td className="pos">Live, rebuilt per lookup</td>
+                  <td className="muted">Mainnet transaction history</td>
+                </tr>
+                <tr>
+                  <td>Payout records and the forward calendar</td>
+                  <td>5 minutes</td>
+                  <td className="muted">Issuer&apos;s public API</td>
+                </tr>
+                <tr>
+                  <td>Prices</td>
+                  <td>1 minute</td>
+                  <td className="muted">Jupiter, underlying equity price</td>
+                </tr>
+                <tr>
+                  <td>A rendered wallet page</td>
+                  <td>2 minutes</td>
+                  <td className="muted">Cached per address, then re-read</td>
+                </tr>
+                <tr>
+                  <td>An asset page</td>
+                  <td>5 minutes</td>
+                  <td className="muted">Cached per symbol, then re-read</td>
+                </tr>
+                <tr>
+                  <td>Market-wide dollar totals on the front page</td>
+                  <td className="is-warn">Measured {asOf}</td>
+                  <td className="muted">Full sweep of all {num(m.assetCount, 0)} assets</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p className="section__after muted">
+            Only the last row is a measurement rather than a live read, because pricing every one
+            of {num(m.assetCount, 0)} assets against its own circulating supply takes minutes
+            rather than milliseconds. It carries its date everywhere it appears. Everything a
+            holder actually asks about — their wallet, one stock, what is coming — is read when
+            they ask.
+          </p>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="section__head">
           <h2 className="section__title">Sources</h2>
           <span className="section__meta">all public, none require a key</span>
         </div>
