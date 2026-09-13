@@ -268,6 +268,85 @@ much as engineering.
 
 ---
 
+### How the data is held, and how that scales
+
+There is no database. No holder index, no crawl, nothing to sign up for. A wallet is read
+from the chain at the moment someone asks, and that is a deliberate architecture rather than
+a shortcut, so it is worth showing the numbers behind it.
+
+**What a lookup actually costs.** Measured through a counting proxy rather than estimated:
+
+| Wallet | Chain reads | Time | Lookups inside a free RPC tier |
+|---|---|---|---|
+| 8 positions | 6 | under 2s | ~166,000 / month |
+| 18 positions | 16 | ~1.5s | ~62,000 / month |
+| 755 positions | 33 | ~4s | ~30,000 / month |
+
+At the published rate for archival calls, ten thousand lookups a month costs under a dollar.
+Turn that around: **$25 a month of database spend buys 156,000 on-demand lookups.** At this
+size the cost argument for indexing does not exist.
+
+**Why on-demand is right for this product specifically.** An index only knows what it was
+running for. That cold start is precisely the weakness of the one close competitor: they
+snapshot the multiplier from the day you subscribe, and they say themselves that
+reconstructing the history instead "is possible but more complex". An index would hand us
+the same limitation we beat them on. On-demand answers every address on first sight, which
+is the product.
+
+It also means no reorg handling, no backfill, and no operational surface. Those are not
+theoretical costs: Zapper, a fully-indexed portfolio tracker seven years old with roughly
+two million monthly users, shut down on 3 August 2026 with infrastructure cost cited in the
+reporting.
+
+**One call instead of fifty, shipped.** Pairing `getSignaturesForAddress` with
+`getTransaction` is the classic N+1 problem, and Helius names that exact pattern as the
+thing their `getTransactionsForAddress` replaces. We moved to it, kept the portable walk as
+a fallback for endpoints that do not offer it, and verified the two produce identical
+balance points before switching.
+
+| | Before | After |
+|---|---|---|
+| 8 positions | 9 calls | **6** |
+| 18 positions | 32 calls | **16** |
+| 755 positions | 197 calls, 14s | **33 calls, 4s** |
+
+The last row matters most and is not about speed. That account previously had payment rows
+marked *estimated*, because the signature walk could not reach far enough back inside its
+budget. It now resolves **all 44 rows exactly**, stable across runs.
+
+**Where caching goes when it is needed, in order of cheapness.** Nothing here is required
+today; it is the plan for when traffic makes it worth it.
+
+1. **Finalized transactions, cached forever.** `getTransaction(signature)` at `finalized`
+   can never change, and a signature is already a content-addressed key. There is nothing to
+   invalidate.
+2. **Closed signature intervals, not answers.** `getSignaturesForAddress` is a range query,
+   so the cacheable unit is not "this address's history" but "this address between signature
+   X and signature Y", which is immutable once both ends are final. Only the open interval
+   from the last known signature to the chain tip is ever refetched.
+3. **The shared, slow data.** 654 multiplier events across 832 assets: a few hundred rows
+   that every single lookup needs and that change a few times a year. If anything is worth
+   indexing, it is this, and it is small.
+4. **Lazy, never global.** Cache only the wallets people actually ask about, the way Shyft
+   populates its index as a byproduct of traffic. A crawl of 300,000 holders would buy the
+   cold-start problem back.
+
+Solana's own Scaled UI Amount integration guide endorses exactly this, in its own words:
+*"You can also save the UiAmount for transfers as you process transactions to avoid doing
+this calculation in the future."* And it tells data providers to *"store and surface both
+the scaled and non-scaled prices"* — which is the distinction this whole product is built on.
+
+The pattern has a name outside crypto: a **materialized view over an event-sourced log**,
+which Microsoft's own definition calls *"a specialized cache"* that is *"completely
+disposable because it can be entirely rebuilt from the source data stores."* A blockchain is
+an event store. A wallet's dividend history is the view. Nothing derived is ever the source
+of truth, and every number on the site can be rebuilt from the chain.
+
+The closest analogue in production agrees. Lido's reward-history service takes any Ethereum
+address with no sign-in and returns that holder's rebase history, and it has done so for
+five years. Its architecture is exactly this split: the shared event log is indexed, and the
+per-address derivation happens per request. They did not precompute per-user tables either.
+
 ### Business model
 
 The honest version first: nothing here is charged for today, and the free surface stays

@@ -487,8 +487,42 @@
     </div>
   </section>
 
+  <section class="slide" id="s8a">
+    <span class="slide__no">09 · How it holds the data</span>
+    <div class="wrap">
+      <h2>No database. Every wallet is read from the chain when you ask.</h2>
+      <p class="lead">An index only knows what it was running for. That cold start is exactly
+        the competitor&rsquo;s weakness, and indexing would hand us the same one. Reading on demand
+        answers every address on first sight, which is the product.</p>
+      <div class="fields">
+        <div class="field">
+          <span class="field__name">18-position wallet &mdash; chain reads, measured</span>
+          <span class="field__val">16</span>
+        </div>
+        <div class="field">
+          <span class="field__name">755-position wallet &mdash; was 197 calls and 14s</span>
+          <span class="field__val">33 &middot; 4s</span>
+        </div>
+        <div class="field field--live">
+          <span class="field__name">$25/month of database buys this many lookups</span>
+          <span class="field__val">156,000</span>
+        </div>
+      </div>
+      <p>We moved off the classic N+1 fan-out that Helius names as the anti-pattern, kept the
+        portable walk as a fallback, and checked both return identical balance points first.
+        The 755-position account used to have rows marked <strong>estimated</strong>; it now
+        resolves all 44 exactly.</p>
+      <p>When caching is worth it, the order is: finalized transactions cached forever, closed
+        signature intervals rather than answers, then the 654 shared multiplier events. Never a
+        global crawl &mdash; that buys the cold start back. Solana&rsquo;s own integration guide
+        says it plainly: <span class="mono">&ldquo;save the UiAmount ... to avoid doing this
+        calculation in the future&rdquo;</span>. Lido has run precisely this split for five
+        years: shared log indexed, per-address derivation per request.</p>
+    </div>
+  </section>
+
   <section class="slide" id="s8b">
-    <span class="slide__no">09 · How it pays for itself</span>
+    <span class="slide__no">10 · How it pays for itself</span>
     <div class="wrap">
       <h2>This category already has a price. We are the expensive half of it.</h2>
       <p class="lead">LSEG publishes a corporate-actions rate card: <strong>&pound;31,100 a year</strong>
@@ -539,7 +573,7 @@
   </section>
 
   <section class="slide" id="s9">
-    <span class="slide__no">10 · What it is not</span>
+    <span class="slide__no">11 · What it is not</span>
     <div class="wrap">
       <h2>Stated plainly, because the whole product is a claim about accuracy.</h2>
       <div class="plain">
@@ -574,7 +608,7 @@
   </section>
 
   <section class="slide slide--dark" id="s10">
-    <span class="slide__no">11</span>
+    <span class="slide__no">12</span>
     <div class="wrap">
       <div class="brandrow" style="color:#f5f4f1">
         <svg class="mark" viewBox="0 0 32 26" width="44" height="36" aria-hidden="true">
