@@ -334,45 +334,42 @@ const TIMELINE_PAGE = 1000;
 const TIMELINE_CAP = 3000;
 
 /**
- * One call instead of fifty, where the endpoint offers it.
+ * The cheap path: one call returns a thousand full transactions.
  *
- * Pairing `getSignaturesForAddress` with `getTransaction` is the classic N+1: a busy account
- * becomes hundreds of round trips. Helius ships `getTransactionsForAddress`, which returns a
- * thousand full transactions per page, so the same walk costs a twelfth of the calls.
- *
- * It is not a standard Solana method, so this returns null the moment the endpoint does not
- * know it and the caller takes the portable path. Measured on one test account: two calls
- * and 1,791ms down to one call and 195ms, for an identical set of balance points.
+ * Pairing `getSignaturesForAddress` with `getTransaction` is the classic N+1, and a busy
+ * account becomes hundreds of round trips. Helius ships `getTransactionsForAddress`, which
+ * returns up to a thousand full transactions per page, so the same walk costs a fraction of
+ * the calls. Not a standard Solana method: returns null when the endpoint does not know it.
  */
 const FAST_PAGES = 6; // a thousand transactions each
 
-async function timelineFast(tokenAccount: string, since: number): Promise<Timeline | null> {
+type Page = { data?: unknown[]; paginationToken?: string };
+
+async function timelinePages(tokenAccount: string, since: number): Promise<Timeline | null> {
   const points: BalancePoint[] = [];
   let token: string | undefined;
   let reachedStart = false;
   let oldest = Number.POSITIVE_INFINITY;
 
   for (let page = 0; page < FAST_PAGES; page++) {
-    let r: { data?: unknown[]; paginationToken?: string } | null;
+    let r: Page | null;
     try {
-      r = await rpc<{ data?: unknown[]; paginationToken?: string }>(
-        "getTransactionsForAddress",
-        [
-          tokenAccount,
-          {
-            transactionDetails: "full",
-            maxSupportedTransactionVersion: 0,
-            ...(token ? { paginationToken: token } : {}),
-          },
-        ]
-      );
+      r = await rpc<Page>("getTransactionsForAddress", [
+        tokenAccount,
+        {
+          transactionDetails: "full",
+          maxSupportedTransactionVersion: 0,
+          filters: { status: "succeeded" },
+          ...(token ? { paginationToken: token } : {}),
+        },
+      ]);
     } catch {
-      return null; // endpoint does not offer it; the caller walks the portable way
+      return null;
     }
 
-    const rows = (r?.data ?? []) as { blockTime?: number | null; meta?: { err: unknown } | null }[];
+    const rows = (r?.data ?? []) as { blockTime?: number | null }[];
     for (const tx of rows) {
-      if (!tx?.meta || tx.meta.err || !tx.blockTime) continue;
+      if (!tx?.blockTime) continue;
       oldest = Math.min(oldest, tx.blockTime * 1000);
       const raw = pickBalance(tx, tokenAccount);
       if (raw !== null) points.push({ at: tx.blockTime * 1000, raw });
@@ -382,7 +379,6 @@ async function timelineFast(tokenAccount: string, since: number): Promise<Timeli
       reachedStart = true;
       break;
     }
-    // One transaction at or before the first payment fixes the opening balance.
     if (oldest <= since) break;
     token = r.paginationToken;
   }
@@ -395,6 +391,68 @@ async function timelineFast(tokenAccount: string, since: number): Promise<Timeli
   };
 }
 
+/**
+ * The exact path, for dates the pages could not reach.
+ *
+ * `filters.blockTime` turns the walk into a pinpoint query: for one payment, ask for the
+ * single most recent successful transaction at or before it, which is precisely the one that
+ * fixes the balance. It costs a sub-call per payment, so it is worth it only for the handful
+ * of dates the cheap path missed — but no amount of trading activity can outrun it, which is
+ * what removes "estimated" as an outcome entirely.
+ */
+async function timelinePinpoint(tokenAccount: string, times: number[]): Promise<BalancePoint[] | null> {
+  let res: (Page | null)[];
+  try {
+    res = await rpcBatch<Page>(
+      times.map((t) => ({
+        method: "getTransactionsForAddress",
+        params: [
+          tokenAccount,
+          {
+            transactionDetails: "full",
+            maxSupportedTransactionVersion: 0,
+            limit: 1,
+            sortOrder: "desc",
+            filters: { status: "succeeded", blockTime: { lte: Math.floor(t / 1000) } },
+          },
+        ] as unknown[],
+      }))
+    );
+  } catch {
+    return null;
+  }
+
+  const points: BalancePoint[] = [];
+  for (const page of res) {
+    if (!page) return null; // a partial answer is worse than an admitted gap
+    const tx = page.data?.[0] as { blockTime?: number | null } | undefined;
+    // Nothing before that date means the account did not exist yet, so the wallet held
+    // nothing. That is an answer, not a gap.
+    if (!tx?.blockTime) continue;
+    const raw = pickBalance(tx, tokenAccount);
+    if (raw !== null) points.push({ at: tx.blockTime * 1000, raw });
+  }
+  return points;
+}
+
+/** Pages first because they are cheap, then pinpoint whatever they could not reach. */
+async function timelineFast(tokenAccount: string, when: number[]): Promise<Timeline | null> {
+  const paged = await timelinePages(tokenAccount, when[0]);
+  if (!paged) return null;
+
+  const missed = when.filter((t) => t < paged.coveredFrom);
+  if (!missed.length) return paged;
+
+  const extra = await timelinePinpoint(tokenAccount, missed);
+  if (!extra) return paged; // keep what we have; those rows stay marked estimated
+
+  return {
+    points: [...paged.points, ...extra].sort((a, b) => a.at - b.at),
+    coveredFrom: 0,
+    firstAt: paged.firstAt,
+  };
+}
+
 export async function balanceTimeline(
   tokenAccount: string,
   when: number[]
@@ -402,7 +460,7 @@ export async function balanceTimeline(
   if (!when.length) return { points: [], coveredFrom: 0, firstAt: null };
   const since = when[0];
 
-  const fast = await timelineFast(tokenAccount, since);
+  const fast = await timelineFast(tokenAccount, when);
   if (fast) return fast;
 
   type Sig = { signature: string; blockTime: number | null; err: unknown };
