@@ -1,104 +1,174 @@
-## 1. THE ANSWER
+# PRIOR ART — second search, 13 September 2026
 
-Nobody is doing the specific thing — joining a Token-2022 multiplier change to a specific Solana wallet's position and stating what that wallet was paid — but the space around it is considerably more crowded than the project's framing assumes, and at least six independent parties have already found the same underlying insight and built adjacent pieces of it. The honest claim is not "nobody saw this"; it is "several people saw it, everyone stopped one join short of the holder, and one team (Dinari) ships the holder-facing record for a different mechanism on different chains behind a KYC wall."
+The first search concluded "nobody does this". That was too strong, and this second search,
+run because the finding was too convenient to trust, found the thing the first one missed.
 
-Two of the four things the project has been treating as its own are not: the forward calendar and the dividend-vs-split distinction are both free, unauthenticated, public data from the issuer. Lead with the attribution, not the data.
+Twenty-six agents across eight independent angles: Solana wallets and trackers, explorers and
+indexers, the issuer and the venues, the same mechanic on other chains, tax and accounting
+tools, hackathons and research, the holder's own point of view, and one told simply to prove
+us wrong. Four of the eight found the same product without being told about it.
 
-## 2. CLOSEST THING THAT EXISTS
+---
 
-**1. Dinari — `GET /api/v2/accounts/{account_id}/dividend_payments`** (graded DIRECT)
-Does: the literal sentence. Per-account record of dividends actually paid — stock id, payment date, amount, currency — alongside an announced-dividend calendar and separate split handling.
-Stops at: its own dShares on EVM chains (Ethereum, Base, Arbitrum, Avalanche, Plume), never xStocks, never Solana, never a multiplier. Dinari pays a real USD+ transfer, so the payment is already visible in the wallet — the invisibility problem does not exist there. It is a B2B enterprise API behind `X-API-Key-Id`/KYC'd account objects, keyed on a Dinari account, not an arbitrary pasted wallet. Their own docs hand the user-facing step to the integrator.
-Say to a judge: "Dinari shows their own KYC'd customers a statement for cash dividends they already received as a transfer; we show any self-custody wallet a payment that never appeared as a transfer at all. Different mechanism, different chain, different audience — but yes, per-holder dividend records are not a new idea in tokenized equities."
+## 1. THE ANSWER, STATED PLAINLY
 
-**2. Scallar (scallar.finance)** — the one most likely to embarrass you
-Does: live indexer, free public API and explorer for ERC-8056 Scaled UI Amount stock tokens on Robinhood Chain. Full per-token multiplier history keyed to block and tx hash (`oldMultiplier`, `newMultiplier`, `changePct`), and multiplier-corrected `uiBalance` next to `rawBalance` on every position and holder row.
-Stops at: the join. `/v1/balances/{address}` gives current corrected positions; `/v1/balances/{address}/history` gives transfers only. No per-wallet, per-event payout record, no forward calendar, no dividend-vs-split labelling (their docs say splits "move the same scalar... will appear in this same feed" — undifferentiated). Robinhood Chain only.
-Say to a judge: "Scallar reached the same conclusion we did on a different chain and stopped one query short — they correct your balance, we tell you which event moved it and what it paid you." Be ready: their marketing line is almost word-for-word the project's pitch ("technically correct and quietly wrong"). If the pitch deck uses similar phrasing, change it now.
+**Someone is already doing a close version of this, on the same chain, with the same token
+extension, on the same assets, and has been since May 2026.** It is called SolanaRWA. We
+must name it first and name it ourselves, because a judge who finds it after we have claimed
+novelty will stop reading.
 
-**3. Backed / xStocks public corporate-actions API** (`api.xstocks.fi/api/v2/public/corporate-actions/*`)
-Does: free, unauthenticated, no key. 694 historical events, 539 scheduled ones, each with `caType` (CashDividend / ForwardSplit / StockDividend / SpinOff / ReverseSplit), `multiplierOld`, `multiplierNew`, `grossCashflowUsd`, `netCashflowUsd`, `withholdingTaxRate`, `effectiveTimeUtc`. Plus `/public/assets/{symbol}/multiplier/history`. The older `api.backed.fi/api/v1/token/{SYMBOL}/multiplierUpdates` returns the same with a `reason` field.
-Stops at: no holder dimension anywhere. The full OpenAPI path list contains no wallet-scoped endpoint; the authenticated `/client/*` family is for onboarded issuer partners, not retail. It has no notion of a balance, so it cannot tell anyone what they were paid.
-Say to a judge: "The issuer publishes the events. We publish the consequence. The calendar is theirs and we cite it; the attribution is ours." Do not claim the calendar as an invention — a judge can curl it in ten seconds.
+What survives is narrower and still worth building. SolanaRWA answers only for a wallet you
+connect and control, and only for events that happen after you sign up. ExDate answers for
+any address, for everything that already happened.
 
-**4. Bybit — xStocks trading page (Multiplier + Multiplier History)**
-Does: ships to retail today a live multiplier plus a multiplier history table with Event Type and timestamp, and a token-price/underlying-price toggle. This is a dividend-vs-split distinction in a retail UI.
-Stops at: per-asset chart annotation, not per-holder. Logged-in Bybit users only, and only for balances held on Bybit. A user reading "Event Type: dividend, 1.0229 → 1.0273" still cannot tell what it was worth on their own position. Bybit also explicitly denies entitlement: xStocks "do not grant holders any voting rights, dividend entitlements or legal claims."
-Say to a judge: "Bybit annotates the asset; we attribute to the holder. And only if you keep your tokens on Bybit."
-Known unknown: nobody on the research team had a Bybit account, so how much that history panel actually renders (numeric old/new values? cash per share?) is unverified. If a judge has an account, they can out-detail you. Assume it shows the numbers.
+---
 
-**5. CF Benchmarks — CFB xStocks Corporate Action Feed (v1.0, 7 May 2026)**
-Does: regulated index administrator's standardized feed turning Backed's raw data into adjustment instructions — Effective Scale Factor, per-Token Cash Amount, Settlement Price, a Cashflow / Structural / Termination taxonomy (i.e. dividend vs split, formalized), a Pending→Effective lifecycle giving advance notice, and versioned corrections. It reasons explicitly about Raw Balance × Multiplier.
-Stops at: subscription B2B. Its three stated consumer sections are perpetual futures, margin/collateral, and options venues. No wallet, no holder, no payment record, and it is fed by the issuer rather than read off chain.
-Say to a judge: "The institutions have a paid feed so their derivatives don't mis-settle. The person holding the token in Phantom has nothing. That asymmetry is the product."
+## 2. SolanaRWA — solanarwa.app
 
-**Also named, so you are not surprised:** RWAct (`Otomatorg/xstocks-hackathon-backend`) turns a `MultiplierUpdated` delta into a stated dividend-per-share push notification — conceptually the closest anyone has come, but Ethereum via ethers.js, per-share not per-wallet, unmaintained hackathon code. ShareLens (`bellabaelfire/stocklana-sharelens`) is Solana xStocks, independently found the stale-field trap, fails closed on it — but inspects "a hypothetical 100 raw tokens," never a wallet. Corporate Action Guard (`gnanam1990`) turns the same stale-multiplier trap into a preflight guard for integrators. Ondo has all three ingredients — `/assets/{symbol}/dividends` (with upcoming dates), `/assets/{symbol}/shares-multiplier`, `/chains/{chainId}/balances` filterable by `userAddress` — and has assembled none of them; that is your clearest "why the gap exists" exhibit and also a second asset family with the identical problem. Jupiter Portfolio and Solana Explorer resolve the multiplier correctly and say nothing about why. Kraken's own FAQ states the gap for you.
+**Graded "close" by all eight agents that probed it independently. Real prior art on the core
+idea.**
 
-## 3. WHY THE GAP EXISTS
+Same chain, same standard, same extension, same asset universe: SPL Token-2022
+ScaledUiAmount, Backed's xStocks (it names sixteen mints: TSLAx, NVDAx, AAPLx, GOOGLx,
+AMZNx, METAx, MSTRx, COINx, CRCLx, HOODx, BRKBx, MCDx, SPYx, QQQx, GLDx, DFDVx) plus Ondo
+Global Markets. Same insight, in their own published words: a silent multiplier increase is a
+taxable per-holder dividend. Same output concept: a dated, valued dividend income event
+recorded once per wallet.
 
-Rule out two explanations first, because the evidence kills both.
+Their blog posts say it before we did:
 
-**Not "nobody realised."** At minimum Scallar, RWAct, ShareLens, Corporate Action Guard, `erc8056-evidence`, CF Benchmarks and MetaMask all realised. MetaMask's merged PR #509 carries the comment "accurate cosmetic balance calculations (e.g., yield, dividends, splits)" — the team understood the mechanic and shipped only a corrected number. Multiple independent discoveries, zero products.
+- *On-Chain Dividends Are Silent. Your Tax Bill Isn't.* — 29 May 2026
+- *How xStocks Dividends Work On-Chain* — 12 March 2026
 
-**Not "the data is hard to reach."** It is a free unauthenticated REST API plus `getAccountInfo jsonParsed`, which already applies the multiplier. Two researchers pulled live values from a laptop with curl.
+Their method, quoted from that technical post:
 
-The four causes that actually hold:
+> Every time you refresh your portfolio valuations, the system reads the current multiplier
+> from the on-chain mint account for each xStocks token you hold. It compares this against
+> the last recorded snapshot stored in our database.
 
-**(a) The mechanism was designed to require nothing of the holder, so no one in the chain acquired a reporting duty.** Backed: "No action is required from token holders." Ondo: "holders don't need to claim anything." Kraken: "There is no separate cash credit or line item." Every party states this as a feature. A feature nobody must act on is a feature nobody must report, and the design intent propagated into every integration.
+Live and paid. Free tier: 1 wallet, 5 assets, manual valuations only. Auto-valuation, which
+is the refresh that triggers dividend detection, sits behind Pro at $14.99/mo.
 
-**(b) Everyone who touched the extension was solving correctness, not reporting.** Solana Explorer's tooltip ("Scaled {raw} by {multiplier} due to the scaled ui amount extension"), Birdeye's `ui_amount_mode`, MetaMask's snap, Chainlink's pause/unpause protocol, Corporate Action Guard's preflight, defi.xstocks.fi's own `fetchTokenMultiplier` — all of it exists to stop a displayed number being wrong. Stopping a number being wrong is a bug fix someone owns. Explaining why it changed is a product nobody owns.
+### Where it stops, each verified against their own pages
 
-**(c) The audience is structurally invisible and generates no revenue.** Where an operator had a commercial obligation to a logged-in user, the feature exists: Bybit built the history panel, Kraken documented the policy, Dinari built the per-account endpoint, CF Benchmarks sells the feed. Self-custody holders have no counterparty, no account object, no support ticket, and no one billing them. Backpack is the tell in the other direction — it has a page literally titled "Your holdings, dividends and corporate actions" and ships none of it ("Still being worked on"), plus "Tax documents (statements / cost basis / P&L) — Not provided, keep your own records."
+**It cannot look up an address.** Every route is wallet-gated: `/rwa` renders only "Connect
+Your Wallet", `/rwa/reports` only "Connect Wallet to Start", and all three pricing tiers call
+to action with "Connect Wallet". The string "wallet address" appears zero times on the site.
+You cannot inspect a wallet you do not control, and there is no link you can send anyone.
 
-**(d) The legal framing chills the word "payment."** Bybit states xStocks confer no dividend entitlement; Backed sells only to qualified investors. If you are an exchange or issuer, calling a multiplier tick a dividend payment to a holder creates a claim you have explicitly disclaimed. A third party with no entitlement to disclaim can say it plainly. That is a real structural advantage and worth saying out loud.
+**It only sees forward.** The mechanism is snapshot diffing against their own database, so a
+wallet connecting today gets nothing for the events it already lived through. Their own
+article concedes it:
 
-Recency is a minor factor, not the main one — Explorer support merged May 2025, Birdeye July 2025, the CF Benchmarks feed May 2026 — so the window has been open roughly sixteen months, long enough that "it's new" alone does not explain it. And the one genuinely hard part, reconstructing a wallet's historical balance across each effective timestamp, is expensive precisely for the per-asset data vendors who have no reason to do it.
+> The most important thing is to track your dividends from the start. Retroactively
+> reconstructing dividend history from multiplier changes is possible but more complex than
+> recording them as they happen.
 
-## 4. WHAT THIS MEANS FOR THE CLAIM
+That reconstruction is the thing ExDate does.
 
-**The sentence as written — "no wallet, explorer or portfolio tracker on Solana reports these payments" — is defensible but fragile, and I would not ship it unqualified.** Three weaknesses: "reports these payments" is loose enough that a judge can point at Bybit's multiplier history, or at the issuer's own free API, and say the events are reported; the category list excludes exchanges, which will read as gerrymandering if challenged; and several Solana surfaces were genuinely uninspectable (Solscan, Zapper, CoinStats, closed-source wallet clients), so "no" is stronger than the evidence supports.
+**It values the payment against the wrong balance.** It computes "your token quantity
+multiplied by the multiplier increase" — the quantity at refresh time, not the balance held
+on the payout date. A holder who bought or sold in between gets a wrong number. This is the
+same error we found in our own wallet pages and fixed on 13 September; ours now walks the
+token account's transaction history to the balance actually held that day.
 
-**Exact replacement wording:**
+**It appears to book splits as dividend income.** Their rule, as published, is that when the
+multiplier increases a dividend was paid. The word "split" does not appear anywhere in their
+corpus. An agent checked the issuer's own public API against this: NFLXx's only multiplier
+event is `reason: "Split"`, 1 to 10. KLACx has a Split from 1.0009 to 10.0089, a 900% jump,
+sitting between two Dividend events of about 0.08%. TQQQx has a Split from 1.0006 to 2.0012
+among 0.2% dividends. In a product that files to the ATO, IRS, HMRC and CRA, booking those as
+dividend income is a serious misclassification, and the fix is free, because the issuer
+publishes a `reason` field on an unauthenticated endpoint.
 
-> As of 13 September 2026, no Solana wallet, explorer or portfolio tracker we could inspect attributes these balance increases to the corporate action that caused them. The issuer publishes the events; nobody joins them to a wallet. Solana Explorer, Jupiter Portfolio and Birdeye all apply the multiplier correctly and none of them says why your balance moved, what it was worth, or when the next one lands.
+**It reads the mint directly and never mentions the stale field.** `newMultiplier` and
+`newMultiplierEffectiveTimestamp` appear nowhere in their writing, so they are exposed to the
+same trap.
 
-If you need one line: **"The events are public. The payments are not — because nobody joins them to a holder."**
+### What to say if a judge raises it
 
-Sentences to delete from the site immediately, because they are false and cheaply falsifiable:
-- Any claim that no forward calendar of these events exists. `api.xstocks.fi/api/v2/public/corporate-actions/upcoming` returns 539 scheduled events, free, no key.
-- Any claim that nobody separates a split from a dividend. `caType` does exactly that in the same free API; CF Benchmarks formalizes it; Bybit surfaces it to retail.
+SolanaRWA got to the insight before us and we cite them. They built the forward half, for
+subscribers who connect a wallet. We built the backward half, for anyone with an address, and
+we separate a split from a dividend, which their published method does not.
 
-**Evidence you can cite when challenged, strongest first:**
-- Kraken's own xStocks FAQ (updated 8 April 2026): "There is no separate cash credit or line item, the increase appears as a higher effective token balance in your portfolio." An exchange telling its own users the record does not exist is the best third-party statement of the gap you will ever get.
-- Backpack's own feature table: cash dividend payouts and "Splits & corporate actions reflected in your balance" both marked "Still being worked on"; tax documents "Not provided."
-- Solana Explorer source: `getCurrentTokenScaledUiAmountMultiplier` and `ScaledUiAmountMultiplierTooltip.tsx` resolve the multiplier and explain only the scaling; a grep of the whole `app/` tree returns zero hits for dividend, corporate action, xstock, stock split, payout.
-- Jupiter: 3.6 MB of shipped JS scanned, zero occurrences of dividend, corporate action or ex-date outside an unrelated TradingView constant.
-- Backed's own docs prove the ambiguity you resolve: a dividend moves the multiplier 1.0 → 1.008, a 4-for-1 split moves it 1.008 → 4.032. Same number, no label, on chain.
-- The xStocks OpenAPI path list contains no wallet- or holder-scoped endpoint at all.
+---
 
-One housekeeping item: `github.com/BacBacta/Exdate` surfaced in a public GitHub search with PRs dated 6 September 2026. If that is yours, its PR titles are public and a judge can read them. Check what they reveal before demo day.
+## 3. Lido stETH Reward History — the structural precedent, five years old
 
-## 5. WHERE WE DID NOT LOOK
+`stake.lido.fi/rewards`, plus a public API at `reward-history-backend.lido.fi/?address=0x...`
+and a Rewards module in the Lido Ethereum SDK.
 
-State this in the deck, not just here. Silence in these places is not evidence.
+Paste **any** Ethereum address or ENS name. No wallet connection, no signature, no sign-in.
+Get that address's per-day rebase attribution, totals, average APR, interleaved transfers,
+and a CSV export.
 
-**WebSearch was unavailable for this entire session.** Everything above came from direct HTTP fetches, GitHub issue/PR search, repo clones, shipped-bundle greps and live API probes. No general web search was performed. Anything that exists only as a blog post, a tweet, a Product Hunt listing, a Discord announcement or an unindexed landing page was never seen.
+That is structurally the same product as ExDate: a global scalar applied to a per-holder
+constant, reconstructed per address, for an arbitrary address, with no onboarding. Different
+chain, different standard, different asset — stETH is an ERC-20 whose balance is
+`shares × totalPooledEther / totalShares` — but the same shape of problem and the same shape
+of answer.
 
-**GitHub code search was unavailable** — `api.github.com/search/code` requires auth, returned 401, no `gh` CLI and no token. So no true repo-wide code search for `scaledUiAmount` across all of GitHub. Substituted issue/PR search plus full clones of the repos that mattered. grep.app returned a Vercel security interstitial on every request; searchcode.com's API now 404s.
+This strengthens the project rather than weakening it, and should be said out loud: the
+pattern is proven, Lido shipped it years ago for staking rewards, and nobody had brought it
+to tokenized equities on Solana.
 
-**Blocked or unreachable, therefore unassessed:**
-- Solscan — Cloudflare challenge on both solscan.io and api-v2.solscan.io. Docs index read (61 entries, no token-extension content) but the live product was never seen. This is the single largest hole, given Solscan's position.
-- Zapper — Cloudflare 403 on root, sitemap and llms.txt. Completely unassessed.
-- CoinStats — docs domain does not resolve, API serves an empty SPA shell. Unassessed.
-- Ondo's live public API — HTTP 403 geo-block from this location on every call, despite `security: []` in their spec. Endpoint contracts read from the OpenAPI; live dividend and multiplier values never seen, and whether `/v1/chains/{chainId}/balances` truly accepts an arbitrary `userAddress` in production is unverified.
-- Ondo Global Markets app — geofenced and wallet-gated; the logged-in holder view was never inspected.
-- Bybit's live trading page — logged-in only. The multiplier history panel's actual detail level is inferred from Bybit's help docs, not observed.
-- Securitize investor portal — auth-gated; `docs.securitize.io` 404s.
-- Helius Orb explorer — HTTP 429.
-- learn.bybit.com — 403 to non-browser clients.
-- Remora Markets — every domain parked, misconfigured or non-resolving. Product unassessable.
-- `sonarwatch/portfolio` — repo deleted or private, so Sonar Watch's historical handling cannot be verified from source.
+---
 
-**Structurally uninspectable:** the shipping Phantom, Solflare and Backpack browser extensions and mobile apps. Only marketing sites, help centres, public docs repos and published snaps were readable. Critically — because `jsonParsed` RPC already applies the multiplier to `uiAmount`, any of these wallets may display a correctly scaled balance with no code of its own. Absence of evidence in their public surfaces proves only that none of them *explains* the change, not that none of them handles it. That distinction is exactly what the revised claim wording preserves, and it is the honest version.
+## 4. Everything else, and where it stops
 
-**Partially covered:** Step Finance's Next.js entry bundles were scanned exhaustively (3.87 MB, 23 files, zero hits on ten terms) but per-route chunks that load only after wallet connection were not enumerated. Same caveat class applies to any lazily-chunked SPA scanned this way.
+**Dune's curated RWA schema** (`rwa_multichain.unit_conversions`, `rwa_multichain.balances`)
+ships both halves of the join as first-class tables, with the Solana rows explicitly modelled
+on ScaledUiAmountConfig. The join itself is not done and no public dashboard does it. The
+official xStocks Dune dashboard tracks AUM, not holders.
+
+**The issuer's own API is fully public.**
+`api.xstocks.fi/api/v2/public/assets/{SYMBOL}/multiplier/history?network=Solana` returns every
+event with `previousMultiplier`, `multiplier`, `reason` and `activationDateTime`, with no key.
+Per-asset event history is therefore **not novel to anyone**, and we do not claim it. There is
+no wallet-scoped endpoint anywhere in the API: `/assets/{sym}/holders`,
+`/assets/{sym}/dividends`, `/holders` and `/wallets/*/holdings` all return 404.
+
+**Crypto.com** commits in its help centre to recording tokenized-stock dividends for
+customers, on Cronos EVM, custodially.
+
+**Kraken's** corporate-actions view covers Kraken Securities US equities, which are
+DTC-settled off-chain shares in a broker-dealer account. It never mentions Solana or
+Token-2022.
+
+**Phantom, Solflare, Backpack, Kraken, Bybit and Birdeye** all apply the multiplier, so the
+balance on screen is right. None shows the event, the history, or what you were paid.
+Phantom's help page says only that your token balance may increase for xStocks.
+
+**Mainstream tax tools do not handle it.** SolanaRWA's own May 2026 analysis names Koinly,
+CoinTracker, CoinLedger, TaxBit and ZenLedger as treating a multiplier-driven balance rise as
+phantom cost basis with zero dividend income. Help-centre searches confirm it: CoinTracker
+returns "No results for xstocks", CoinLedger "0 search results", Awaken "0 search results" for
+rebase, ZenLedger "We couldn't find any articles for: rebase".
+
+---
+
+## 5. THE NEGATIVE, DOCUMENTED
+
+Eighty-five specific products, repos, queries and help centres were searched and found to have
+nothing. Highlights: GitHub searches for per-holder multiplier attribution returned three
+repos, all ERC-8056 on Robinhood Chain; Colosseum and Stocklana entries contain no xStocks
+corporate-action tracker; Messari, Delphi, Galaxy, a16z and Binance Research have no
+holder-level corporate-action work; Solana's own ScaledUiAmount integration guide states the
+requirement and names nobody who meets it.
+
+One agent exhausted its web-search budget before finishing its sweep and said so. This is a
+much wider search than the first one, not a complete one.
+
+---
+
+## 6. WHAT WE CAN HONESTLY CLAIM NOW
+
+Not "nobody does this". This:
+
+> The issuer publishes the events and anyone can read them. One product, SolanaRWA, turns
+> them into per-holder income for subscribers who connect a wallet, going forward from the day
+> they sign up. What we could not find anywhere is the backward half: paste any address, with
+> no sign-in, and see what it was already paid, valued against the balance it actually held on
+> each payment date, with splits separated from dividends.
+
+Every clause in that sentence is load-bearing, and each one is something SolanaRWA does not do.

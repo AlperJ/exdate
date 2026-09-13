@@ -111,32 +111,50 @@ preferred that pays like a bond. The other 324 stocks come to $1.2m between them
 typical one has paid 0.370% of its value since launch. Tokenized equity dividends are, so
 far, very small — which is precisely why nobody noticed they were invisible.
 
-### We are not the first to notice this
+### We are not the first, and one of them is close
 
-Before claiming anything, we went looking for whoever had got here first, and several
-people had.
+We searched twice. The first search concluded nobody was doing this, which was too
+convenient to trust, so we ran it again across eight independent angles. Four of the eight
+found the same product without being told about it.
 
-**Scallar** built a live indexer and public API for scaled-UI stock tokens on Robinhood
-Chain, with full multiplier history and a corrected balance on every holder row. They
-reached the same conclusion we did, on a different chain, and stopped one query short: they
-correct your balance, they do not tell you which event moved it or what it paid you.
+**SolanaRWA (solanarwa.app) is doing a close version of this, on the same chain, with the
+same token extension, on the same assets, and has been since May 2026.** Their own posts,
+*On-Chain Dividends Are Silent. Your Tax Bill Isn't.* (29 May 2026) and *How xStocks
+Dividends Work On-Chain* (12 March 2026), state the problem before we did. We cite them
+rather than wait to be caught by a judge.
 
-**Dinari** ships a per-account dividend record through
-`/accounts/{id}/dividend_payments`. It is the literal sentence — for their own dShares on
-EVM chains, behind a KYC'd enterprise API, for a mechanism that pays a real transfer, so
-the invisibility problem does not arise there.
+Where they stop, verified against their own pages:
 
-**Backed's own corporate-actions API** publishes every event, free and without a key. The
-calendar is theirs; we cite it and do not claim it. **Bybit** shows a multiplier history
-with event types to logged-in users holding on Bybit. **CF Benchmarks** publishes a
-corporate-action feed for institutions.
+- **They cannot look up an address.** Every route is wallet-gated; the string "wallet
+  address" appears zero times on their site. You can only see a wallet you control.
+- **They only see forward.** Their method reads the current multiplier and compares it with
+  the last snapshot in their database, so connecting today shows nothing for what already
+  happened. Their own article says it: "Retroactively reconstructing dividend history from
+  multiplier changes is possible but more complex than recording them as they happen."
+- **They value against the wrong balance** — your quantity at refresh time, not the balance
+  you held on the payout date. That is the same error we found in our own wallet pages and
+  fixed on 13 September.
+- **They appear to book splits as dividend income.** Their published rule is that a rising
+  multiplier means a dividend was paid, and the word "split" appears nowhere in their
+  writing. NFLXx's only multiplier event is a Split from 1 to 10.
 
-What none of them does is the join: take an arbitrary Solana wallet nobody has onboarded,
-and say what that wallet was paid, by which event, against the balance it actually held on
-the day. That is the claim, and it is a narrower one than "nobody saw this".
+**Lido has shipped the structural precedent for five years.** `stake.lido.fi/rewards` takes
+any Ethereum address with no sign-in and returns that holder's per-day rebase attribution,
+with a public API behind it. Same shape of problem, same shape of answer, different chain and
+standard. The pattern is proven; nobody had brought it to tokenized equities on Solana.
 
-The full search, including what each party ships and what to say if a judge raises it, is
-in `PRIORART.md`.
+**The events themselves are free and public.** Backed's corporate-actions API needs no key
+and already labels a dividend differently from a split. We cite it and do not claim it.
+Dinari keeps per-account dividend records on EVM chains behind KYC. Scallar indexes the same
+class of multiplier on Robinhood Chain. Crypto.com records dividends for its own custodial
+customers on Cronos.
+
+So the honest claim is not "nobody does this". It is this: paste **any** address, with no
+sign-in, and see what it was **already** paid, valued against the balance it **actually held
+on each payment date**, with **splits separated from dividends**. Every clause is something
+the closest competitor does not do, and one of them they concede themselves.
+
+The full search, including eighty-five documented negatives, is in `PRIORART.md`.
 
 ### Why Solana
 

@@ -235,10 +235,20 @@ const balance = (Number(rawAmount) / 10 ** decimals) * m;`}
           <p className="prose">
             The issuer publishes these events openly: its corporate-action feed is free and needs
             no key, and it labels a dividend differently from a split. None of that is ours, and we
-            are not the first to work this ground. Dinari keeps a per-account dividend record for
-            its own tokens on other chains, behind an API key. Scallar indexes the same kind of
-            multiplier on Robinhood Chain. What we could not find anywhere is this join: an
-            arbitrary Solana wallet nobody has onboarded, an event, and what that wallet was paid.
+            are not the first to work this ground. <b>SolanaRWA</b> has been turning these same
+            multiplier changes into per-holder dividend income since May 2026, on this chain and
+            this token extension. Dinari keeps a per-account dividend record on other chains behind
+            an API key. Lido has let anyone paste an Ethereum address and read their rebase history
+            for five years.
+          </p>
+          <p className="prose">
+            What we could not find anywhere is the backward half. SolanaRWA reads the multiplier
+            each time you refresh and compares it with its last snapshot, so it sees payments from
+            the day you sign up onward, only for a wallet you connect and control; its own writing
+            says reconstructing the history instead &ldquo;is possible but more complex&rdquo;.
+            This page takes any address, with no sign-in, and reconstructs what already happened,
+            against the balance that address actually held on each date, with splits kept separate
+            from dividends.
           </p>
           <p className="prose">
             Before making that claim we read what the Solana surfaces actually ship. Solana
