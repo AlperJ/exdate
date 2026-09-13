@@ -43,7 +43,7 @@ export default async function Home() {
         <div className="figure__label">How that total accumulated</div>
         <hr className="figure__rule" />
         <p className="figure__context">
-          Every step is a day a stock paid its holders, valued against{" "}
+          Every step is a month in which a stock paid its holders, valued against{" "}
           {usd(m.totalFloatUsd, 0)} of tokens in public hands. Splits are excluded: they multiply
           the token count without paying anyone.
           {m.leader ? (

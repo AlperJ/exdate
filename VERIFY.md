@@ -297,3 +297,33 @@ that the figure will move between loads, and a note explains why. On an omnibus 
 holding 755 positions, 37 of 47 rows come back estimated and the page says so. On both
 ordinary test wallets, none do.
 
+## W10, W11, W12, W7, W9 — closed 13 September 2026
+
+**W7 (count scope).** The payment count was gated on whether a price happened to be
+available. Counts now come from the set that paid; only money comes from the set we can
+price. An independent walk of all 832 assets' history endpoints agrees with the snapshot's
+own scan to the event: 651 activated multiplier changes, 638 dividends, 8 splits, 3
+administrative, 2 reverse splits. Ten of those dividends sit on tokens the issuer reports
+as having zero circulating supply, so 628 across 329 stocks reached a holder; four of those
+had no price, so the money is 624 across 325. The method page prints the chain.
+
+**W9 (firstSeen landmine).** Gone: `firstSeen` has been deleted. The balance walk already
+visits the same signatures and now reports the account's first transaction itself, skipping
+failed ones. A payment the wallet demonstrably held nothing for is dropped, so an account
+too busy to date can no longer claim the asset's entire payout history.
+
+**W10 (per-1,000 column).** The column printed the raw multiplier delta, which is what a
+launch-day holder gained. Dividing by the previous multiplier gives what a holder on the
+day received: AAPL's last dividend moves from +0.6048 to the true +0.6032. The rows no
+longer sum to the headline, correctly, and the page now says why rather than leaving a
+reader to add them.
+
+**W11 (chart rescale).** The flat scaling factor is gone. Each event now contributes
+`floatUsd × (1/F_before − 1/F_after)`, so the curve is the true compounded value at every
+point and lands on the headline by construction. Measured drift: 0.000000%. The snapshot
+throws rather than write a file where the two disagree.
+
+**W12 (feed wrinkles).** Duplicates and undated rows are dropped in `fetchUpcoming`, so no
+page can miscount them. The calendar prints the breakdown: 539 rows are 482 already
+activated, 14 repeats, 5 undated and 38 genuinely ahead. Those four numbers sum to 539.
+

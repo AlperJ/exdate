@@ -192,31 +192,40 @@ const paying = everPaid.filter((r) => r.hiddenUsd !== null);
 // Cumulative dollars paid, bucketed by month. Each event contributes the share of
 // today's float that its own ratio accounts for, which is the same assumption the
 // headline figure already makes: historical payouts valued at the current float.
+// Each asset's accumulated payout after k events is floatUsd * (1 - 1 / F_k), where F_k
+// is the product of the first k ratios. So one event contributes the step between two of
+// those, floatUsd * (1/F_(k-1) - 1/F_k), and the series ends on exactly the headline
+// because F at the last event is the same divisor the headline uses.
+//
+// The earlier version summed each event's share independently, which ignores compounding
+// and overshot by about one per cent, then scaled the whole curve by a flat factor to
+// land on the headline. That was exact only at the endpoint and wrong by a similar
+// amount at the start, which is the part of the curve nothing else corrects.
 const byMonth = new Map();
 for (const r of paying) {
-  for (const e of r.events ?? []) {
+  const events = [...(r.events ?? [])].sort((a, b) => (a.at < b.at ? -1 : 1));
+  let f = 1;
+  for (const e of events) {
+    const before = f;
+    f *= e.ratio;
     const key = e.at.slice(0, 7);
-    const share = r.floatUsd * (1 - 1 / e.ratio);
+    const share = r.floatUsd * (1 / before - 1 / f);
     const cur = byMonth.get(key) ?? { usd: 0, count: 0 };
     cur.usd += share; cur.count += 1;
     byMonth.set(key, cur);
   }
 }
 let runUsd = 0, runCount = 0;
-const rawSeries = [...byMonth.keys()].sort().map((month) => {
+const cumulative = [...byMonth.keys()].sort().map((month) => {
   const v = byMonth.get(month);
   runUsd += v.usd; runCount += v.count;
   return { month, usd: runUsd, count: runCount, monthUsd: v.usd, monthCount: v.count };
 });
-// Summing each event's share independently ignores compounding, so the series ends
-// about one per cent above the headline, which compounds the ratios. Scale the shape
-// onto the headline so the page never states two different totals.
 const headlineUsd = paying.reduce((s, r) => s + r.hiddenUsd, 0);
-const rawEnd = rawSeries.length ? rawSeries[rawSeries.length - 1].usd : 0;
-const k = rawEnd > 0 ? headlineUsd / rawEnd : 1;
-const cumulative = rawSeries.map((p) => ({
-  ...p, usd: p.usd * k, monthUsd: p.monthUsd * k,
-}));
+const seriesEnd = cumulative.length ? cumulative[cumulative.length - 1].usd : 0;
+const drift = headlineUsd > 0 ? Math.abs(seriesEnd / headlineUsd - 1) : 0;
+console.log(`  grafik sonu ${Math.round(seriesEnd).toLocaleString("en-US")}, baslik ${Math.round(headlineUsd).toLocaleString("en-US")}, sapma ${(drift * 100).toFixed(6)}%`);
+if (drift > 1e-9) throw new Error(`grafik basligi tutmuyor: %${(drift * 100).toFixed(6)}`);
 // Nine tenths of the dollar total comes from one instrument, a variable-rate preferred
 // that pays like a bond rather than like a stock. Stating the total without saying so
 // would describe a market that does not exist, so the concentration and the typical

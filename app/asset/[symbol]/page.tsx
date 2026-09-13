@@ -263,6 +263,12 @@ export default async function AssetPage({ params }: { params: Promise<{ symbol: 
                 </tbody>
               </table>
             </div>
+            <p className="section__after muted">
+              These rows do not add up to the {num(per1k, 4)} above, and should not. Each one
+              answers &ldquo;what would 1,000 {r.symbol} have earned that day&rdquo;, starting fresh
+              every time. The figure above follows a single 1,000-token position through all of
+              them, so each payment is paid on a slightly larger balance than the last.
+            </p>
           </div>
         </section>
       ) : null}
