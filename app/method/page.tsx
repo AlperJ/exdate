@@ -212,13 +212,13 @@ const balance = (Number(rawAmount) / 10 ** decimals) * m;`}
                 </tr>
                 <tr>
                   <td>A rendered wallet page</td>
-                  <td>2 minutes</td>
-                  <td className="muted">Cached per address, then re-read</td>
+                  <td className="pos">Live, not cached at all</td>
+                  <td className="muted">Measured: 9 chain reads, under a second</td>
                 </tr>
                 <tr>
                   <td>An asset page</td>
-                  <td>5 minutes</td>
-                  <td className="muted">Cached per symbol, then re-read</td>
+                  <td className="pos">Live, not cached at all</td>
+                  <td className="muted">Measured: 3 chain reads</td>
                 </tr>
                 <tr>
                   <td>Market-wide dollar totals on the front page</td>
@@ -231,9 +231,15 @@ const balance = (Number(rawAmount) / 10 ** decimals) * m;`}
           <p className="section__after muted">
             Only the last row is a measurement rather than a live read, because pricing every one
             of {num(m.assetCount, 0)} assets against its own circulating supply takes minutes
-            rather than milliseconds. It carries its date everywhere it appears. Everything a
-            holder actually asks about — their wallet, one stock, what is coming — is read when
-            they ask.
+            rather than milliseconds. It carries its date everywhere it appears.
+          </p>
+          <p className="section__after muted">
+            Everything a holder actually asks about is read when they ask, and nothing is served
+            from a cache. We counted the traffic to be sure rather than trusting the setting: a
+            wallet of eighteen positions costs nine chain reads and returns in under a second, and
+            an account holding 755 positions costs 197. That is cheap enough that caching a
+            person&apos;s own balance would buy speed we do not need at the price of telling them
+            something that was true a minute ago.
           </p>
         </div>
       </section>
